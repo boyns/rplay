@@ -1,4 +1,4 @@
-# $Id: RPlay.pm,v 1.3 1999/03/12 18:51:45 boyns Exp $	-*-perl-*-
+# $Id: RPlay.pm,v 1.4 1999/06/10 05:39:06 boyns Exp $	-*-perl-*-
 #
 # Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
 #
@@ -182,7 +182,7 @@ sub doit
 	    elsif (/id/)
 	    {
 		$packet .= pack ("C", &main::RPLAY_ID);
-		$packet .= pack ("C", $attrs{$_});
+		$packet .= pack ("N", $attrs{$_});
 	    }
 	    elsif (/sequence/)
 	    {
