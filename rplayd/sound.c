@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.7 1998/11/06 15:16:50 boyns Exp $ */
+/* $Id: sound.c,v 1.8 1998/11/07 21:15:40 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -79,40 +79,40 @@ static regex_t bad_dirs;
 
 /* Prepare `bad_dirs'.  */
 static void
-bad_dirs_init ()
+bad_dirs_init()
 {
     static char *buf;
     char *p;
     char *dirs;
     int first, length;
 
-    dirs = strdup (BAD_DIRS);	/* XXX */
+    dirs = strdup(BAD_DIRS);	/* XXX */
 
-    length = strlen ("^\\(") + strlen ("\\)") + strlen (dirs) + 1;
+    length = strlen("^\\(") + strlen("\\)") + strlen(dirs) + 1;
 
     //length += strlen ("^");
     for (p = dirs; *p; p++)
     {
 	if (*p == ':')
 	{
-	    length += strlen ("\\|") - strlen (":");
+	    length += strlen("\\|") - strlen(":");
 	}
     }
 
     if (buf)
     {
-	free (buf);
+	free(buf);
     }
-    buf = (char *) malloc (length);
+    buf = (char *) malloc(length);
     if (buf == NULL)
     {
-	report (REPORT_ERROR, "bad_dir_init: out of memory\n");
-	done (1);
+	report(REPORT_ERROR, "bad_dir_init: out of memory\n");
+	done(1);
     }
 
     first = 1;
-    strcpy (buf, "^\\(");
-    while (p = (char *) strtok (first ? dirs : 0, ":"))
+    strcpy(buf, "^\\(");
+    while (p = (char *) strtok(first ? dirs : 0, ":"))
     {
 	if (first)
 	{
@@ -122,72 +122,72 @@ bad_dirs_init ()
 	else
 	{
 	    //strcat (buf, "\\|^");
-	    strcat (buf, "\\|");
+	    strcat(buf, "\\|");
 	}
-	strcat (buf, p);
+	strcat(buf, p);
     }
-    strcat (buf, "\\)");
+    strcat(buf, "\\)");
 
 #if 0
-    report (REPORT_DEBUG, "bad_dirs=%s, strlen=%d, length=%d\n",
-	buf, strlen (buf), length);
+    report(REPORT_DEBUG, "bad_dirs=%s, strlen=%d, length=%d\n",
+	   buf, strlen(buf), length);
 #endif
 
     //memset ((char *) &bad_dirs, 0, sizeof (bad_dirs));
 
-    if (regncomp (&bad_dirs, buf, strlen (buf), REG_ICASE | REG_NOSUB))
+    if (regncomp(&bad_dirs, buf, strlen(buf), REG_ICASE | REG_NOSUB))
     {
-	report (REPORT_ERROR, "bad_dirs: regncomp failed\n");
-	done (1);
+	report(REPORT_ERROR, "bad_dirs: regncomp failed\n");
+	done(1);
     }
 
-    free (dirs);
+    free(dirs);
 }
 
 #ifdef __STDC__
 static int
-bad_dir (char *dir)
+bad_dir(char *dir)
 #else
 static int
-bad_dir (dir)
+bad_dir(dir)
     char *dir;
 #endif
 {
     /* return 1 if bad */
-    return regnexec (&bad_dirs, dir, strlen (dir), 0, 0, 0) ? 0 : 1;
+    return regnexec(&bad_dirs, dir, strlen(dir), 0, 0, 0) ? 0 : 1;
 }
 
 #endif /* BAD_DIRS */
 
 #ifdef __STDC__
 void
-sound_read_directory (char *dirname)
+sound_read_directory(char *dirname)
 #else
 void
-sound_read_directory (dirname)
+sound_read_directory(dirname)
     char *dirname;
 #endif
 {
     char soundname[MAXPATHLEN];
     struct dirent *dp;
-    DIR *dir = opendir (dirname);
+    DIR *dir = opendir(dirname);
     if (dir == NULL)
     {
-	report (REPORT_ERROR, "opendir %s: %s", sys_err_str (errno));
+	report(REPORT_ERROR, "opendir %s: %s", sys_err_str(errno));
 	return;
     }
 
-    while ((dp = readdir (dir)) != NULL)
+    while ((dp = readdir(dir)) != NULL)
     {
-	if (strcmp (dp->d_name, ".") == 0 || strcmp (dp->d_name, "..") == 0)
+	if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
 	{
 	    continue;
 	}
-	sprintf (soundname, "%s/%s", dirname, dp->d_name);
-	sound_insert (soundname, SOUND_READY, SOUND_FILE);
+	sprintf(soundname, "%s/%s", dirname, dp->d_name);
+	sound_insert(soundname, SOUND_READY, SOUND_FILE);
     }
 
-    closedir (dir);
+    closedir(dir);
 }
 
 
@@ -196,10 +196,10 @@ sound_read_directory (dirname)
  */
 #ifdef __STDC__
 void
-sound_read (char *filename)
+sound_read(char *filename)
 #else
 void
-sound_read (filename)
+sound_read(filename)
     char *filename;
 #endif
 {
@@ -207,10 +207,10 @@ sound_read (filename)
     char buf[MAXPATHLEN], *p;
     struct stat st;
 
-    xhash_init (MAX_SOUNDS);
+    xhash_init(MAX_SOUNDS);
 
 #ifdef BAD_DIRS
-    bad_dirs_init ();
+    bad_dirs_init();
 #endif
 
 #ifdef HAVE_CDROM
@@ -219,24 +219,24 @@ sound_read (filename)
 	int i;
 	for (i = 0; i < MAX_CDROMS; i++)
 	{
-	    sound_insert (cdrom_table[i].name, SOUND_READY, SOUND_CDROM);
+	    sound_insert(cdrom_table[i].name, SOUND_READY, SOUND_CDROM);
 	}
     }
-#endif /* HAVE_CDROM */	
+#endif /* HAVE_CDROM */
 
-    sound_read_time = time (0);
+    sound_read_time = time(0);
 
-    fp = fopen (filename, "r");
+    fp = fopen(filename, "r");
     if (fp == NULL)
     {
-	report (REPORT_NOTICE, "warning: cannot open %s\n", filename);
+	report(REPORT_NOTICE, "warning: cannot open %s\n", filename);
 	/*
 	 * no local sounds
 	 */
 	return;
     }
 
-    while (fgets (buf, sizeof (buf), fp) != NULL)
+    while (fgets(buf, sizeof(buf), fp) != NULL)
     {
 	switch (buf[0])
 	{
@@ -246,45 +246,45 @@ sound_read (filename)
 	case '\n':
 	    continue;
 	}
-	p = strchr (buf, '\n');
+	p = strchr(buf, '\n');
 	if (p)
 	{
 	    *p = '\0';
 	}
 
-	if (stat (buf, &st) < 0)
+	if (stat(buf, &st) < 0)
 	{
-	    report (REPORT_ERROR, "sound_read: %s: %s\n", buf, sys_err_str (errno));
+	    report(REPORT_ERROR, "sound_read: %s: %s\n", buf, sys_err_str(errno));
 	    continue;
 	}
-	
-	if (S_ISDIR (st.st_mode))
+
+	if (S_ISDIR(st.st_mode))
 	{
-	    sound_read_directory (buf);
+	    sound_read_directory(buf);
 	}
 	else
 	{
-	    sound_insert (buf, SOUND_READY, SOUND_FILE);
+	    sound_insert(buf, SOUND_READY, SOUND_FILE);
 	}
     }
 
-    fclose (fp);
+    fclose(fp);
 }
 
 #ifdef __STDC__
 static char *
-destroy (char *hash_string, char *hash_value)
+destroy(char *hash_string, char *hash_value)
 #else
 static char *
-destroy (hash_string, hash_value)
+destroy(hash_string, hash_value)
     char *hash_string;
     char *hash_value;
 #endif
 {
     SOUND *s = (SOUND *) hash_value;
 
-    sound_free (s);
-    free ((char *) s);
+    sound_free(s);
+    free((char *) s);
 
     return NULL;
 }
@@ -294,16 +294,16 @@ destroy (hash_string, hash_value)
  */
 #ifdef __STDC__
 void
-sound_reread (char *filename)
+sound_reread(char *filename)
 #else
 void
-sound_reread (filename)
+sound_reread(filename)
     char *filename;
 #endif
 {
     SOUND *s1, *s1_next, *s2, *s2_next;
 
-    report (REPORT_DEBUG, "re-reading sounds\n");
+    report(REPORT_DEBUG, "re-reading sounds\n");
 
     /*
      * Delete all the sounds.
@@ -316,16 +316,16 @@ sound_reread (filename)
 	{
 	    s2_next = s2->next;
 	    /* xhash_delete(s2->hash_key); */
-	    sound_free (s2);
-	    free ((char *) s2);
+	    sound_free(s2);
+	    free((char *) s2);
 	}
     }
 #else
-    xhash_apply (destroy);
+    xhash_apply(destroy);
 #endif
 
-    xhash_die ();
-    xhash_init (MAX_SOUNDS);
+    xhash_die();
+    xhash_init(MAX_SOUNDS);
 
     sounds = NULL;
     sound_count = 0;
@@ -333,41 +333,41 @@ sound_reread (filename)
     /*
      * and now load the sounds
      */
-    sound_read (filename);
+    sound_read(filename);
 
     /*
      * don't forget the cache...
      */
-    cache_read ();
+    cache_read();
 }
 
 #ifdef __STDC__
 void
-sound_stat (char *filename)
+sound_stat(char *filename)
 #else
 void
-sound_stat (filename)
+sound_stat(filename)
     char *filename;
 #endif
 {
-    if (modified (filename, sound_read_time))
+    if (modified(filename, sound_read_time))
     {
-	sound_reread (filename);
+	sound_reread(filename);
     }
 }
 
 BUFFER *
-sound_list_create ()
+sound_list_create()
 {
     SOUND *s;
     int n;
     BUFFER *start, *b;
     char line[RPTP_MAX_LINE];
 
-    b = buffer_create ();
+    b = buffer_create();
     start = b;
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), "+message=\"sounds\"\r\n");
-    b->nbytes += strlen (b->buf);
+    SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), "+message=\"sounds\"\r\n");
+    b->nbytes += strlen(b->buf);
 
     for (s = sounds; s; s = s->list)
     {
@@ -378,33 +378,33 @@ sound_list_create ()
 
 	if (s->mapped)
 	{
-	    SNPRINTF (SIZE(line,sizeof(line)), "\
+	    SNPRINTF(SIZE(line, sizeof(line)), "\
 sound=\"%s\" size=%d bits=%g sample_rate=%d channels=%d samples=%d\r\n",
-		s->name, s->size, s->input_precision, s->sample_rate, s->channels,
-		s->samples);
+		     s->name, s->size, s->input_precision, s->sample_rate, s->channels,
+		     s->samples);
 	}
 	else
 	{
-	    SNPRINTF (SIZE(line,sizeof(line)), "sound=\"%s\"\r\n", s->name);
+	    SNPRINTF(SIZE(line, sizeof(line)), "sound=\"%s\"\r\n", s->name);
 	}
 
-	n = strlen (line);
+	n = strlen(line);
 	if (b->nbytes + n > BUFFER_SIZE)
 	{
-	    b->next = buffer_create ();
+	    b->next = buffer_create();
 	    b = b->next;
 	}
-	strncat(b->buf+b->nbytes, line, BUFFER_SIZE - b->nbytes);
+	strncat(b->buf + b->nbytes, line, BUFFER_SIZE - b->nbytes);
 	b->nbytes += n;
     }
 
     if (b->nbytes + 3 > BUFFER_SIZE)
     {
-	b->next = buffer_create ();
+	b->next = buffer_create();
 	b = b->next;
     }
 
-    SNPRINTF (SIZE(b->buf+b->nbytes, BUFFER_SIZE-b->nbytes), ".\r\n");
+    SNPRINTF(SIZE(b->buf + b->nbytes, BUFFER_SIZE - b->nbytes), ".\r\n");
     b->nbytes += 3;
 
     return start;
@@ -412,10 +412,10 @@ sound=\"%s\" size=%d bits=%g sample_rate=%d channels=%d samples=%d\r\n",
 
 #ifdef __STDC__
 SOUND *
-sound_insert (char *path, int status, int type)
+sound_insert(char *path, int status, int type)
 #else
 SOUND *
-sound_insert (path, status, type)
+sound_insert(path, status, type)
     char *path;
     int status;
     int type;
@@ -425,41 +425,41 @@ sound_insert (path, status, type)
     char *hash_val;
 
 #ifdef BAD_DIRS
-    if (bad_dir (path))
+    if (bad_dir(path))
     {
-	report (REPORT_NOTICE, "bad_dir: attempt to load %s\n", path);
+	report(REPORT_NOTICE, "bad_dir: attempt to load %s\n", path);
 	return NULL;
     }
 #endif
 
-    s = sound_create ();
+    s = sound_create();
     if (s == NULL)
     {
-	report (REPORT_ERROR, "sound_insert: out of memory\n");
-	done (1);
+	report(REPORT_ERROR, "sound_insert: out of memory\n");
+	done(1);
     }
 
     s->type = type;
 
-    s->path = strdup (path);
+    s->path = strdup(path);
     if (s->path == NULL)
     {
-	report (REPORT_ERROR, "sound_insert: out of memory\n");
-	done (1);
+	report(REPORT_ERROR, "sound_insert: out of memory\n");
+	done(1);
     }
-    s->hash_key = strdup (xhash_name (s->path));
+    s->hash_key = strdup(xhash_name(s->path));
     if (s->hash_key == NULL)
     {
-	report (REPORT_ERROR, "sound_insert: out of memory\n");
-	done (1);
+	report(REPORT_ERROR, "sound_insert: out of memory\n");
+	done(1);
     }
-    s->name = s->path[0] == '/' ? strrchr (s->path, '/') + 1 : s->path;
+    s->name = s->path[0] == '/' ? strrchr(s->path, '/') + 1 : s->path;
     s->status = status;
 
-    hash_val = xhash_get (s->hash_key);
+    hash_val = xhash_get(s->hash_key);
     if (hash_val == NULL)
     {
-	xhash_put (s->hash_key, (char *) s);
+	xhash_put(s->hash_key, (char *) s);
 
 	s->list_prev = NULL;
 	s->list = sounds;
@@ -475,9 +475,9 @@ sound_insert (path, status, type)
 
 	for (ss = (SOUND *) hash_val; ss; prev = ss, ss = ss->next)
 	{
-	    if (strcmp (ss->path, s->path) == 0)
+	    if (strcmp(ss->path, s->path) == 0)
 	    {
-		free ((char *) s);
+		free((char *) s);
 		return ss;
 	    }
 	}
@@ -493,15 +493,15 @@ sound_insert (path, status, type)
  */
 #ifdef __STDC__
 SOUND *
-sound_create (void)
+sound_create(void)
 #else
 SOUND *
-sound_create ()
+sound_create()
 #endif
 {
     SOUND *s;
 
-    s = (SOUND *) malloc (sizeof (SOUND));
+    s = (SOUND *) malloc(sizeof(SOUND));
     if (s == NULL)
     {
 	return s;
@@ -551,10 +551,10 @@ sound_create ()
  */
 #ifdef __STDC__
 SOUND *
-sound_lookup (char *name, int mode, SERVER *lookup_server)
+sound_lookup(char *name, int mode, SERVER *lookup_server)
 #else
 SOUND *
-sound_lookup (name, mode, lookup_server)
+sound_lookup(name, mode, lookup_server)
     char *name;
     int mode;
     SERVER *lookup_server;
@@ -564,30 +564,30 @@ sound_lookup (name, mode, lookup_server)
     int has_extension = 0, has_pathname = 0;
     struct stat st;
     int i;
-    
+
 #ifdef HAVE_CDROM
     /* Map sounds with cdrom prefixes to the cdrom itself. */
     for (i = 0; i < MAX_CDROMS; i++)
     {
-	if (strncmp (name, cdrom_table[i].name, strlen (cdrom_table[i].name)) == 0)
+	if (strncmp(name, cdrom_table[i].name, strlen(cdrom_table[i].name)) == 0)
 	{
 	    break;
 	}
     }
     if (i < MAX_CDROMS)
     {
-	s = (SOUND *) xhash_get (xhash_name (cdrom_table[i].name));
+	s = (SOUND *) xhash_get(xhash_name(cdrom_table[i].name));
     }
 #endif /* HAVE_CDROM */
 
     if (s == NULL)
     {
-	s = (SOUND *) xhash_get (xhash_name (name));
+	s = (SOUND *) xhash_get(xhash_name(name));
     }
 
     if (s == NULL)
     {
-	report (REPORT_DEBUG, "%s not in hash table\n", name);
+	report(REPORT_DEBUG, "%s not in hash table\n", name);
 
 	if (mode == SOUND_DONT_FIND || mode == SOUND_DONT_COUNT)
 	{
@@ -597,10 +597,10 @@ sound_lookup (name, mode, lookup_server)
 	/*
 	 * see if a local file can be loaded (mode == SOUND_LOAD)
 	 */
-	if (stat (name, &st) == 0)
+	if (stat(name, &st) == 0)
 	{
-	    report (REPORT_DEBUG, "loading local file %s\n", name);
-	    s = sound_insert (name, SOUND_READY, SOUND_FILE);
+	    report(REPORT_DEBUG, "loading local file %s\n", name);
+	    s = sound_insert(name, SOUND_READY, SOUND_FILE);
 	    if (s == NULL)
 	    {
 		return NULL;
@@ -608,39 +608,39 @@ sound_lookup (name, mode, lookup_server)
 	}
 #if 0
 	/* virtual sounds cause searching problems */
-#ifdef HAVE_HELPERS	
-	else if (mode == SOUND_CREATE && helper_lookup (name))
+#ifdef HAVE_HELPERS
+	else if (mode == SOUND_CREATE && helper_lookup(name))
 	{
-	    s = sound_insert (name, SOUND_READY, SOUND_VIRTUAL);
+	    s = sound_insert(name, SOUND_READY, SOUND_VIRTUAL);
 	}
 #endif
-#endif	
+#endif
 	else if (mode == SOUND_FIND)
 	{
 	    if (name[0] == '/')
 	    {
-		report (REPORT_DEBUG, "not searching for %s\n", name);
+		report(REPORT_DEBUG, "not searching for %s\n", name);
 		return NULL;
 	    }
 	    if (lookup_server)
 	    {
-		report (REPORT_DEBUG, "searching for %s\n", name);
-		s = sound_insert (cache_name (name), SOUND_SEARCH, SOUND_FILE);
+		report(REPORT_DEBUG, "searching for %s\n", name);
+		s = sound_insert(cache_name(name), SOUND_SEARCH, SOUND_FILE);
 		if (s == NULL)
 		{
 		    return NULL;
 		}
-		connection_server_open (lookup_server, s);
+		connection_server_open(lookup_server, s);
 	    }
 	    else if (servers)
 	    {
-		report (REPORT_DEBUG, "searching for %s\n", name);
-		s = sound_insert (cache_name (name), SOUND_SEARCH, SOUND_FILE);
+		report(REPORT_DEBUG, "searching for %s\n", name);
+		s = sound_insert(cache_name(name), SOUND_SEARCH, SOUND_FILE);
 		if (s == NULL)
 		{
 		    return NULL;
 		}
-		connection_server_open (servers, s);
+		connection_server_open(servers, s);
 	    }
 	    else
 	    {
@@ -662,17 +662,17 @@ sound_lookup (name, mode, lookup_server)
 	{
 	    has_pathname++;
 	}
-	else if (strrchr (name, '.'))
+	else if (strrchr(name, '.'))
 	{
 	    has_extension++;
 	}
 	for (; s; s = s->next)
 	{
-	    if (has_pathname && (!s->path || strcmp (name, s->path) != 0))
+	    if (has_pathname && (!s->path || strcmp(name, s->path) != 0))
 	    {
 		continue;
 	    }
-	    if (has_extension && (!s->path || strcmp (name, s->name) != 0))
+	    if (has_extension && (!s->path || strcmp(name, s->name) != 0))
 	    {
 		continue;
 	    }
@@ -682,11 +682,11 @@ sound_lookup (name, mode, lookup_server)
 	{
 	    if (has_pathname)
 	    {
-		report (REPORT_DEBUG, "`%s' file name not in hash table\n", name);
-		if (stat (name, &st) == 0)
+		report(REPORT_DEBUG, "`%s' file name not in hash table\n", name);
+		if (stat(name, &st) == 0)
 		{
-		    report (REPORT_DEBUG, "loading local file `%s'\n", name);
-		    s = sound_insert (name, SOUND_READY, SOUND_FILE);
+		    report(REPORT_DEBUG, "loading local file `%s'\n", name);
+		    s = sound_insert(name, SOUND_READY, SOUND_FILE);
 		    if (s == NULL)
 		    {
 			return NULL;
@@ -699,7 +699,7 @@ sound_lookup (name, mode, lookup_server)
 	    }
 	    else if (has_extension)
 	    {
-		report (REPORT_DEBUG, "`%s' extension not in hash table\n", name);
+		report(REPORT_DEBUG, "`%s' extension not in hash table\n", name);
 		return NULL;
 	    }
 	}
@@ -724,7 +724,7 @@ sound_lookup (name, mode, lookup_server)
 
     if (!s->mapped)
     {
-	return sound_map (s) == 0 ? s : NULL;
+	return sound_map(s) == 0 ? s : NULL;
     }
     else
     {
@@ -737,10 +737,10 @@ sound_lookup (name, mode, lookup_server)
  */
 #ifdef __STDC__
 int
-sound_map (SOUND *s)
+sound_map(SOUND *s)
 #else
 int
-sound_map (s)
+sound_map(s)
     SOUND *s;
 #endif
 {
@@ -777,23 +777,23 @@ sound_map (s)
     optional_storage = s->storage;
 
 #ifdef HAVE_HELPERS
-    helper = helper_lookup (s->path);
+    helper = helper_lookup(s->path);
     if (helper)
     {
 	s->needs_helper++;
-	strcpy (buf, "HELPER"); /* XXX: not used; see below */
+	strcpy(buf, "HELPER");	/* XXX: not used; see below */
     }
     else
 #endif /* HAVE_HELPERS */
 #ifdef HAVE_CDROM
     if (s->type == SOUND_CDROM)
     {
-	strcpy (buf, "CDROM");
+	strcpy(buf, "CDROM");
     }
     else
 #endif /* HAVE_CDROM */
     {
-	si = sound_open (s, 1);
+	si = sound_open(s, 1);
 	if (si == NULL)
 	{
 	    return -1;
@@ -803,25 +803,25 @@ sound_map (s)
 	   sort of sound this is. */
 	storage = s->storage;
 	s->storage = SOUND_STORAGE_MEMORY;
-	b = buffer_alloc (SOUND_MAX_HEADER_SIZE, BUFFER_FREE);
-	n = sound_fill (si, b, 1);
+	b = buffer_alloc(SOUND_MAX_HEADER_SIZE, BUFFER_FREE);
+	n = sound_fill(si, b, 1);
 	s->storage = storage;
 	if (n <= 0)
 	{
-	    report (REPORT_DEBUG, "sound_map: sound_fill %d\n", n);
-	    buffer_dealloc (b, 1);
+	    report(REPORT_DEBUG, "sound_map: sound_fill %d\n", n);
+	    buffer_dealloc(b, 1);
 	    return -1;
 	}
 
-	sound_close (si);
+	sound_close(si);
 
 	/* Copy the buffer contents to `buf' so `b' can be destroyed. */
-	memcpy (buf, b->buf, MIN (sizeof (buf), b->nbytes));
-	buffer_dealloc (b, 1);
+	memcpy(buf, b->buf, MIN(sizeof(buf), b->nbytes));
+	buffer_dealloc(b, 1);
     }
 
     /* u-law */
-    if (strncmp (buf, ".snd", 4) == 0)
+    if (strncmp(buf, ".snd", 4) == 0)
     {
 	long ulaw_hdr_size;
 	int encoding;
@@ -830,11 +830,11 @@ sound_map (s)
 
 	p = buf + 4;
 
-	ulaw_hdr_size = big_long (p);
+	ulaw_hdr_size = big_long(p);
 	p += 4;
 	if (ulaw_hdr_size < ULAW_HDRSIZE)
 	{
-	    report (REPORT_DEBUG, "%s not a ulaw file\n", s->path);
+	    report(REPORT_DEBUG, "%s not a ulaw file\n", s->path);
 	    return -1;
 	}
 
@@ -842,10 +842,10 @@ sound_map (s)
 	 * The audio data size which may be ~0.
 	 * This value is ignored.
 	 */
-	data_size = big_long (p);
+	data_size = big_long(p);
 	p += 4;
 
-	encoding = big_long (p);
+	encoding = big_long(p);
 	p += 4;
 	switch (encoding)
 	{
@@ -867,29 +867,29 @@ sound_map (s)
 	    s->output_precision = 16;
 	    break;
 
-#ifdef HAVE_ADPCM	    
+#ifdef HAVE_ADPCM
 	case ULAW_G721:
 	    s->format = RPLAY_FORMAT_G721;
 	    s->input_precision = 4;
-	    s->output_precision = 16; /* uncompressed to 16-bit */
+	    s->output_precision = 16;	/* uncompressed to 16-bit */
 	    break;
 
 	case ULAW_G723_3:
 	    s->format = RPLAY_FORMAT_G723_3;
 	    s->input_precision = 3;
-	    s->output_precision = 16; /* uncompressed to 16-bit */
+	    s->output_precision = 16;	/* uncompressed to 16-bit */
 	    break;
 
 	case ULAW_G723_5:
 	    s->format = RPLAY_FORMAT_G723_5;
 	    s->input_precision = 5;
-	    s->output_precision = 16; /* uncompressed to 16-bit */
+	    s->output_precision = 16;	/* uncompressed to 16-bit */
 	    break;
 #endif /* HAVE_ADPCM */
-	    
+
 	default:
-	    report (REPORT_DEBUG, "%s: %d - unsupported ulaw encoding\n",
-		    s->path, encoding);
+	    report(REPORT_DEBUG, "%s: %d - unsupported ulaw encoding\n",
+		   s->path, encoding);
 	    return -1;
 	}
 
@@ -901,13 +901,13 @@ sound_map (s)
 	/*
 	 * Sample rate.
 	 */
-	s->sample_rate = big_long (p);
+	s->sample_rate = big_long(p);
 	p += 4;
 
 	/*
 	 * Number of channels.
 	 */
-	s->channels = big_long (p);
+	s->channels = big_long(p);
 	p += 4;
 
 	s->offset = ulaw_hdr_size;
@@ -922,7 +922,7 @@ sound_map (s)
 	}
     }
     /* aiff */
-    else if (strncmp (buf, "FORM", 4) == 0)
+    else if (strncmp(buf, "FORM", 4) == 0)
     {
 	unsigned long total_size;
 	unsigned long chunk_size;
@@ -937,10 +937,10 @@ sound_map (s)
 
 	p = buf + 4;
 
-	total_size = big_long (p);
+	total_size = big_long(p);
 	p += 4;
 
-	if (memcmp (p, "AIFF", 4) != 0)
+	if (memcmp(p, "AIFF", 4) != 0)
 	{
 	    return -1;
 	}
@@ -954,42 +954,42 @@ sound_map (s)
 	    /*
 	     * Chunk id.
 	     */
-	    memcpy (id, p, 4);
+	    memcpy(id, p, 4);
 	    id[4] = '\0';
 	    p += 4;
 
 	    /*
 	     * Chunk size.
 	     */
-	    chunk_size = big_long (p);
+	    chunk_size = big_long(p);
 	    p += 4;
 
 	    /*
 	     * COMM Chunk.
 	     */
-	    if (memcmp (id, "COMM", 4) == 0)
+	    if (memcmp(id, "COMM", 4) == 0)
 	    {
-		channels = big_short (p);
+		channels = big_short(p);
 		p += 2;
 
-		frames = big_long (p);
+		frames = big_long(p);
 		p += 4;
 
-		bits = big_short (p);
+		bits = big_short(p);
 		p += 2;
 
-		rate = ConvertFromIeeeExtended ((unsigned char *) p);
+		rate = ConvertFromIeeeExtended((unsigned char *) p);
 		p += 10;
 	    }
 	    /*
 	     * SSN Chunk.
 	     */
-	    else if (memcmp (id, "SSND", 4) == 0)
+	    else if (memcmp(id, "SSND", 4) == 0)
 	    {
-		offset = big_long (p);
+		offset = big_long(p);
 		p += 4;
 
-		block_size = big_long (p);
+		block_size = big_long(p);
 		sound_chunk_size = block_size;
 		p += 4;
 		break;
@@ -1020,7 +1020,7 @@ sound_map (s)
 	s->output_precision = bits;
 	s->channels = channels;
 
-	switch ((int)s->input_precision)
+	switch ((int) s->input_precision)
 	{
 	case 8:
 	    s->format = RPLAY_FORMAT_LINEAR_8;
@@ -1031,17 +1031,17 @@ sound_map (s)
 	    break;
 
 	default:
-	    report (REPORT_ERROR, "unsupported aiff precision `%g'\n",
-		    s->input_precision);
+	    report(REPORT_ERROR, "unsupported aiff precision `%g'\n",
+		   s->input_precision);
 	    return -1;
 	}
     }
     /* deadsnd files */
-    else if (*((long *)&buf) == 0x4a02b6d2)
+    else if (*((long *) &buf) == 0x4a02b6d2)
     {
-	DSID *dsid = (DSID *)&buf;
+	DSID *dsid = (DSID *) & buf;
 
-	s->offset = sizeof (DSID);
+	s->offset = sizeof(DSID);
 	s->sample_rate = dsid->freq;
 	s->input_precision = s->output_precision = dsid->bps;
 	s->channels = (dsid->mode + 1);
@@ -1052,18 +1052,18 @@ sound_map (s)
 	case 8:
 	    s->format = RPLAY_FORMAT_ULINEAR_8;
 	    break;
-	    
+
 	case 16:
 	    s->format = RPLAY_FORMAT_LINEAR_16;
 	    break;
-	    
+
 	default:
-	    report (REPORT_ERROR, "unsupported deadsnd precision `%d'\n", dsid->bps);
+	    report(REPORT_ERROR, "unsupported deadsnd precision `%d'\n", dsid->bps);
 	    return -1;
 	}
     }
     /* wave */
-    else if (strncmp (buf, "RIFF", 4) == 0)
+    else if (strncmp(buf, "RIFF", 4) == 0)
     {
 	unsigned long chunk_size;
 	short chunk_type;
@@ -1076,9 +1076,9 @@ sound_map (s)
 	p = buf + 4;
 	p += 4;
 
-	if (memcmp (p, "WAVE", 4) != 0)
+	if (memcmp(p, "WAVE", 4) != 0)
 	{
-	    report (REPORT_ERROR, "wave file missing `WAVE' header\n");
+	    report(REPORT_ERROR, "wave file missing `WAVE' header\n");
 	    return -1;
 	}
 	p += 4;
@@ -1091,38 +1091,41 @@ sound_map (s)
 	    /*
 	     * Chunk id.
 	     */
-	    memcpy (id, p, 4);
+	    memcpy(id, p, 4);
 	    id[4] = '\0';
 	    p += 4;
 
 	    /*
 	     * Chunk size.
 	     */
-	    chunk_size = little_long (p);
+	    chunk_size = little_long(p);
 	    p += 4;
 
 	    /*
 	     * 'fmt ' Chunk.
 	     */
-	    if (memcmp (id, "fmt ", 4) == 0)
+	    if (memcmp(id, "fmt ", 4) == 0)
 	    {
 		char *start_of_chunk = p;
-		chunk_type = little_short (p);
+		chunk_type = little_short(p);
 		p += 2;
 		/*
 		 * Only one wave format is supported.
 		 */
 		if (chunk_type == 0x0001)
 		{
-		    channels = little_short (p); p += 2;
-		    rate = little_long (p); p += 4;
-		    p += 4;		/* bytes/second ? */
-		    p += 2;		/* block align ? */
-		    bits = little_short (p); p += 2;
+		    channels = little_short(p);
+		    p += 2;
+		    rate = little_long(p);
+		    p += 4;
+		    p += 4;	/* bytes/second ? */
+		    p += 2;	/* block align ? */
+		    bits = little_short(p);
+		    p += 2;
 		}
 		else
 		{
-		    report (REPORT_ERROR, "unknown wave chunk `%x'\n", chunk_type);
+		    report(REPORT_ERROR, "unknown wave chunk `%x'\n", chunk_type);
 		    return -1;
 		}
 		p = start_of_chunk + chunk_size;
@@ -1130,7 +1133,7 @@ sound_map (s)
 	    /*
 	     * data Chunk.
 	     */
-	    else if (memcmp (id, "data", 4) == 0)
+	    else if (memcmp(id, "data", 4) == 0)
 	    {
 		/* size */
 		sound_chunk_size = chunk_size;
@@ -1141,8 +1144,8 @@ sound_map (s)
 	     */
 	    else
 	    {
-		report (REPORT_DEBUG, "ignoring chunk - %s (%d)\n",
-			id, chunk_size);
+		report(REPORT_DEBUG, "ignoring chunk - %s (%d)\n",
+		       id, chunk_size);
 		p += chunk_size;
 		/*
 		 * skip the pad byte, if necessary
@@ -1158,7 +1161,7 @@ sound_map (s)
 	s->output_precision = bits;
 	s->channels = channels;
 
-	switch ((int)s->input_precision)
+	switch ((int) s->input_precision)
 	{
 	case 8:
 	    s->format = RPLAY_FORMAT_ULINEAR_8;
@@ -1169,8 +1172,8 @@ sound_map (s)
 	    break;
 
 	default:
-	    report (REPORT_ERROR, "unsupported wave precision `%g'\n",
-		s->input_precision);
+	    report(REPORT_ERROR, "unsupported wave precision `%g'\n",
+		   s->input_precision);
 	    return -1;
 	}
 
@@ -1180,7 +1183,7 @@ sound_map (s)
 	s->byte_order = RPLAY_LITTLE_ENDIAN;
     }
     /* voc */
-    else if (strncmp (buf, "Creative Voice File\032", 20) == 0)
+    else if (strncmp(buf, "Creative Voice File\032", 20) == 0)
     {
 	char *p;
 	short header_size;
@@ -1189,11 +1192,11 @@ sound_map (s)
 
 	p = buf + 20;
 
-	header_size = little_short (p);		/* sizeof header */
+	header_size = little_short(p);	/* sizeof header */
 	p += 2;
 
 	/* major/minor version + checksum of version */
-	p += 2 * sizeof (short);
+	p += 2 * sizeof(short);
 
 	for (;;)
 	{
@@ -1220,11 +1223,11 @@ sound_map (s)
 		s->channels = 1;
 		break;
 	    }
-	    else if (block_id == 9) /* VOC_DATA_16 */
+	    else if (block_id == 9)	/* VOC_DATA_16 */
 	    {
 		//sound_chunk_size = block_length;
 
-		s->sample_rate = little_long (p);
+		s->sample_rate = little_long(p);
 		p += 4;
 
 		switch (*p)
@@ -1233,28 +1236,28 @@ sound_map (s)
 		    s->input_precision = 8;
 		    s->output_precision = 8;
 		    break;
-		    
+
 		case 16:
 		    s->input_precision = 16;
 		    s->output_precision = 16;
 		    break;
 
 		default:
-		    report (REPORT_ERROR, "unsupported voc_data_16 precision `%d'\n",
-			    *p);
+		    report(REPORT_ERROR, "unsupported voc_data_16 precision `%d'\n",
+			   *p);
 		    return -1;
 		}
 		*p++;
-		
+
 		s->channels = *p++;
-		
-		p++; /* unknown */
-		p++; /* not used */
-		p++; /* not used */
-		p++; /* not used */
-		p++; /* not used */
-		p++; /* not used */
-		
+
+		p++;		/* unknown */
+		p++;		/* not used */
+		p++;		/* not used */
+		p++;		/* not used */
+		p++;		/* not used */
+		p++;		/* not used */
+
 		break;
 	    }
 
@@ -1264,7 +1267,7 @@ sound_map (s)
 	s->offset = p - buf;
 	s->byte_order = RPLAY_LITTLE_ENDIAN;
 
-	switch ((int)s->input_precision)
+	switch ((int) s->input_precision)
 	{
 	case 8:
 	    s->format = RPLAY_FORMAT_ULINEAR_8;
@@ -1275,8 +1278,8 @@ sound_map (s)
 	    break;
 
 	default:
-	    report (REPORT_ERROR, "unsupported voc precision `%d'\n",
-		    s->input_precision);
+	    report(REPORT_ERROR, "unsupported voc precision `%d'\n",
+		   s->input_precision);
 	    return -1;
 	}
     }
@@ -1286,7 +1289,7 @@ sound_map (s)
     {
 	s->offset = 0;
 	s->format = RPLAY_FORMAT_GSM;
-	s->byte_order = RPLAY_BIG_ENDIAN; /* ??? */
+	s->byte_order = RPLAY_BIG_ENDIAN;	/* ??? */
 	s->sample_rate = 8000;
 	s->input_precision = 1.65;
 	s->output_precision = 16;
@@ -1294,7 +1297,7 @@ sound_map (s)
     }
 #endif /* HAVE_GSM */
 #ifdef HAVE_CDROM
-    else if (strcmp (buf, "CDROM") == 0)
+    else if (strcmp(buf, "CDROM") == 0)
     {
 	s->offset = 0;
 	s->format = RPLAY_FORMAT_LINEAR_16;
@@ -1305,15 +1308,15 @@ sound_map (s)
 	s->channels = 2;
 	s->storage = SOUND_STORAGE_NONE;
     }
-#endif /* HAVE_CDROM */    
+#endif /* HAVE_CDROM */
     /* Unknown audio header -- try to use the extension. */
     else
     {
 	char *p;
 
-	report (REPORT_DEBUG, "%s missing sound header; trying helper or extension\n", s->path);
-	p = strrchr (s->path, '.');
-#ifdef HAVE_HELPERS	
+	report(REPORT_DEBUG, "%s missing sound header; trying helper or extension\n", s->path);
+	p = strrchr(s->path, '.');
+#ifdef HAVE_HELPERS
 	if (s->needs_helper)
 	{
 	    s->offset = 0;
@@ -1326,10 +1329,10 @@ sound_map (s)
 	    s->storage = SOUND_STORAGE_NONE;
 	}
 	else
-#endif	
-	if (p && strcmp (p, ".ub") == 0)
+#endif
+	if (p && strcmp(p, ".ub") == 0)
 	{
-	    report (REPORT_DEBUG, "%s assuming ub\n", s->path);
+	    report(REPORT_DEBUG, "%s assuming ub\n", s->path);
 	    s->offset = 0;
 	    s->format = RPLAY_FORMAT_ULINEAR_8;
 	    s->byte_order = RPLAY_BIG_ENDIAN;
@@ -1338,9 +1341,9 @@ sound_map (s)
 	    s->output_precision = 8;
 	    s->channels = 1;
 	}
-	else if (p && (strcmp (p, ".au") == 0 || strcmp (p, ".ul") == 0))
+	else if (p && (strcmp(p, ".au") == 0 || strcmp(p, ".ul") == 0))
 	{
-	    report (REPORT_DEBUG, "%s assuming ulaw\n", s->path);
+	    report(REPORT_DEBUG, "%s assuming ulaw\n", s->path);
 	    s->offset = 0;
 	    s->format = RPLAY_FORMAT_ULAW;
 	    s->byte_order = RPLAY_BIG_ENDIAN;
@@ -1349,13 +1352,13 @@ sound_map (s)
 	    s->output_precision = 8;
 	    s->channels = 1;
 	}
-#ifdef HAVE_GSM	
-	else if (p && (strcmp (p, ".gsm") == 0 || strcmp (p, ".GSM") == 0))
+#ifdef HAVE_GSM
+	else if (p && (strcmp(p, ".gsm") == 0 || strcmp(p, ".GSM") == 0))
 	{
-	    report (REPORT_DEBUG, "%s assuming gsm\n", s->path);
+	    report(REPORT_DEBUG, "%s assuming gsm\n", s->path);
 	    s->offset = 0;
 	    s->format = RPLAY_FORMAT_GSM;
-	    s->byte_order = RPLAY_BIG_ENDIAN; /* ??? */
+	    s->byte_order = RPLAY_BIG_ENDIAN;	/* ??? */
 	    s->sample_rate = 8000;
 	    s->input_precision = 1.65;
 	    s->output_precision = 16;
@@ -1368,7 +1371,7 @@ sound_map (s)
 		 && !optional_input_precision
 		 && !optional_channels)
 	{
-	    report (REPORT_ERROR, "`%s' unknown audio file\n", s->path);
+	    report(REPORT_ERROR, "`%s' unknown audio file\n", s->path);
 	    return -1;
 	}
     }
@@ -1393,7 +1396,7 @@ sound_map (s)
     switch (s->format)
     {
 #ifdef HAVE_ADPCM
-    /* G.72X files *must* have 16-bit output. */
+	/* G.72X files *must* have 16-bit output. */
     case RPLAY_FORMAT_G721:
     case RPLAY_FORMAT_G723_3:
     case RPLAY_FORMAT_G723_5:
@@ -1402,7 +1405,7 @@ sound_map (s)
 #endif /* HAVE_ADPCM */
 
 #ifdef HAVE_GSM
-    /* Fix-up GSM info. */
+	/* Fix-up GSM info. */
     case RPLAY_FORMAT_GSM:
 	s->output_precision = 16;
 	s->input_precision = 1.65;
@@ -1411,7 +1414,7 @@ sound_map (s)
 	s->offset = 0;
 	break;
 #endif /* HAVE_GSM */
-	
+
     default:
 	break;
     }
@@ -1419,7 +1422,7 @@ sound_map (s)
     if (!s->format || !s->byte_order || !s->sample_rate
 	|| !s->input_precision || !s->output_precision || !s->channels)
     {
-	report (REPORT_ERROR, "`%s' invalid audio parameters\n", s->path);
+	report(REPORT_ERROR, "`%s' invalid audio parameters\n", s->path);
 	return -1;
     }
 
@@ -1432,7 +1435,7 @@ sound_map (s)
     if (sound_chunk_size > 0)
     {
 	/* Make sure sound_chunk_size is valid */
-	if (s->size == 0 || sound_chunk_size < s->size) /* size==0 for flows */
+	if (s->size == 0 || sound_chunk_size < s->size)		/* size==0 for flows */
 	{
 	    s->chunk_size = sound_chunk_size;
 	}
@@ -1450,10 +1453,10 @@ sound_map (s)
 	s->chunk_size = s->size - s->offset;
     }
 
-#if 0    
-    printf ("SOUND: %s size=%d chunk=%d tail=%d offset=%d\n",
-	    s->name, s->size, s->chunk_size, s->tail, s->offset);
-#endif    
+#if 0
+    printf("SOUND: %s size=%d chunk=%d tail=%d offset=%d\n",
+	   s->name, s->size, s->chunk_size, s->tail, s->offset);
+#endif
 
     if (s->type != SOUND_FILE)
     {
@@ -1467,24 +1470,25 @@ sound_map (s)
 	s->size = 0;
 	s->samples = 0;
     }
-#endif    
+#endif
     else
     {
-	s->samples = number_of_samples (s, 0); // NUMBER_OF_SAMPLES (s);
+	s->samples = number_of_samples(s, 0);	// NUMBER_OF_SAMPLES (s);
+
     }
 
     s->mapped = 1;
 
-    report (REPORT_DEBUG, "\
+    report(REPORT_DEBUG, "\
 %s input=%s bits=%g sample-rate=%d channels=%d samples=%d format=%s byte-order=%s\n",
-	    s->name,
-	    input_to_string (s->type),
-	    s->input_precision,
-	    s->sample_rate,
-	    s->channels,
-	    s->samples,
-	    audio_format_to_string (s->format),
-	    byte_order_to_string (s->byte_order));
+	   s->name,
+	   input_to_string(s->type),
+	   s->input_precision,
+	   s->sample_rate,
+	   s->channels,
+	   s->samples,
+	   audio_format_to_string(s->format),
+	   byte_order_to_string(s->byte_order));
 
     return 0;
 }
@@ -1494,10 +1498,10 @@ sound_map (s)
  */
 #ifdef __STDC__
 int
-sound_unmap (SOUND *s)
+sound_unmap(SOUND *s)
 #else
 int
-sound_unmap (s)
+sound_unmap(s)
     SOUND *s;
 #endif
 {
@@ -1506,18 +1510,18 @@ sound_unmap (s)
 	if (s->cache)
 	{
 #ifdef HAVE_MMAP
-	    munmap (s->cache, s->size);
+	    munmap(s->cache, s->size);
 #else /* not HAVE_MMAP */
-	    free ((char *) s->cache);
+	    free((char *) s->cache);
 #endif /* not HAVE_MMAP */
 	    s->cache = NULL;
 	    sound_cache_size -= s->size;
 	}
     }
-    
+
     if (s->type == SOUND_FLOW || s->needs_helper)
     {
-	buffer_dealloc (s->flow, 1);
+	buffer_dealloc(s->flow, 1);
 	s->flow = NULL;
 	s->flowp = &s->flow;
     }
@@ -1530,18 +1534,18 @@ sound_unmap (s)
 /* Free *all* memory used by a sound. */
 #ifdef __STDC__
 int
-sound_free (SOUND *s)
+sound_free(SOUND *s)
 #else
 int
-sound_free (s)
+sound_free(s)
     SOUND *s;
 #endif
 {
-    sound_unmap (s);
-    
-    free ((char *) s->path);
+    sound_unmap(s);
+
+    free((char *) s->path);
     s->path = NULL;
-    free ((char *) s->hash_key);
+    free((char *) s->hash_key);
     s->hash_key = NULL;
 
     return 0;
@@ -1550,10 +1554,10 @@ sound_free (s)
 /* Delete a sound from the list of sounds. */
 #ifdef __STDC__
 void
-sound_delete (SOUND *s, int remove)
+sound_delete(SOUND *s, int remove)
 #else
 void
-sound_delete (s, remove)
+sound_delete(s, remove)
     SOUND *s;
     int remove;
 #endif
@@ -1564,7 +1568,7 @@ sound_delete (s, remove)
     {
 	if (s->hash_key)
 	{
-	    xhash_delete (s->hash_key);
+	    xhash_delete(s->hash_key);
 	}
 	if (s->list_prev)
 	{
@@ -1610,8 +1614,8 @@ sound_delete (s, remove)
 	    /* Copy the list links. */
 	    s->next->list = s->list;
 	    s->next->list_prev = s->list_prev;
-	    
-	    xhash_replace (s->next->hash_key, (char *) s->next);
+
+	    xhash_replace(s->next->hash_key, (char *) s->next);
 	}
     }
 
@@ -1619,34 +1623,34 @@ sound_delete (s, remove)
     {
 	struct stat st;
 
-	if (stat (s->path, &st) == 0)
+	if (stat(s->path, &st) == 0)
 	{
-	    if (unlink (s->path) < 0)
+	    if (unlink(s->path) < 0)
 	    {
-		report (REPORT_ERROR, "sound_delete: unlink %s: %s\n", s->path,
-		    sys_err_str (errno));
+		report(REPORT_ERROR, "sound_delete: unlink %s: %s\n", s->path,
+		       sys_err_str(errno));
 	    }
 	}
     }
 
-    sound_free (s);
-    free ((char *) s);
+    sound_free(s);
+    free((char *) s);
 }
 
 /*
  * Free cached sounds and delete sound flows.
  */
 void
-sound_cleanup ()
+sound_cleanup()
 {
     SOUND *s1, *s1_next, *s, *s_next;
     EVENT *e;
     CONNECTION *c;
     SPOOL *sp;
     int n;
-    
-    report (REPORT_DEBUG, "cleaning up sounds\n");
-    
+
+    report(REPORT_DEBUG, "cleaning up sounds\n");
+
     for (s1 = sounds; s1; s1 = s1_next)
     {
 	s1_next = s1->list;
@@ -1690,7 +1694,7 @@ sound_cleanup ()
 		}
 		if (n == 0)
 		{
-		    sound_unmap (s);
+		    sound_unmap(s);
 		}
 	    }
 	    /* Flows */
@@ -1707,11 +1711,11 @@ sound_cleanup ()
 		}
 		if (n != 0)
 		{
-		    report (REPORT_DEBUG, "sound_clean: not cleaning flow `%s'\n", s->name);
+		    report(REPORT_DEBUG, "sound_clean: not cleaning flow `%s'\n", s->name);
 		}
 		else
 		{
-		    sound_clean (s);
+		    sound_clean(s);
 		}
 	    }
 #ifdef HAVE_CDROM
@@ -1727,11 +1731,11 @@ sound_cleanup ()
 		}
 		if (n != 0)
 		{
-		    report (REPORT_DEBUG, "sound_clean: not cleaning cdrom `%s'\n", s->name);
+		    report(REPORT_DEBUG, "sound_clean: not cleaning cdrom `%s'\n", s->name);
 		}
 		else
 		{
-		    sound_clean (s);
+		    sound_clean(s);
 		}
 	    }
 #endif /* HAVE_CDROM */
@@ -1743,12 +1747,12 @@ sound_cleanup ()
 
 #ifdef __STDC__
 void
-sound_clean (SOUND *s)
+sound_clean(SOUND *s)
 #else
 void
-sound_clean (s)
+sound_clean(s)
     SOUND *s;
-#endif    
+#endif
 {
     BUFFER *b;
     int n, fd;
@@ -1761,7 +1765,7 @@ sound_clean (s)
 	s->size = 0;
 	if (s->flow)
 	{
-	    buffer_dealloc (s->flow, 1);
+	    buffer_dealloc(s->flow, 1);
 	}
 	s->flow = NULL;
 	s->flowp = &s->flow;
@@ -1781,7 +1785,7 @@ sound_clean (s)
 	s->size = 0;
 	if (s->flow)
 	{
-	    buffer_dealloc (s->flow, 1);
+	    buffer_dealloc(s->flow, 1);
 	}
 	s->flow = NULL;
 	s->flowp = &s->flow;
@@ -1793,38 +1797,38 @@ sound_clean (s)
     {
     case SOUND_STORAGE_NONE:
 	/* nothing to free -- delete it */
-	report (REPORT_DEBUG, "sound_clean: deleting flow `%s'\n", s->name);
-	sound_delete (s, 0);
+	report(REPORT_DEBUG, "sound_clean: deleting flow `%s'\n", s->name);
+	sound_delete(s, 0);
 	break;
 
     case SOUND_STORAGE_MEMORY:
 	/* keep it in memory? */
-	report (REPORT_DEBUG, "sound_clean: keeping flow `%s' in memory\n", s->name);
+	report(REPORT_DEBUG, "sound_clean: keeping flow `%s' in memory\n", s->name);
 	break;
-		    
+
     case SOUND_STORAGE_DISK:
 	/* Save the flow in the disk cache. */
-	if (cache_free (s->size) < 0)
+	if (cache_free(s->size) < 0)
 	{
-	    report (REPORT_ERROR, "sound_clean: can't cache_free %d bytes\n", s->size);
-	    sound_delete (s, 0); /* delete it */
+	    report(REPORT_ERROR, "sound_clean: can't cache_free %d bytes\n", s->size);
+	    sound_delete(s, 0);	/* delete it */
 	    break;
 	}
 
-	fd = cache_create (s->path, s->size);
+	fd = cache_create(s->path, s->size);
 	if (fd < 0)
 	{
-	    report (REPORT_ERROR, "sound_clean: can't cache_create %d bytes\n", s->size);
-	    sound_delete (s, 0);
+	    report(REPORT_ERROR, "sound_clean: can't cache_create %d bytes\n", s->size);
+	    sound_delete(s, 0);
 	    break;
 	}
 
 	/* Dump the flow buffers to disk. */
-	report (REPORT_DEBUG, "sound_clean: storing %s\n", s->path);
+	report(REPORT_DEBUG, "sound_clean: storing %s\n", s->path);
 	for (b = s->flow; b; b = b->next)
 	{
-    retry:
-	    n = write (fd, b->buf, b->nbytes);
+	  retry:
+	    n = write(fd, b->buf, b->nbytes);
 	    if (n < 0)
 	    {
 		if (errno == EINTR || errno == EINTR)
@@ -1833,19 +1837,19 @@ sound_clean (s)
 		}
 		else
 		{
-		    report (REPORT_ERROR, "sound_clean: write: %s\n", sys_err_str (errno));
-		    sound_delete (s, 1);
+		    report(REPORT_ERROR, "sound_clean: write: %s\n", sys_err_str(errno));
+		    sound_delete(s, 1);
 		    s = NULL;
 		    break;
 		}
 	    }
 	}
-	close (fd);
+	close(fd);
 
 	if (s)
 	{
 	    /* The flow is now a file. */
-	    sound_unmap (s);
+	    sound_unmap(s);
 	    s->type = SOUND_FILE;
 	}
 	break;
@@ -1854,10 +1858,10 @@ sound_clean (s)
 
 #ifdef __STDC__
 SINDEX *
-sound_open (SOUND *s, int use_helper)
+sound_open(SOUND *s, int use_helper)
 #else
 SINDEX *
-sound_open (s, use_helper)
+sound_open(s, use_helper)
     SOUND *s;
     int use_helper;
 #endif
@@ -1865,7 +1869,7 @@ sound_open (s, use_helper)
     SINDEX *si;
     int n;
 
-    si = (SINDEX *) malloc (sizeof (SINDEX));
+    si = (SINDEX *) malloc(sizeof(SINDEX));
     if (si == NULL)
     {
 	return NULL;
@@ -1886,15 +1890,15 @@ sound_open (s, use_helper)
 #if defined (HAVE_CDROM) || defined (HAVE_HELPERS)
     si->pid = -1;
 #endif
-    
+
     switch (s->format)
     {
 #ifdef HAVE_ADPCM
     case RPLAY_FORMAT_G721:
     case RPLAY_FORMAT_G723_3:
     case RPLAY_FORMAT_G723_5:
-	g72x_init_state (&si->adpcm_state[0]);
-	g72x_init_state (&si->adpcm_state[1]);
+	g72x_init_state(&si->adpcm_state[0]);
+	g72x_init_state(&si->adpcm_state[1]);
 	si->adpcm_in_buffer = 0;
 	si->adpcm_in_bits = 0;
 	break;
@@ -1902,12 +1906,12 @@ sound_open (s, use_helper)
 
 #ifdef HAVE_GSM
     case RPLAY_FORMAT_GSM:
-	si->gsm_object = gsm_create ();
+	si->gsm_object = gsm_create();
 	si->gsm_bit_frame_bytes = 0;
 	si->gsm_fixed_buffer_size = 0;
 	break;
 #endif /* HAVE_GSM */
-	
+
     default:
 	break;
     }
@@ -1918,46 +1922,46 @@ sound_open (s, use_helper)
 	int fds[2];
 	HELPER *helper;
 
-	helper = helper_lookup (s->path);
+	helper = helper_lookup(s->path);
 	if (!helper)
 	{
-	    report (REPORT_ERROR, "%s helper not found\n", s->path);
-	    done (1);
+	    report(REPORT_ERROR, "%s helper not found\n", s->path);
+	    done(1);
 	}
 
 	si->is_flow = 1;
 	si->flowp = &s->flow;
-	
-	if (pipe (fds) < 0)
+
+	if (pipe(fds) < 0)
 	{
-	    report (REPORT_ERROR, "helper pipe: %s\n", sys_err_str (errno));
-	    sound_close (si);
+	    report(REPORT_ERROR, "helper pipe: %s\n", sys_err_str(errno));
+	    sound_close(si);
 	    return NULL;
 	}
 
-	si->pid = fork ();
+	si->pid = fork();
 	if (si->pid < 0)
 	{
-	    report (REPORT_ERROR, "helper fork: %s\n", sys_err_str (errno));
-	    sound_close (si);
+	    report(REPORT_ERROR, "helper fork: %s\n", sys_err_str(errno));
+	    sound_close(si);
 	    return NULL;
 	}
 
 	if (si->pid == 0)	/* child */
 	{
 	    int first;
-	    char *argv[64]; /* XXX */
+	    char *argv[64];	/* XXX */
 	    int argc = 0;
 	    char buf[MAXPATHLEN], *p;
 	    int input_fd = -1;
 
 	    if (s->type == SOUND_FILE)
 	    {
-		input_fd = open (s->path, O_RDONLY /* | O_NDELAY */, 0);
+		input_fd = open(s->path, O_RDONLY /* | O_NDELAY */ , 0);
 		if (input_fd < 0)
 		{
-		    report (REPORT_ERROR, "can't open %s: %s\n", s->path, sys_err_str (errno));
-		    exit (1);
+		    report(REPORT_ERROR, "can't open %s: %s\n", s->path, sys_err_str(errno));
+		    exit(1);
 		}
 	    }
 	    else if (s->type == SOUND_FLOW)
@@ -1971,7 +1975,7 @@ sound_open (s, use_helper)
 			if (e->type == EVENT_PIPE_FLOW && e->sound == s)
 			{
 			    input_fd = c->fd;
-			    fd_block (input_fd);
+			    fd_block(input_fd);
 			    break;
 			}
 		    }
@@ -1980,83 +1984,83 @@ sound_open (s, use_helper)
 
 	    if (input_fd == -1)
 	    {
-		report (REPORT_ERROR, "No input for helper, type=%d.\n", s->type);
-		exit (1);
+		report(REPORT_ERROR, "No input for helper, type=%d.\n", s->type);
+		exit(1);
 	    }
 
 	    first = 1;
-	    while (p = (char *) strtok (first ? helper->program : NULL, " \t\n"))
+	    while (p = (char *) strtok(first ? helper->program : NULL, " \t\n"))
 	    {
 		first = 0;
 		argv[argc++] = p;
 	    }
 	    argv[argc] = NULL;
 
-	    close (fds[0]);
+	    close(fds[0]);
 
 	    if (input_fd != -1)
 	    {
-		if (dup2 (input_fd, 0) != 0) /* input for the helper */
+		if (dup2(input_fd, 0) != 0)	/* input for the helper */
 		{
-		    report (REPORT_ERROR, "can't dup2 stdin: %s\n", sys_err_str (errno));
-		    exit (1);
+		    report(REPORT_ERROR, "can't dup2 stdin: %s\n", sys_err_str(errno));
+		    exit(1);
 		}
 	    }
-	    if (dup2 (fds[1], 1) != 1) /* output for rplayd */
+	    if (dup2(fds[1], 1) != 1)	/* output for rplayd */
 	    {
-		report (REPORT_ERROR, "can't dup2 stdout: %s\n", sys_err_str (errno));
-		exit (1);
+		report(REPORT_ERROR, "can't dup2 stdout: %s\n", sys_err_str(errno));
+		exit(1);
 	    }
 
-	    execv (argv[0], argv);
+	    execv(argv[0], argv);
 
-	    report (REPORT_ERROR, "can't execute %s: %s\n", argv[0], sys_err_str (errno));
-	    exit (1);
+	    report(REPORT_ERROR, "can't execute %s: %s\n", argv[0], sys_err_str(errno));
+	    exit(1);
 	}
 
-	report (REPORT_DEBUG, "forked helper process %d\n", si->pid);
-	close (fds[1]);
+	report(REPORT_DEBUG, "forked helper process %d\n", si->pid);
+	close(fds[1]);
 	si->fd = fds[0];
-	FD_SET (si->fd, &read_mask);
+	FD_SET(si->fd, &read_mask);
     }
 #else
-    if (0) 
+    if (0)
     {
 	/* hack */
     }
-#endif /* HAVE_HELPERS */    
+#endif /* HAVE_HELPERS */
     else if (s->type == SOUND_FILE)
     {
 	if (!s->cache)
 	{
 	    struct stat st;
 
-	    si->fd = open (s->path, O_RDONLY | O_NDELAY, 0);
+	    si->fd = open(s->path, O_RDONLY | O_NDELAY, 0);
 	    if (si->fd < 0)
 	    {
-		report (REPORT_DEBUG, "sound_open: open %s: %s\n", s->path,
-			sys_err_str (errno));
-		sound_close (si);
+		report(REPORT_DEBUG, "sound_open: open %s: %s\n", s->path,
+		       sys_err_str(errno));
+		sound_close(si);
 		return NULL;
 	    }
 
-	    fd_nonblock (si->fd);
+	    fd_nonblock(si->fd);
 
 	    if (!s->mapped || (s->mapped && !s->size))
 	    {
-		if (fstat (si->fd, &st) < 0)
+		if (fstat(si->fd, &st) < 0)
 		{
-		    report (REPORT_ERROR, "sound_open: fstat %s: %s\n",
-			    s->path, sys_err_str (errno));
-		    sound_close (si);
+		    report(REPORT_ERROR, "sound_open: fstat %s: %s\n",
+			   s->path, sys_err_str(errno));
+		    sound_close(si);
 		    return NULL;
 		}
 
-		if (S_ISDIR (st.st_mode))
+		if (S_ISDIR(st.st_mode))
 		{
-		    report (REPORT_ERROR, "sound_open: %s is a directory\n",
-			    s->path);
-		    sound_close (si);
+		    report(REPORT_ERROR, "sound_open: %s is a directory\n",
+			   s->path);
+		    sound_close(si);
 		    return NULL;
 		}
 
@@ -2064,7 +2068,7 @@ sound_open (s, use_helper)
 
 		/* See if the entire sound can be cached. */
 		if (sound_cache_max_size
-		    && !helper_lookup (s->path)
+		    && !helper_lookup(s->path)
 		    && (sound_cache_max_sound_size == 0 || (s->size <= sound_cache_max_sound_size))
 		    && (sound_cache_size + s->size <= sound_cache_max_size))
 		{
@@ -2074,49 +2078,49 @@ sound_open (s, use_helper)
 #ifndef MAP_FILE
 #define MAP_FILE 0
 #endif
-		    s->cache = mmap (0, s->size, PROT_READ, MAP_SHARED | MAP_FILE, si->fd, 0);
-		    if (s->cache == (caddr_t) -1)
+		    s->cache = mmap(0, s->size, PROT_READ, MAP_SHARED | MAP_FILE, si->fd, 0);
+		    if (s->cache == (caddr_t) - 1)
 		    {
-			report (REPORT_ERROR, "sound_open: %s size=%d mmap: %s\n",
-			    s->path, s->size, sys_err_str (errno));
-			sound_close (si);
+			report(REPORT_ERROR, "sound_open: %s size=%d mmap: %s\n",
+			       s->path, s->size, sys_err_str(errno));
+			sound_close(si);
 			return NULL;
 		    }
 #else /* not HAVE_MMAP */
 		    /* Use malloc+read to load the entire sound. */
-		    s->cache = (char *) malloc (s->size);
+		    s->cache = (char *) malloc(s->size);
 		    if (s->cache == NULL)
 		    {
-			report (REPORT_ERROR, "sound_open: %s size=%d malloc: %s\n",
-			    s->path, s->size, sys_err_str (errno));
-			sound_close (si);
+			report(REPORT_ERROR, "sound_open: %s size=%d malloc: %s\n",
+			       s->path, s->size, sys_err_str(errno));
+			sound_close(si);
 			return NULL;
 		    }
 		  again:
-		    n = read (si->fd, s->cache, s->size);
+		    n = read(si->fd, s->cache, s->size);
 		    if (n < 0 && (errno == EINTR || errno == EAGAIN))
 		    {
 			goto again;
 		    }
 		    if (n != s->size)
 		    {
-			report (REPORT_ERROR, "sound_open: read %s %d: %s\n",
-			    s->path, s->size, sys_err_str (errno));
-			free ((char *) s->cache);
+			report(REPORT_ERROR, "sound_open: read %s %d: %s\n",
+			       s->path, s->size, sys_err_str(errno));
+			free((char *) s->cache);
 			s->cache = NULL;
-			sound_close (si);
+			sound_close(si);
 			return NULL;
 		    }
 #endif /* not HAVE_MMAP */
 
 		    sound_cache_size += s->size;
 #if 0
-		    report (REPORT_DEBUG, "- cached %s %d, cache_size=%d\n",
-			s->path, s->size, sound_cache_size);
+		    report(REPORT_DEBUG, "- cached %s %d, cache_size=%d\n",
+			   s->path, s->size, sound_cache_size);
 #endif
 
 		    /* Cached sounds won't need the file descriptor. */
-		    close (si->fd);
+		    close(si->fd);
 		    si->fd = 0;
 		}
 	    }
@@ -2145,19 +2149,19 @@ sound_open (s, use_helper)
 
 	si->is_flow = 1;
 	si->flowp = &s->flow;
-	
-	if (pipe (fds) < 0)
+
+	if (pipe(fds) < 0)
 	{
-	    report (REPORT_ERROR, "cdrom pipe: %s\n", sys_err_str (errno));
-	    sound_close (si);
+	    report(REPORT_ERROR, "cdrom pipe: %s\n", sys_err_str(errno));
+	    sound_close(si);
 	    return NULL;
 	}
 
-	si->pid = fork ();
+	si->pid = fork();
 	if (si->pid < 0)
 	{
-	    report (REPORT_ERROR, "cdrom fork: %s\n", sys_err_str (errno));
-	    sound_close (si);
+	    report(REPORT_ERROR, "cdrom fork: %s\n", sys_err_str(errno));
+	    sound_close(si);
 	    return NULL;
 	}
 
@@ -2165,48 +2169,48 @@ sound_open (s, use_helper)
 	{
 	    int i;
 
-	    close (fds[0]);
+	    close(fds[0]);
 
 #ifdef HAVE_SIGSET
-	    sigset (SIGHUP, SIG_DFL);
-	    sigset (SIGINT, SIG_DFL);
-	    sigset (SIGCHLD, SIG_DFL);
+	    sigset(SIGHUP, SIG_DFL);
+	    sigset(SIGINT, SIG_DFL);
+	    sigset(SIGCHLD, SIG_DFL);
 #else
-	    signal (SIGHUP, SIG_DFL);
-	    signal (SIGINT, SIG_DFL);
-	    signal (SIGCHLD, SIG_DFL);
+	    signal(SIGHUP, SIG_DFL);
+	    signal(SIGINT, SIG_DFL);
+	    signal(SIGCHLD, SIG_DFL);
 #endif
 
 	    for (i = 0; i < MAX_CDROMS; i++)
 	    {
-		if (strcmp (cdrom_table[i].name, si->sound->name) == 0)
+		if (strcmp(cdrom_table[i].name, si->sound->name) == 0)
 		{
-		    cdrom_reader (i, si->sound->starting_track, si->sound->ending_track, fds[1]);
-		    exit (0);
+		    cdrom_reader(i, si->sound->starting_track, si->sound->ending_track, fds[1]);
+		    exit(0);
 		}
 	    }
-		
-	    report (REPORT_DEBUG, "cdrom `%s' not found\n", si->sound->name);
-	    exit (1);
+
+	    report(REPORT_DEBUG, "cdrom `%s' not found\n", si->sound->name);
+	    exit(1);
 	}
 
-	report (REPORT_DEBUG, "forked cdrom process %d\n", si->pid);
-	close (fds[1]);
+	report(REPORT_DEBUG, "forked cdrom process %d\n", si->pid);
+	close(fds[1]);
 	si->fd = fds[0];
-	
-	FD_SET (si->fd, &read_mask);
+
+	FD_SET(si->fd, &read_mask);
     }
-#endif /* HAVE_CDROM */    
+#endif /* HAVE_CDROM */
 
     return si;
 }
 
 #ifdef __STDC__
 int
-sound_close (SINDEX *si)
+sound_close(SINDEX *si)
 #else
 int
-sound_close (si)
+sound_close(si)
     SINDEX *si;
 #endif
 {
@@ -2215,16 +2219,16 @@ sound_close (si)
     {
 	if (si->pid != -1)
 	{
-	    report (REPORT_DEBUG, "killing helper process %d\n", si->pid);
-	    if (kill (si->pid, SIGKILL) < 0)
+	    report(REPORT_DEBUG, "killing helper process %d\n", si->pid);
+	    if (kill(si->pid, SIGKILL) < 0)
 	    {
-		report (REPORT_DEBUG, "kill %d: %s\n", si->pid, sys_err_str (errno));
+		report(REPORT_DEBUG, "kill %d: %s\n", si->pid, sys_err_str(errno));
 	    }
 	}
 	if (si->fd != 0)
 	{
-	    FD_CLR (si->fd, &read_mask);
-	    close (si->fd);
+	    FD_CLR(si->fd, &read_mask);
+	    close(si->fd);
 	}
 	if (si->sound->type == SOUND_FLOW)
 	{
@@ -2237,7 +2241,7 @@ sound_close (si)
 		{
 		    if (e->type == EVENT_PIPE_FLOW && e->sound == si->sound)
 		    {
-			connection_close (c);
+			connection_close(c);
 			break;
 		    }
 		}
@@ -2251,7 +2255,7 @@ sound_close (si)
     {
 	if (!si->is_cached)
 	{
-	    close (si->fd);
+	    close(si->fd);
 	}
     }
 #ifdef HAVE_CDROM
@@ -2259,16 +2263,16 @@ sound_close (si)
     {
 	if (si->pid != -1)
 	{
-	    report (REPORT_DEBUG, "killing cdrom process %d\n", si->pid);
-	    if (kill (si->pid, SIGKILL) < 0)
+	    report(REPORT_DEBUG, "killing cdrom process %d\n", si->pid);
+	    if (kill(si->pid, SIGKILL) < 0)
 	    {
-		report (REPORT_DEBUG, "kill %d: %s\n", si->pid, sys_err_str (errno));
+		report(REPORT_DEBUG, "kill %d: %s\n", si->pid, sys_err_str(errno));
 	    }
 	}
 	if (si->fd != 0)
 	{
-	    FD_CLR (si->fd, &read_mask);
-	    close (si->fd);
+	    FD_CLR(si->fd, &read_mask);
+	    close(si->fd);
 	}
     }
 #endif /* HAVE_CDROM */
@@ -2277,15 +2281,15 @@ sound_close (si)
     {
 #ifdef HAVE_GSM
     case RPLAY_FORMAT_GSM:
-	gsm_destroy (si->gsm_object);
+	gsm_destroy(si->gsm_object);
 	break;
 #endif /* HAVE_GSM */
 
     default:
 	break;
     }
-    
-    free ((char *) si);
+
+    free((char *) si);
 
     return 0;
 }
@@ -2294,24 +2298,24 @@ sound_close (si)
 /* This routine is based on the unpack_input routine from
    Sun's CCITT ADPCM decoder. */
 static int
-adpcm_unpack (si, b, code, bits)
+adpcm_unpack(si, b, code, bits)
     SINDEX *si;
     BUFFER *b;
     unsigned char *code;
     int bits;
 {
     unsigned char in_byte;
-    
+
     if (si->adpcm_in_bits < bits)
     {
-    	if (b->offset >= b->nbytes)
-    	{
-    	    *code = 0;
-    	    return -1;
-    	}
+	if (b->offset >= b->nbytes)
+	{
+	    *code = 0;
+	    return -1;
+	}
 	in_byte = b->buf[b->offset++];
-    	si->adpcm_in_buffer |= (in_byte << si->adpcm_in_bits);
-    	si->adpcm_in_bits += 8;
+	si->adpcm_in_buffer |= (in_byte << si->adpcm_in_bits);
+	si->adpcm_in_bits += 8;
     }
 
     *code = si->adpcm_in_buffer & ((1 << bits) - 1);
@@ -2323,102 +2327,102 @@ adpcm_unpack (si, b, code, bits)
 
 /* Uncompress the `data' buffers into 16-bit linear data. */
 static void
-adpcm_decode (si, data, decode_routine, decode_bits)
+adpcm_decode(si, data, decode_routine, decode_bits)
     SINDEX *si;
     BUFFER *data;
-    int (*decode_routine)();
+    int (*decode_routine) ();
     int decode_bits;
 {
-    BUFFER *b = buffer_create ();
+    BUFFER *b = buffer_create();
     short *ptr;
     unsigned char code;
     int channel = 0;
-    
+
     for (; data && data->nbytes; data = data->next)
     {
-    	memcpy (b->buf, data->buf, data->nbytes);
-    	b->nbytes = data->nbytes;
-    	b->offset = 0;
+	memcpy(b->buf, data->buf, data->nbytes);
+	b->nbytes = data->nbytes;
+	b->offset = 0;
 
-    	ptr = (short *) data->buf;
+	ptr = (short *) data->buf;
 	data->nbytes = 0;
 
-    	while (adpcm_unpack (si, b, &code, decode_bits) >= 0)
-    	{
-    	    *ptr++ = (*decode_routine) (code, AUDIO_ENCODING_LINEAR, &si->adpcm_state[channel]);
+	while (adpcm_unpack(si, b, &code, decode_bits) >= 0)
+	{
+	    *ptr++ = (*decode_routine) (code, AUDIO_ENCODING_LINEAR, &si->adpcm_state[channel]);
 	    if (si->sound->channels == 2)
 	    {
-	    	channel ^= 1;
+		channel ^= 1;
 	    }
-	    data->nbytes += 2; /* 16-bit */
-    	}
+	    data->nbytes += 2;	/* 16-bit */
+	}
 #if 1
-	report (REPORT_DEBUG, "adpcm_decode: uncompressed from %d to %d bytes\n",
-		b->nbytes, data->nbytes);
-#endif	
+	report(REPORT_DEBUG, "adpcm_decode: uncompressed from %d to %d bytes\n",
+	       b->nbytes, data->nbytes);
+#endif
     }
 
-    buffer_destroy (b);
+    buffer_destroy(b);
 }
 #endif /*  HAVE_ADPCM */
 
 #ifdef HAVE_GSM
 /* Uncompress the `data' buffers into 16-bit linear data. */
 static void
-gsm_uncompress (si, data)
+gsm_uncompress(si, data)
     SINDEX *si;
     BUFFER *data;
 {
-    BUFFER *b = buffer_create ();
+    BUFFER *b = buffer_create();
     gsm_signal sample[160];
     int nbytes;
 
     for (; data; data = data->next)
     {
-	memcpy (b->buf, data->buf, data->nbytes);
-    	b->nbytes = data->nbytes;
-    	b->offset = 0;
+	memcpy(b->buf, data->buf, data->nbytes);
+	b->nbytes = data->nbytes;
+	b->offset = 0;
 	data->nbytes = 0;
-	
+
 	do
 	{
-	    nbytes = MIN (b->nbytes - b->offset, sizeof (si->gsm_bit_frame) - si->gsm_bit_frame_bytes);
-	    memcpy (si->gsm_bit_frame, b->buf + b->offset, nbytes);
+	    nbytes = MIN(b->nbytes - b->offset, sizeof(si->gsm_bit_frame) - si->gsm_bit_frame_bytes);
+	    memcpy(si->gsm_bit_frame, b->buf + b->offset, nbytes);
 	    b->offset += nbytes;
 	    si->gsm_bit_frame_bytes += nbytes;
 
-	    if (si->gsm_bit_frame_bytes == sizeof (si->gsm_bit_frame)) /* Only decode complete frames */
+	    if (si->gsm_bit_frame_bytes == sizeof(si->gsm_bit_frame))	/* Only decode complete frames */
 	    {
-		gsm_decode (si->gsm_object, si->gsm_bit_frame, sample);
-		memcpy (data->buf + data->nbytes, (char *) sample, sizeof (sample));
-		data->nbytes += sizeof (sample);
+		gsm_decode(si->gsm_object, si->gsm_bit_frame, sample);
+		memcpy(data->buf + data->nbytes, (char *) sample, sizeof(sample));
+		data->nbytes += sizeof(sample);
 		si->gsm_bit_frame_bytes = 0;
 	    }
 
 #if 0
-	    printf ("b->offset=%d data->nbytes=%d gsm_bit_frame_bytes=%d\n",
-		    b->offset, data->nbytes, si->gsm_bit_frame_bytes);
-#endif	    
-	    
+	    printf("b->offset=%d data->nbytes=%d gsm_bit_frame_bytes=%d\n",
+		   b->offset, data->nbytes, si->gsm_bit_frame_bytes);
+#endif
+
 	}
 	while (b->offset < b->nbytes);
-	
+
 #if 1
-	report (REPORT_DEBUG, "gsm_uncompress: uncompressed from %d to %d bytes\n",
-		b->nbytes, data->nbytes);
-#endif	
+	report(REPORT_DEBUG, "gsm_uncompress: uncompressed from %d to %d bytes\n",
+	       b->nbytes, data->nbytes);
+#endif
     }
 
-    buffer_destroy (b);
+    buffer_destroy(b);
 }
 #endif /* HAVE_GSM */
 
 #ifdef __STDC__
 int
-sound_fill (SINDEX *si, BUFFER *data, int as_is)
+sound_fill(SINDEX *si, BUFFER *data, int as_is)
 #else
 int
-sound_fill (si, data, as_is)
+sound_fill(si, data, as_is)
     SINDEX *si;
     BUFFER *data;
     int as_is;
@@ -2430,7 +2434,7 @@ sound_fill (si, data, as_is)
     BUFFER *b;
     float bit_factor;
     int max_per_buffer;
-    
+
     if (si->eof && !si->is_flow)
     {
 	return 0;
@@ -2453,19 +2457,19 @@ sound_fill (si, data, as_is)
 	if (si->gsm_fixed_buffer_size == 0)
 	{
 	    si->gsm_fixed_buffer_size = max_per_buffer;
-	    while (si->gsm_fixed_buffer_size % sizeof (si->gsm_bit_frame))
+	    while (si->gsm_fixed_buffer_size % sizeof(si->gsm_bit_frame))
 	    {
 		si->gsm_fixed_buffer_size--;
 	    }
 	}
 	max_per_buffer = si->gsm_fixed_buffer_size;
     }
-    
+
     /* Read from a flow.  */
     if (si->is_flow)
     {
 	BUFFER *f, *f_next;
-	
+
 	if (!si->flowp)
 	{
 	    return 0;
@@ -2491,8 +2495,8 @@ sound_fill (si, data, as_is)
 #endif
 	    if (!si->high_water_mark)
 	    {
-		si->low_water_mark = LOW_WATER_MARK (si->sound);
-		si->high_water_mark = HIGH_WATER_MARK (si->sound);
+		si->low_water_mark = LOW_WATER_MARK(si->sound);
+		si->high_water_mark = HIGH_WATER_MARK(si->sound);
 	    }
 	}
 
@@ -2511,8 +2515,8 @@ sound_fill (si, data, as_is)
 		else
 		{
 		    /* Calculate the number of bytes needed. */
-		    i = MIN (n, max_per_buffer - b->nbytes);
-		    memcpy (b->buf + b->nbytes, f->buf + si->buffer_offset + si->skip, i);
+		    i = MIN(n, max_per_buffer - b->nbytes);
+		    memcpy(b->buf + b->nbytes, f->buf + si->buffer_offset + si->skip, i);
 		    si->skip = 0;
 		    b->nbytes += i;
 		    total += i;
@@ -2532,7 +2536,7 @@ sound_fill (si, data, as_is)
 		    if (si->sound->storage == SOUND_STORAGE_NONE
 			|| si->sound->storage == SOUND_STORAGE_NULL)
 		    {
-			buffer_destroy (f);
+			buffer_destroy(f);
 		    }
 
 		    f = f_next;
@@ -2563,13 +2567,13 @@ sound_fill (si, data, as_is)
 	n = si->sound->size - si->offset;
 	for (b = data; b; b = b->next)
 	{
-	    i = MIN (n, max_per_buffer);
+	    i = MIN(n, max_per_buffer);
 	    if (i > 0)
 	    {
 #ifdef DEBUG
-		report (REPORT_DEBUG, "- cache-read %s %d\n", si->sound->name, i);
+		report(REPORT_DEBUG, "- cache-read %s %d\n", si->sound->name, i);
 #endif
-		memcpy (b->buf, si->sound->cache + si->offset, i);
+		memcpy(b->buf, si->sound->cache + si->offset, i);
 		b->nbytes = i;
 		si->offset += i;
 		n -= i;
@@ -2595,11 +2599,11 @@ sound_fill (si, data, as_is)
 	    iov[i].iov_len = max_per_buffer;
 	}
 
-	n = readv (si->fd, iov, i);
+	n = readv(si->fd, iov, i);
 	if (n < 0)
 	{
-	    report (REPORT_ERROR, "sound_fill: readv: %s, fd=%d, %s\n",
-		    si->sound->name, si->fd, sys_err_str (errno));
+	    report(REPORT_ERROR, "sound_fill: readv: %s, fd=%d, %s\n",
+		   si->sound->name, si->fd, sys_err_str(errno));
 	    return -1;
 	}
 	else if (n == 0)
@@ -2616,7 +2620,7 @@ sound_fill (si, data, as_is)
 		{
 		    i = 0;
 		}
-		b->nbytes = MIN (i, max_per_buffer);
+		b->nbytes = MIN(i, max_per_buffer);
 	    }
 	    total = n;
 	}
@@ -2629,35 +2633,35 @@ sound_fill (si, data, as_is)
 	{
 #ifdef HAVE_ADPCM
 	case RPLAY_FORMAT_G721:
-	    adpcm_decode (si, data, g721_decoder, 4);
+	    adpcm_decode(si, data, g721_decoder, 4);
 	    break;
 
 	case RPLAY_FORMAT_G723_3:
-	    adpcm_decode (si, data, g723_24_decoder, 3);
+	    adpcm_decode(si, data, g723_24_decoder, 3);
 	    break;
 
 	case RPLAY_FORMAT_G723_5:
-	    adpcm_decode (si, data, g723_40_decoder, 5);
+	    adpcm_decode(si, data, g723_40_decoder, 5);
 	    break;
 #endif /* HAVE_ADPCM */
 
 #ifdef HAVE_GSM
 	case RPLAY_FORMAT_GSM:
-	    gsm_uncompress (si, data);
+	    gsm_uncompress(si, data);
 	    break;
 #endif /* HAVE_GSM */
 	}
     }
-    
+
     return total;
 }
 
 #ifdef __STDC__
 int
-sound_seek (SINDEX *si, int offset, int whence)
+sound_seek(SINDEX *si, int offset, int whence)
 #else
 int
-sound_seek (si, offset, whence)
+sound_seek(si, offset, whence)
     SINDEX *si;
     int offset;
     int whence;
@@ -2665,12 +2669,12 @@ sound_seek (si, offset, whence)
 {
     if (si->is_flow)
     {
-	si->skip += offset; /* XXX: whence is ignored */
+	si->skip += offset;	/* XXX: whence is ignored */
 	return 0;
     }
     else if (si->is_cached)
     {
-	si->offset += offset; /* XXX: whence is ignored */
+	si->offset += offset;	/* XXX: whence is ignored */
 	return 0;
     }
 #ifdef HAVE_CDROM
@@ -2678,16 +2682,16 @@ sound_seek (si, offset, whence)
     {
 	return 0;
     }
-#endif /* HAVE_CDROM */    
+#endif /* HAVE_CDROM */
 #ifdef HAVE_HELPERS
     else if (si->sound->needs_helper)
     {
 	return 0;
     }
-#endif /* HAVE_HELPERS */    
+#endif /* HAVE_HELPERS */
     else
     {
-	return lseek (si->fd, offset, whence);
+	return lseek(si->fd, offset, whence);
     }
 }
 
@@ -2695,12 +2699,12 @@ sound_seek (si, offset, whence)
 /* Read data from the pipe and return the data in a buffer list. */
 #ifdef __STDC__
 BUFFER *
-sound_pipe_read (SINDEX *si)
+sound_pipe_read(SINDEX *si)
 #else
 BUFFER *
-sound_pipe_read (si)
+sound_pipe_read(si)
     SINDEX *si;
-#endif    
+#endif
 {
     static struct iovec iov[UIO_MAXIOV];
     int i, n, nbytes;
@@ -2710,29 +2714,29 @@ sound_pipe_read (si)
     /* Pause */
     if (si->water_mark - si->offset > si->high_water_mark)
     {
-	FD_CLR (si->fd, &read_mask);
+	FD_CLR(si->fd, &read_mask);
 	return NULL;
     }
 
     /* Determine the number of bytes available in the pipe. */
-#if defined (sun) && defined (SVR4) /* Solaris 2.x */
+#if defined (sun) && defined (SVR4)	/* Solaris 2.x */
     {
 	struct stat st;
-	if (fstat (si->fd, &st) < 0)
+	if (fstat(si->fd, &st) < 0)
 	{
-	    report (REPORT_DEBUG, "sound_pipe_read: fstat: %s\n",
-		    sys_err_str (errno));
+	    report(REPORT_DEBUG, "sound_pipe_read: fstat: %s\n",
+		   sys_err_str(errno));
 	    return NULL;
 	}
 	nbytes = st.st_size;
     }
 #else /* not Solaris */
-#if 0 /* disable FIONREAD for now */
+#if 0				/* disable FIONREAD for now */
 #ifdef FIONREAD
-    if (ioctl (si->fd, FIONREAD, &nbytes) < 0)
+    if (ioctl(si->fd, FIONREAD, &nbytes) < 0)
     {
-	report (REPORT_DEBUG, "sound_pipe_read: ioctl FIONREAD: %s\n",
-		sys_err_str (errno));
+	report(REPORT_DEBUG, "sound_pipe_read: ioctl FIONREAD: %s\n",
+	       sys_err_str(errno));
 	return NULL;
     }
 #endif /* not FIONREAD */
@@ -2740,8 +2744,8 @@ sound_pipe_read (si)
     /* guess */
     nbytes = (si->sound->sample_rate * si->sound->input_sample_size) / 2;
 #endif /* not Solaris */
-	
-    data = buffer_alloc (nbytes, BUFFER_FREE);
+
+    data = buffer_alloc(nbytes, BUFFER_FREE);
 
     for (b = data, i = 0; b && i < UIO_MAXIOV; b = b->next, i++)
     {
@@ -2749,11 +2753,11 @@ sound_pipe_read (si)
 	iov[i].iov_len = BUFFER_SIZE;
     }
 
-    n = readv (si->fd, iov, i);
+    n = readv(si->fd, iov, i);
     if (n <= 0)
     {
-	buffer_dealloc (data, 1);
-	spool_remove (si->sound); /* XXX */
+	buffer_dealloc(data, 1);
+	spool_remove(si->sound);	/* XXX */
 	return NULL;
     }
 
@@ -2763,24 +2767,24 @@ sound_pipe_read (si)
 	{
 	    i = 0;
 	}
-	b->nbytes = MIN (i, BUFFER_SIZE);
+	b->nbytes = MIN(i, BUFFER_SIZE);
     }
-    
+
     return data;
 }
 #endif
 
 #ifdef __STDC__
 static int
-bytes_in_sound (SOUND *s)
+bytes_in_sound(SOUND *s)
 #else
 static int
-bytes_in_sound (s)
+bytes_in_sound(s)
     SOUND *s;
 #endif
 {
     int bytes = 0;
-    
+
     if (s->chunk_size)
     {
 	bytes = s->chunk_size;
@@ -2799,17 +2803,17 @@ bytes_in_sound (s)
 
 #ifdef __STDC__
 int
-number_of_samples (SOUND *s, int bytes)
+number_of_samples(SOUND *s, int bytes)
 #else
 int
-number_of_samples (s, bytes)
+number_of_samples(s, bytes)
     SOUND *s;
     int bytes;
 #endif
 {
     if (!bytes)
     {
-	bytes = bytes_in_sound (s);
+	bytes = bytes_in_sound(s);
     }
     return (bytes << 3) / (s->input_precision * s->channels);
 }

@@ -1,4 +1,4 @@
-/* $Id: xhash.c,v 1.2 1998/08/13 06:14:13 boyns Exp $ */
+/* $Id: xhash.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -40,75 +40,75 @@ static struct hash_control *htable;
 
 #ifdef DEBUG
 static void
-xhash_stats ()
+xhash_stats()
 {
     int statbuf[HASH_STATLENGTH];
-    hash_say (htable, statbuf, HASH_STATLENGTH);
-    printf (" %d size, %d read, %d write, %d collisions, %d used\n",
-	statbuf[1], statbuf[2], statbuf[3], statbuf[4], statbuf[5]);
+    hash_say(htable, statbuf, HASH_STATLENGTH);
+    printf(" %d size, %d read, %d write, %d collisions, %d used\n",
+	   statbuf[1], statbuf[2], statbuf[3], statbuf[4], statbuf[5]);
 }
 #endif
 
 #ifdef __STDC__
 void
-xhash_init (int hash_table_size)
+xhash_init(int hash_table_size)
 #else
 void
-xhash_init (hash_table_size)
+xhash_init(hash_table_size)
     int hash_table_size;
 #endif
 {
-    htable = hash_new ();
+    htable = hash_new();
 }
 
 #ifdef __STDC__
 char *
-xhash_get (char *hash_key)
+xhash_get(char *hash_key)
 #else
 char *
-xhash_get (hash_key)
+xhash_get(hash_key)
     char *hash_key;
 #endif
 {
-    return (char *) hash_find (htable, hash_key);
+    return (char *) hash_find(htable, hash_key);
 }
 
 #ifdef __STDC__
 void
-xhash_put (char *hash_key, char *data)
+xhash_put(char *hash_key, char *data)
 #else
 void
-xhash_put (hash_key, data)
+xhash_put(hash_key, data)
     char *hash_key;
     char *data;
 #endif
 {
-    hash_insert (htable, hash_key, data);
+    hash_insert(htable, hash_key, data);
 }
 
 #ifdef __STDC__
 void
-xhash_replace (char *hash_key, char *data)
+xhash_replace(char *hash_key, char *data)
 #else
 void
-xhash_replace (hash_key, data)
+xhash_replace(hash_key, data)
     char *hash_key;
     char *data;
 #endif
 {
-    hash_replace (htable, hash_key, data);
+    hash_replace(htable, hash_key, data);
 }
 
 #ifdef __STDC__
 void
-xhash_delete (char *hash_key)
+xhash_delete(char *hash_key)
 #else
 void
-xhash_delete (hash_key)
+xhash_delete(hash_key)
     char *hash_key;
 #endif
 {
-    hash_delete (htable, hash_key);
+    hash_delete(htable, hash_key);
 }
 
 /*
@@ -116,10 +116,10 @@ xhash_delete (hash_key)
  */
 #ifdef __STDC__
 char *
-xhash_name (char *pathname)
+xhash_name(char *pathname)
 #else
 char *
-xhash_name (pathname)
+xhash_name(pathname)
     char *pathname;
 #endif
 {
@@ -128,11 +128,11 @@ xhash_name (pathname)
 
     if (pathname[0] == '/')
     {
-	pathname = strrchr (pathname, '/') + 1;
+	pathname = strrchr(pathname, '/') + 1;
     }
 
-    strncpy (name, pathname, sizeof(name));
-    extension = strrchr (name, '.');
+    strncpy(name, pathname, sizeof(name));
+    extension = strrchr(name, '.');
     if (extension)
     {
 	*extension = '\0';
@@ -143,18 +143,18 @@ xhash_name (pathname)
 
 #ifdef __STDC__
 void
-xhash_apply (char *(*func) ())
+xhash_apply(char *(*func) ())
 #else
 void
-xhash_apply (func)
+xhash_apply(func)
     char *(*func) ();
 #endif
 {
-    hash_apply (htable, func);
+    hash_apply(htable, func);
 }
 
 void
-xhash_die ()
+xhash_die()
 {
-    hash_die (htable);
+    hash_die(htable);
 }

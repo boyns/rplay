@@ -1,4 +1,4 @@
-/* $Id: ulaw.c,v 1.2 1998/08/13 06:14:11 boyns Exp $ */
+/* $Id: ulaw.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

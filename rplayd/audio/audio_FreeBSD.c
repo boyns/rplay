@@ -1,4 +1,4 @@
-/* $Id: audio_FreeBSD.c,v 1.3 1998/09/03 06:08:44 boyns Exp $ */
+/* $Id: audio_FreeBSD.c,v 1.4 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -86,16 +86,16 @@ int rplay_audio_fd = -1;
  * Return 0 on success and -1 on error.
  */
 
-int 
-rplay_audio_init (void)
+int
+rplay_audio_init(void)
 {
     int n;
 
     if (rplay_audio_fd == -1)
     {
-	if (rplay_audio_open () == -1)
+	if (rplay_audio_open() == -1)
 	{
-	    report (REPORT_ERROR, "rplay_audio_init: cannot open %s\n", rplay_audio_device);
+	    report(REPORT_ERROR, "rplay_audio_init: cannot open %s\n", rplay_audio_device);
 	    return -1;
 	}
     }
@@ -111,17 +111,17 @@ rplay_audio_init (void)
      */
     n = rplay_audio_precision;
 
-    if (ioctl (rplay_audio_fd, SNDCTL_DSP_SAMPLESIZE, &n) == -1)
+    if (ioctl(rplay_audio_fd, SNDCTL_DSP_SAMPLESIZE, &n) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_init: can't set audio precision to %d (%d)\n",
-		rplay_audio_precision, n);
+	report(REPORT_ERROR, "rplay_audio_init: can't set audio precision to %d (%d)\n",
+	       rplay_audio_precision, n);
 	return -1;
     }
 
     if (n != rplay_audio_precision)
     {
-	report (REPORT_NOTICE, "rplay_audio_init: audio precision changed from %d to %d\n",
-		rplay_audio_precision, n);
+	report(REPORT_NOTICE, "rplay_audio_init: audio precision changed from %d to %d\n",
+	       rplay_audio_precision, n);
 	rplay_audio_precision = n;
     }
 
@@ -130,17 +130,17 @@ rplay_audio_init (void)
      */
     n = rplay_audio_channels;
 
-    if (ioctl (rplay_audio_fd, SOUND_PCM_WRITE_CHANNELS, &n) == -1)
+    if (ioctl(rplay_audio_fd, SOUND_PCM_WRITE_CHANNELS, &n) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_init: can't set audio channels to %d (%d)\n",
-		rplay_audio_channels, n);
+	report(REPORT_ERROR, "rplay_audio_init: can't set audio channels to %d (%d)\n",
+	       rplay_audio_channels, n);
 	return -1;
     }
 
     if (n != rplay_audio_channels)
     {
-	report (REPORT_NOTICE, "rplay_audio_init: audio channels changed from %d to %d\n",
-		rplay_audio_channels, n);
+	report(REPORT_NOTICE, "rplay_audio_init: audio channels changed from %d to %d\n",
+	       rplay_audio_channels, n);
 	rplay_audio_channels = n;
     }
 
@@ -150,17 +150,17 @@ rplay_audio_init (void)
 
     n = rplay_audio_sample_rate;
 
-    if (ioctl (rplay_audio_fd, SNDCTL_DSP_SPEED, &n) == -1)
+    if (ioctl(rplay_audio_fd, SNDCTL_DSP_SPEED, &n) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_init: can't set audio sample rate to %d (%d)\n",
-		rplay_audio_sample_rate, n);
+	report(REPORT_ERROR, "rplay_audio_init: can't set audio sample rate to %d (%d)\n",
+	       rplay_audio_sample_rate, n);
 	return (-1);
     }
 
     if (n != rplay_audio_sample_rate)
     {
-	report (REPORT_NOTICE, "rplay_audio_init: audio sample rate changed from %d to %d\n",
-		rplay_audio_sample_rate, n);
+	report(REPORT_NOTICE, "rplay_audio_init: audio sample rate changed from %d to %d\n",
+	       rplay_audio_sample_rate, n);
 	rplay_audio_sample_rate = n;
     }
 
@@ -192,13 +192,13 @@ rplay_audio_init (void)
 	n = AFMT_IMA_ADPCM;
 	break;
     default:
-	report (REPORT_ERROR, "rplay_audio_init: unknown audio format (%d)\n", rplay_audio_format);
+	report(REPORT_ERROR, "rplay_audio_init: unknown audio format (%d)\n", rplay_audio_format);
 	return (-1);
     }
 
-    if (ioctl (rplay_audio_fd, SNDCTL_DSP_SETFMT, &n) == -1)
+    if (ioctl(rplay_audio_fd, SNDCTL_DSP_SETFMT, &n) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_init: can't set audio format\n");
+	report(REPORT_ERROR, "rplay_audio_init: can't set audio format\n");
 	return (-1);
     }
 
@@ -207,12 +207,12 @@ rplay_audio_init (void)
      */
     if (n = curr_bufsize)
     {
-	if (ioctl (rplay_audio_fd, SNDCTL_DSP_SETBLKSIZE, &n) == -1)
+	if (ioctl(rplay_audio_fd, SNDCTL_DSP_SETBLKSIZE, &n) == -1)
 	{
-	    report (REPORT_ERROR, "rplay_audio_init: can't set audio blocksize to %d\n", curr_bufsize);
+	    report(REPORT_ERROR, "rplay_audio_init: can't set audio blocksize to %d\n", curr_bufsize);
 	    return (-1);
 	}
-	report (REPORT_DEBUG, "rplay_audio_init: device blksize set to %d\n", n);
+	report(REPORT_DEBUG, "rplay_audio_init: device blksize set to %d\n", n);
     }
 
     rplay_audio_port = RPLAY_AUDIO_PORT_SPEAKER;
@@ -225,21 +225,21 @@ rplay_audio_init (void)
  *
  * Return 0 on success and -1 on error.
  */
-int 
-rplay_audio_open (void)
+int
+rplay_audio_open(void)
 {
-    if ((rplay_audio_fd = open (rplay_audio_device, (O_WRONLY | O_NONBLOCK), 0)) < 0)
+    if ((rplay_audio_fd = open(rplay_audio_device, (O_WRONLY | O_NONBLOCK), 0)) < 0)
 	return -1;
 
-    if (fcntl (rplay_audio_fd, F_SETFD, 1) < 0)
+    if (fcntl(rplay_audio_fd, F_SETFD, 1) < 0)
     {
-	report (REPORT_ERROR,
-		"rplay_audio_open: close-on-exec %d\n",
-		sys_err_str(errno));
+	report(REPORT_ERROR,
+	       "rplay_audio_open: close-on-exec %d\n",
+	       sys_err_str(errno));
 	/* return -1; */
     }
 
-    if (rplay_audio_init () < 0)
+    if (rplay_audio_init() < 0)
 	return -1;
 
     return 0;
@@ -250,8 +250,8 @@ rplay_audio_open (void)
  *
  * Return 1 for true and 0 for false.
  */
-int 
-rplay_audio_isopen (void)
+int
+rplay_audio_isopen(void)
 {
     return (rplay_audio_fd != -1);
 }
@@ -262,11 +262,11 @@ rplay_audio_isopen (void)
  * Return 0 on success and -1 on error.
  */
 
-int 
-rplay_audio_flush (void)
+int
+rplay_audio_flush(void)
 {
     if (rplay_audio_fd != -1)
-	return (ioctl (rplay_audio_fd, SNDCTL_DSP_POST, 0));
+	return (ioctl(rplay_audio_fd, SNDCTL_DSP_POST, 0));
 
     return 0;
 }
@@ -276,22 +276,22 @@ rplay_audio_flush (void)
  *
  * Return bytes written on success and -1 on error.
  */
-int 
-rplay_audio_write (char *buf, int nbytes)
+int
+rplay_audio_write(char *buf, int nbytes)
 {
     int remain = nbytes;
     int xr;
 
     while (remain > 0)
     {
-	if ((xr = write (rplay_audio_fd, buf, remain)) == -1)
+	if ((xr = write(rplay_audio_fd, buf, remain)) == -1)
 	{
 	    switch (errno)
 	    {
 	    case EWOULDBLOCK:
 		continue;
 	    default:
-		report (REPORT_ERROR, "Error while writing to audio device (%s)\n", strerror (errno));
+		report(REPORT_ERROR, "Error while writing to audio device (%s)\n", strerror(errno));
 		return (-1);
 	    }
 	}
@@ -309,12 +309,12 @@ rplay_audio_write (char *buf, int nbytes)
  *
  * Return 0 on success and -1 on error.
  */
-int 
-rplay_audio_close (void)
+int
+rplay_audio_close(void)
 {
     if (rplay_audio_fd != -1)
     {
-	close (rplay_audio_fd);
+	close(rplay_audio_fd);
     }
 
     rplay_audio_fd = -1;
@@ -327,11 +327,11 @@ rplay_audio_close (void)
  *
  * Return 0-255 or -1 on error.
  */
-int 
-rplay_audio_get_volume (void)
+int
+rplay_audio_get_volume(void)
 {
 #ifndef FAKE_VOLUME
-    
+
     int mx;
     int mxdevmask;
     int left_vol;
@@ -340,30 +340,30 @@ rplay_audio_get_volume (void)
 
     vol = left_vol = right_vol = 0;
 
-    if ((mx = open (RPLAY_MIXER_DEVICE, O_RDONLY)) == -1)
+    if ((mx = open(RPLAY_MIXER_DEVICE, O_RDONLY)) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: unable to open mixer device\n");
+	report(REPORT_ERROR, "rplay_audio_get_volume: unable to open mixer device\n");
 	return (-1);
     }
 
-    if (ioctl (mx, SOUND_MIXER_READ_DEVMASK, &mxdevmask) == -1)
+    if (ioctl(mx, SOUND_MIXER_READ_DEVMASK, &mxdevmask) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: unable to get mixer device mask\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_get_volume: unable to get mixer device mask\n");
+	close(mx);
 	return (-1);
     }
 
     if (!(mxdevmask & SOUND_MIXER_PCM))
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: pcm mixer device not installed\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_get_volume: pcm mixer device not installed\n");
+	close(mx);
 	return (-1);
     }
 
-    if (ioctl (mx, SOUND_MIXER_READ_PCM, &vol) == -1)
+    if (ioctl(mx, SOUND_MIXER_READ_PCM, &vol) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: unable to get mixer volume\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_get_volume: unable to get mixer volume\n");
+	close(mx);
 	return (-1);
     }
     else
@@ -373,10 +373,10 @@ rplay_audio_get_volume (void)
 
 	vol = (int) ((left_vol + right_vol) / 2);
 
-	report (REPORT_DEBUG, "current pcm-volume: %d:%d => %d\n", left_vol, right_vol, vol);
+	report(REPORT_DEBUG, "current pcm-volume: %d:%d => %d\n", left_vol, right_vol, vol);
     }
 
-    close (mx);
+    close(mx);
 
     return (vol);
 
@@ -391,8 +391,8 @@ rplay_audio_get_volume (void)
  *
  * Return the volume of the audio device 0-255 or -1.
  */
-int 
-rplay_audio_set_volume (int volume)
+int
+rplay_audio_set_volume(int volume)
 {
 #ifndef FAKE_VOLUME
 
@@ -404,30 +404,30 @@ rplay_audio_set_volume (int volume)
 
     vol |= ((vol & 0x00ff) << 8);
 
-    if ((mx = open (RPLAY_MIXER_DEVICE, O_RDONLY)) == -1)
+    if ((mx = open(RPLAY_MIXER_DEVICE, O_RDONLY)) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_set_volume: unable to open mixer device\n");
+	report(REPORT_ERROR, "rplay_audio_set_volume: unable to open mixer device\n");
 	return (-1);
     }
 
-    if (ioctl (mx, SOUND_MIXER_READ_DEVMASK, &mxdevmask) == -1)
+    if (ioctl(mx, SOUND_MIXER_READ_DEVMASK, &mxdevmask) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_set_volume: unable to get mixer device mask\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_set_volume: unable to get mixer device mask\n");
+	close(mx);
 	return (-1);
     }
 
     if (!(mxdevmask & SOUND_MIXER_PCM))
     {
-	report (REPORT_ERROR, "rplay_audio_set_volume: pcm mixer device not installed\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_set_volume: pcm mixer device not installed\n");
+	close(mx);
 	return (-1);
     }
 
-    if (ioctl (mx, SOUND_MIXER_WRITE_PCM, &vol) == -1)
+    if (ioctl(mx, SOUND_MIXER_WRITE_PCM, &vol) == -1)
     {
-	report (REPORT_ERROR, "rplay_audio_set_volume: unable to set mixer volume\n");
-	close (mx);
+	report(REPORT_ERROR, "rplay_audio_set_volume: unable to set mixer volume\n");
+	close(mx);
 	return (-1);
     }
     else
@@ -437,14 +437,14 @@ rplay_audio_set_volume (int volume)
 
 	vol = (int) ((left_vol + right_vol) / 2);
 
-	report (REPORT_DEBUG, "rplay_audio_set_volume: pcm-volume set to %d:%d => %d\n",
-		left_vol, right_vol, vol);
+	report(REPORT_DEBUG, "rplay_audio_set_volume: pcm-volume set to %d:%d => %d\n",
+	       left_vol, right_vol, vol);
     }
 
-    close (mx);
+    close(mx);
 
     rplay_audio_volume = vol;
-    
+
     return rplay_audio_volume;
 
 #else

@@ -1,4 +1,4 @@
-/* $Id: flange.c,v 1.2 1998/08/13 06:13:50 boyns Exp $ */
+/* $Id: flange.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #include "rplayd.h"
 
 #ifdef TEST_FLANGE
@@ -63,7 +63,7 @@ typedef union
 wl;
 
 void
-flange (char *native_buf, int nsamples, int nchannels)
+flange(char *native_buf, int nsamples, int nchannels)
 {
     short *sample = (short *) native_buf;
     short *flanged = (short *) native_buf;
@@ -86,7 +86,7 @@ flange (char *native_buf, int nsamples, int nchannels)
 	min_sweep = max_sweep - depth;
 	if (min_sweep < 0)
 	{
-	    exit (1);
+	    exit(1);
 	}
 
 	sweep.w[0] = (min_sweep + max_sweep) / 2;
@@ -95,8 +95,8 @@ flange (char *native_buf, int nsamples, int nchannels)
     }
 
 #if 0
-    printf ("step = %d, depth = %d, delay = %d\n", step, depth, delay);
-    printf ("max_sweep = %d, min_sweep = %d\n", max_sweep, min_sweep);
+    printf("step = %d, depth = %d, delay = %d\n", step, depth, delay);
+    printf("max_sweep = %d, min_sweep = %d\n", max_sweep, min_sweep);
 #endif
 
     for (i = 0; i < size; i++)

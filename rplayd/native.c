@@ -1,4 +1,4 @@
-/* $Id: native.c,v 1.2 1998/08/13 06:13:58 boyns Exp $ */
+/* $Id: native.c,v 1.3 1998/11/07 21:15:40 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -35,56 +35,76 @@
 
 /* Native means 16-bit signed. */
 
-static int ulaw_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int s8_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int u8_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int big_s16_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int big_u16_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int little_s16_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int little_u16_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int native_to_native ( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
-static int native_to_ulaw ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_s8 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_u8 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_s16 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_u16 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_g721 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_g723_3 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_g723_5 ( /* char *native_buf, int nsamples, int nchannels */ );
-static int native_to_gsm ( /* char *native_buf, int nsamples, int nchannels */ );
+static int ulaw_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int s8_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int u8_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int big_s16_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int big_u16_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int little_s16_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int little_u16_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int native_to_native( /* SPOOL *sp, char *native_buf, int nsamples, int nchannels */ );
+static int native_to_ulaw( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_s8( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_u8( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_s16( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_u16( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_g721( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_g723_3( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_g723_5( /* char *native_buf, int nsamples, int nchannels */ );
+static int native_to_gsm( /* char *native_buf, int nsamples, int nchannels */ );
 
 /* Setup the to and from native table. */
 NATIVE_TABLE native_table[] =
 {
-    {{0, 0}, {0, 0}},
-    {{s8_to_native, s8_to_native}, {native_to_s8, native_to_s8}},
-    {{u8_to_native, u8_to_native}, {native_to_u8, native_to_u8}},
-    {{big_s16_to_native, little_s16_to_native}, {native_to_s16, native_to_s16}},
-    {{big_u16_to_native, little_u16_to_native}, {native_to_u16, native_to_u16}},
-    {{ulaw_to_native, ulaw_to_native}, {native_to_ulaw, native_to_ulaw}},
-#ifdef HAVE_ADPCM    
-    {{native_to_native, native_to_native}, {native_to_g721, native_to_g721}},
-    {{native_to_native, native_to_native}, {native_to_g723_3, native_to_g723_5}},
-    {{native_to_native, native_to_native}, {native_to_g723_3, native_to_g723_5}},
-#endif /* HAVE_ADPCM */    
+    {
+	{0, 0},
+	{0, 0}},
+    {
+	{s8_to_native, s8_to_native},
+	{native_to_s8, native_to_s8}},
+    {
+	{u8_to_native, u8_to_native},
+	{native_to_u8, native_to_u8}},
+    {
+	{big_s16_to_native, little_s16_to_native},
+	{native_to_s16, native_to_s16}},
+    {
+	{big_u16_to_native, little_u16_to_native},
+	{native_to_u16, native_to_u16}},
+    {
+	{ulaw_to_native, ulaw_to_native},
+	{native_to_ulaw, native_to_ulaw}},
+#ifdef HAVE_ADPCM
+    {
+	{native_to_native, native_to_native},
+	{native_to_g721, native_to_g721}},
+    {
+	{native_to_native, native_to_native},
+	{native_to_g723_3, native_to_g723_5}},
+    {
+	{native_to_native, native_to_native},
+	{native_to_g723_3, native_to_g723_5}},
+#endif				/* HAVE_ADPCM */
 #ifdef HAVE_GSM
-    {{native_to_native, native_to_native}, {native_to_gsm, native_to_gsm}},
-#endif /* HAVE_GSM */    
+    {
+	{native_to_native, native_to_native},
+	{native_to_gsm, native_to_gsm}},
+#endif				/* HAVE_GSM */
 };
 
 /* Initialize the native audio buffer.  */
 void
-zero_native (native_buf, nsamples, nchannels)
+zero_native(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
 {
-    memset (native_buf, 0, nsamples * nchannels * 2); /* 2 == 16-bit */
+    memset(native_buf, 0, nsamples * nchannels * 2);	/* 2 == 16-bit */
 }
 
 
 void
-level (native_buf, nsamples, nchannels)
+level(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -94,7 +114,7 @@ level (native_buf, nsamples, nchannels)
     long left_max = 0, right_max = 0;
 
     /* Optimize the cases for stereo and mono output. */
-    
+
     if (nchannels == 2)		/* stereo */
     {
 	while (n--)
@@ -103,7 +123,7 @@ level (native_buf, nsamples, nchannels)
 	    sample = (*p++ >> 7);
 #else
 	    sample = (*p++ * rplay_audio_volume) >> 14;
-#endif	    
+#endif
 	    if (n & 1)
 	    {
 		if (sample > right_max)
@@ -120,7 +140,8 @@ level (native_buf, nsamples, nchannels)
 	    }
 	}
     }
-    else			/* mono */
+    else
+	/* mono */
     {
 	while (n--)
 	{
@@ -128,7 +149,7 @@ level (native_buf, nsamples, nchannels)
 	    sample = (*p++ >> 7);
 #else
 	    sample = (*p++ * rplay_audio_volume) >> 14;
-#endif	    
+#endif
 	    if (sample > left_max)
 	    {
 		left_max = sample;
@@ -145,7 +166,7 @@ level (native_buf, nsamples, nchannels)
 #ifdef FAKE_VOLUME
 /* Simulate hardware volume control.  */
 void
-fake_volume (native_buf, nsamples, nchannels)
+fake_volume(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -318,63 +339,63 @@ FUNC (sp, native_buf, nsamples, nchannels)											\
 /* ulaw */
 x_to_native
 (
- ulaw_to_native,
- linear = ulaw_to_linear (*(sp->ptr + curr_channel))
+    ulaw_to_native,
+    linear = ulaw_to_linear(*(sp->ptr + curr_channel))
 )
 
 /* signed 8-bit */
 x_to_native
 (
- s8_to_native,
- linear = (char) *(sp->ptr + curr_channel);
- linear <<= 8
+    s8_to_native,
+    linear = (char) *(sp->ptr + curr_channel);
+    linear <<= 8
 )
 
 /* unsigned 8-bit */
 x_to_native
 (
- u8_to_native,
- linear = (unsigned char) *(sp->ptr + curr_channel) ^ 0x80;
- linear <<= 8
+    u8_to_native,
+    linear = (unsigned char) *(sp->ptr + curr_channel) ^ 0x80;
+    linear <<= 8
 )
 
 /* signed 16-bit big-endian */
 x_to_native
 (
- big_s16_to_native,
- linear = (short) (sp->ptr[curr_channel << 1] << 8 | sp->ptr[(curr_channel << 1) + 1])
+    big_s16_to_native,
+    linear = (short) (sp->ptr[curr_channel << 1] << 8 | sp->ptr[(curr_channel << 1) + 1])
 )
 
 /* signed 16-bit little-endian */
 x_to_native
 (
- little_s16_to_native,
- linear = (short) (sp->ptr[(curr_channel << 1) + 1] << 8 | sp->ptr[curr_channel << 1])
+    little_s16_to_native,
+    linear = (short) (sp->ptr[(curr_channel << 1) + 1] << 8 | sp->ptr[curr_channel << 1])
 )
 
 /* unsigned 16-bit big-endian */
 x_to_native
 (
- big_u16_to_native,
- linear = (short) (sp->ptr[curr_channel << 1] << 8 | sp->ptr[(curr_channel << 1) + 1]) ^ 0x8000;
+    big_u16_to_native,
+    linear = (short) (sp->ptr[curr_channel << 1] << 8 | sp->ptr[(curr_channel << 1) + 1]) ^ 0x8000;
 )
 
 /* unsigned 16-bit little-endian */
 x_to_native
 (
- little_u16_to_native,
- linear = (short) (sp->ptr[(curr_channel << 1) + 1] << 8 | sp->ptr[curr_channel << 1]) ^ 0x8000;
+    little_u16_to_native,
+    linear = (short) (sp->ptr[(curr_channel << 1) + 1] << 8 | sp->ptr[curr_channel << 1]) ^ 0x8000;
 )
 
 /* native to native */
 x_to_native
 (
- native_to_native,
- linear = ( *((short *) sp->ptr + curr_channel) )
+    native_to_native,
+    linear = (*((short *) sp->ptr + curr_channel))
 )
-    
-static int
-native_to_ulaw (native_buf, nsamples, nchannels)
+
+    static int
+     native_to_ulaw(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -385,14 +406,14 @@ native_to_ulaw (native_buf, nsamples, nchannels)
 
     while (n--)
     {
-	*to++ = linear_to_ulaw (*from++);
+	*to++ = linear_to_ulaw(*from++);
     }
 
     return 0;
 }
 
 static int
-native_to_s8 (native_buf, nsamples, nchannels)
+native_to_s8(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -410,7 +431,7 @@ native_to_s8 (native_buf, nsamples, nchannels)
 }
 
 static int
-native_to_u8 (native_buf, nsamples, nchannels)
+native_to_u8(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -428,7 +449,7 @@ native_to_u8 (native_buf, nsamples, nchannels)
 }
 
 static int
-native_to_s16 (native_buf, nsamples, nchannels)
+native_to_s16(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -438,7 +459,7 @@ native_to_s16 (native_buf, nsamples, nchannels)
 }
 
 static int
-native_to_u16 (native_buf, nsamples, nchannels)
+native_to_u16(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -457,7 +478,7 @@ native_to_u16 (native_buf, nsamples, nchannels)
 
 #ifdef HAVE_ADPCM
 static int
-native_to_g721 (native_buf, nsamples, nchannels)
+native_to_g721(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -467,7 +488,7 @@ native_to_g721 (native_buf, nsamples, nchannels)
 }
 
 static int
-native_to_g723_3 (native_buf, nsamples, nchannels)
+native_to_g723_3(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -477,7 +498,7 @@ native_to_g723_3 (native_buf, nsamples, nchannels)
 }
 
 static int
-native_to_g723_5 (native_buf, nsamples, nchannels)
+native_to_g723_5(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;
@@ -489,7 +510,7 @@ native_to_g723_5 (native_buf, nsamples, nchannels)
 
 #ifdef HAVE_GSM
 static int
-native_to_gsm (native_buf, nsamples, nchannels)
+native_to_gsm(native_buf, nsamples, nchannels)
     char *native_buf;
     int nsamples;
     int nchannels;

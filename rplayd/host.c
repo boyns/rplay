@@ -1,4 +1,4 @@
-/* $Id: host.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
+/* $Id: host.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -54,10 +54,10 @@ static time_t host_read_time = 0;
  */
 #ifdef __STDC__
 void
-host_read (char *filename)
+host_read(char *filename)
 #else
 void
-host_read (filename)
+host_read(filename)
     char *filename;
 #endif
 {
@@ -68,38 +68,38 @@ host_read (filename)
     char expr_execute[HOST_EXPR_SIZE];
     int error = 0;
 
-    host_read_time = time (0);
+    host_read_time = time(0);
 
-    fp = fopen (filename, "r");
+    fp = fopen(filename, "r");
     if (fp == NULL)
     {
-	report (REPORT_ERROR, "host_read: cannot open %s\n", filename);
+	report(REPORT_ERROR, "host_read: cannot open %s\n", filename);
 	/* Don't exit anymore.  Localhost will be added automatically
 	   later. */
     }
 
-    b = buffer_create ();
+    b = buffer_create();
     b->status = BUFFER_KEEP;
-    strcpy (b->buf, "+message=\"hosts\"\r\n");
-    b->nbytes += strlen (b->buf);
+    strcpy(b->buf, "+message=\"hosts\"\r\n");
+    b->nbytes += strlen(b->buf);
     host_list = b;
 
     //memset ((char *) &access_read, 0, sizeof (access_read));
     //memset ((char *) &access_write, 0, sizeof (access_write));
     //memset ((char *) &access_execute, 0, sizeof (access_execute));
 
-    strcpy (expr_read, "^\\(");
-    strcpy (expr_write, "^\\(");
-    strcpy (expr_execute, "^\\(");
+    strcpy(expr_read, "^\\(");
+    strcpy(expr_write, "^\\(");
+    strcpy(expr_execute, "^\\(");
 
     do
     {
 	if (fp)
 	{
-	    p = fgets (buf, sizeof (buf), fp);
+	    p = fgets(buf, sizeof(buf), fp);
 	    if (!p)
 	    {
-		fclose (fp);
+		fclose(fp);
 		break;
 	    }
 	}
@@ -107,10 +107,10 @@ host_read (filename)
 	{
 	    /* rplay.hosts wasn't found and AUTH was defined in config.h.
 	       Assume that only the localhost should have access. */
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "%s:rwx", hostaddr);
-	    report (REPORT_NOTICE, "host_read: adding %s\n", buf);
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "%s:rwx", hostaddr);
+	    report(REPORT_NOTICE, "host_read: adding %s\n", buf);
 	}
-	
+
 	switch (buf[0])
 	{
 	case '#':
@@ -120,14 +120,14 @@ host_read (filename)
 	    continue;
 	}
 
-	p = strchr (buf, '\n');
+	p = strchr(buf, '\n');
 	if (p)
 	{
 	    *p = '\0';
 	}
 
 	name = buf;
-	perms = strchr (buf, ':');
+	perms = strchr(buf, ':');
 	if (perms)
 	{
 	    *perms = '\0';
@@ -138,118 +138,118 @@ host_read (filename)
 	    perms = HOST_DEFAULT_ACCESS;
 	}
 
-	host_insert (expr_read, expr_write, expr_execute, name, perms);
+	host_insert(expr_read, expr_write, expr_execute, name, perms);
     }
     while (fp);
 
     if (b->nbytes + 3 > BUFFER_SIZE)	/* room for .\r\n */
     {
-	b->next = buffer_create ();
+	b->next = buffer_create();
 	b = b->next;
 	b->status = BUFFER_KEEP;
     }
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE-b->nbytes), ".\r\n");
+    SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE - b->nbytes), ".\r\n");
     b->nbytes += 3;
 
-    if (strlen (expr_read) == 3)
+    if (strlen(expr_read) == 3)
     {
-	strcat (expr_read, "\\)");
+	strcat(expr_read, "\\)");
     }
     else
     {
-	expr_read[strlen (expr_read) - 1] = ')';
+	expr_read[strlen(expr_read) - 1] = ')';
     }
-    strcat (expr_read, "$");
-    if (strlen (expr_write) == 3)
+    strcat(expr_read, "$");
+    if (strlen(expr_write) == 3)
     {
-	strcat (expr_write, "\\)");
+	strcat(expr_write, "\\)");
     }
     else
     {
-	expr_write[strlen (expr_write) - 1] = ')';
+	expr_write[strlen(expr_write) - 1] = ')';
     }
-    strcat (expr_write, "$");
-    if (strlen (expr_execute) == 3)
+    strcat(expr_write, "$");
+    if (strlen(expr_execute) == 3)
     {
-	strcat (expr_execute, "\\)");
+	strcat(expr_execute, "\\)");
     }
     else
     {
-	expr_execute[strlen (expr_execute) - 1] = ')';
+	expr_execute[strlen(expr_execute) - 1] = ')';
     }
-    strcat (expr_execute, "$");
+    strcat(expr_execute, "$");
 
 #if 0
-    report (REPORT_DEBUG, "expr_read: %s\n", expr_read);
-    report (REPORT_DEBUG, "expr_write: %s\n", expr_write);
-    report (REPORT_DEBUG, "expr_execute: %s\n", expr_execute);
+    report(REPORT_DEBUG, "expr_read: %s\n", expr_read);
+    report(REPORT_DEBUG, "expr_write: %s\n", expr_write);
+    report(REPORT_DEBUG, "expr_execute: %s\n", expr_execute);
 #endif
 
-    error = regncomp (&access_read, expr_read, strlen (expr_read), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_read, expr_read, strlen(expr_read), REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report (REPORT_ERROR, "host_read: regncomp: %d\n", error);
-	done (1);
+	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	done(1);
     }
 
-    error= regncomp (&access_write, expr_write, strlen (expr_write), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_write, expr_write, strlen(expr_write), REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report (REPORT_ERROR, "host_read: regncomp: %d\n", error);
-	done (1);
+	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	done(1);
     }
 
-    error = regncomp (&access_execute, expr_execute, strlen (expr_execute), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_execute, expr_execute, strlen(expr_execute), REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report (REPORT_ERROR, "host_read: regncomp: %d\n", error);
-	done (1);
+	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	done(1);
     }
 }
 
 #ifdef __STDC__
 void
-host_reread (char *filename)
+host_reread(char *filename)
 #else
 void
-host_reread (filename)
+host_reread(filename)
     char *filename;
 #endif
 {
     BUFFER *b, *bb;
 
-    report (REPORT_DEBUG, "re-reading hosts\n");
+    report(REPORT_DEBUG, "re-reading hosts\n");
 
     /*
      * Free the old host buffer list.
      */
-    for (b = host_list; b; bb = b, b = b->next, bb->status = BUFFER_FREE, buffer_destroy (bb)) ;
+    for (b = host_list; b; bb = b, b = b->next, bb->status = BUFFER_FREE, buffer_destroy(bb)) ;
 
     host_list = NULL;
-    host_read (filename);
+    host_read(filename);
 }
 
 #ifdef __STDC__
 void
-host_stat (char *filename)
+host_stat(char *filename)
 #else
 void
-host_stat (filename)
+host_stat(filename)
     char *filename;
 #endif
 {
-    if (modified (filename, host_read_time))
+    if (modified(filename, host_read_time))
     {
-	host_reread (filename);
+	host_reread(filename);
     }
 }
 
 #ifdef __STDC__
 void
-host_insert (char *expr_read, char *expr_write, char *expr_execute, char *name, char *perms)
+host_insert(char *expr_read, char *expr_write, char *expr_execute, char *name, char *perms)
 #else
 void
-host_insert (expr_read, expr_write, expr_execute, name, perms)
+host_insert(expr_read, expr_write, expr_execute, name, perms)
     char *expr_read;
     char *expr_write;
     char *expr_execute;
@@ -265,32 +265,32 @@ host_insert (expr_read, expr_write, expr_execute, name, perms)
     char *re_name = 0;
     char line[RPTP_MAX_LINE];
 
-    SNPRINTF (SIZE(line,sizeof(line)), "host=%s access=%s\r\n", name, perms);
-    n = strlen (line);
+    SNPRINTF(SIZE(line, sizeof(line)), "host=%s access=%s\r\n", name, perms);
+    n = strlen(line);
 
     if (b->nbytes + n > BUFFER_SIZE)
     {
-	b->next = buffer_create ();
+	b->next = buffer_create();
 	b = b->next;
 	b->status = BUFFER_KEEP;
     }
 
-    strcat (b->buf, line);
+    strcat(b->buf, line);
     b->nbytes += n;
 
-    if (strchr (name, '*'))
+    if (strchr(name, '*'))
     {
-	re_name = host_ip_to_regex (name);
+	re_name = host_ip_to_regex(name);
     }
     else
     {
-	addr = inet_addr (name);
+	addr = inet_addr(name);
 	if (addr == 0xffffffff)
 	{
-	    hp = gethostbyname (name);
+	    hp = gethostbyname(name);
 	    if (hp == NULL)
 	    {
-		report (REPORT_NOTICE, "warning: %s unknown host\n", name);
+		report(REPORT_NOTICE, "warning: %s unknown host\n", name);
 		return;
 	    }
 	    /*
@@ -298,26 +298,26 @@ host_insert (expr_read, expr_write, expr_execute, name, perms)
 	     */
 	    for (ap = hp->h_addr_list + 1; *ap; ap++)
 	    {
-		memcpy ((char *) &addr_in, *ap, hp->h_length);
-		host_insert (expr_read, expr_write, expr_execute, inet_ntoa (addr_in), perms);
+		memcpy((char *) &addr_in, *ap, hp->h_length);
+		host_insert(expr_read, expr_write, expr_execute, inet_ntoa(addr_in), perms);
 	    }
-	    memcpy ((char *) &addr_in, (char *) hp->h_addr, sizeof (addr_in));
-	    re_name = host_ip_to_regex (inet_ntoa (addr_in));
+	    memcpy((char *) &addr_in, (char *) hp->h_addr, sizeof(addr_in));
+	    re_name = host_ip_to_regex(inet_ntoa(addr_in));
 	}
 	else
 	{
-	    memcpy ((char *) &addr_in, (char *) &addr, sizeof (addr_in));
-	    re_name = host_ip_to_regex (inet_ntoa (addr_in));
+	    memcpy((char *) &addr_in, (char *) &addr, sizeof(addr_in));
+	    re_name = host_ip_to_regex(inet_ntoa(addr_in));
 	}
 
 	/*
 	 * Add localhost automatically.
 	 */
-	if (strcmp (hostaddr, "127.0.0.1") != 0
-	    && strcmp (inet_ntoa (addr_in), hostaddr) == 0)
+	if (strcmp(hostaddr, "127.0.0.1") != 0
+	    && strcmp(inet_ntoa(addr_in), hostaddr) == 0)
 	{
-	    report (REPORT_DEBUG, "host_insert: adding localhost (127.0.0.1)\n");
-	    host_insert (expr_read, expr_write, expr_execute, "127.0.0.1", perms);
+	    report(REPORT_DEBUG, "host_insert: adding localhost (127.0.0.1)\n");
+	    host_insert(expr_read, expr_write, expr_execute, "127.0.0.1", perms);
 	}
     }
 
@@ -326,39 +326,39 @@ host_insert (expr_read, expr_write, expr_execute, name, perms)
 	switch (*p)
 	{
 	case HOST_READ:
-	    strcat (expr_read, re_name);
-	    strcat (expr_read, "\\|");
+	    strcat(expr_read, re_name);
+	    strcat(expr_read, "\\|");
 	    break;
 
 	case HOST_WRITE:
-	    strcat (expr_write, re_name);
-	    strcat (expr_write, "\\|");
+	    strcat(expr_write, re_name);
+	    strcat(expr_write, "\\|");
 	    break;
 
 	case HOST_EXECUTE:
-	    strcat (expr_execute, re_name);
-	    strcat (expr_execute, "\\|");
+	    strcat(expr_execute, re_name);
+	    strcat(expr_execute, "\\|");
 	    break;
 
 	default:
-	    report (REPORT_ERROR, "host_insert: '%c' unknown host access permission\n", *p);
-	    done (1);
+	    report(REPORT_ERROR, "host_insert: '%c' unknown host access permission\n", *p);
+	    done(1);
 	}
     }
 
     if (re_name)
     {
-	free (re_name);
+	free(re_name);
     }
 }
 
 /* return 1 if allowed */
 #ifdef __STDC__
 int
-host_access (struct sockaddr_in sin, char access_mode)
+host_access(struct sockaddr_in sin, char access_mode)
 #else
 int
-host_access (sin, access_mode)
+host_access(sin, access_mode)
     struct sockaddr_in sin;
     char access_mode;
 #endif
@@ -375,7 +375,7 @@ host_access (sin, access_mode)
 	return 1;
     }
 
-    p = inet_ntoa (sin.sin_addr);
+    p = inet_ntoa(sin.sin_addr);
 
     switch (access_mode)
     {
@@ -392,21 +392,21 @@ host_access (sin, access_mode)
 	break;
 
     default:
-	report (REPORT_ERROR, "host_access: unknown access mode '%s'\n", access_mode);
-	done (1);
+	report(REPORT_ERROR, "host_access: unknown access mode '%s'\n", access_mode);
+	done(1);
     }
 
-    n = regnexec (re, p, strlen (p), 0, 0, 0);
+    n = regnexec(re, p, strlen(p), 0, 0, 0);
 
     return !n;
 }
 
 #ifdef __STDC__
 char *
-host_ip_to_regex (char *p)
+host_ip_to_regex(char *p)
 #else
 char *
-host_ip_to_regex (p)
+host_ip_to_regex(p)
     char *p;
 #endif
 {
@@ -434,7 +434,7 @@ host_ip_to_regex (p)
 
     *q = '\0';
 
-    return strdup (buf);
+    return strdup(buf);
 }
 
 #endif /* AUTH */

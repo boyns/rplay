@@ -1,4 +1,4 @@
-/* $Id: helper.c,v 1.2 1998/08/13 06:13:52 boyns Exp $ */
+/* $Id: helper.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -48,10 +48,10 @@ static time_t helper_read_time;
 
 #ifdef __STDC__
 void
-helper_read (char *filename)
+helper_read(char *filename)
 #else
 void
-helper_read (filename)
+helper_read(filename)
     char *filename;
 #endif
 {
@@ -62,18 +62,18 @@ helper_read (filename)
     int line = 0;
     int error;
 
-    helper_read_time = time (0);
+    helper_read_time = time(0);
 
-    fp = fopen (filename, "r");
+    fp = fopen(filename, "r");
     if (fp == NULL)
     {
 	return;
     }
 
-    while (fgets (buf, sizeof (buf), fp) != NULL)
+    while (fgets(buf, sizeof(buf), fp) != NULL)
     {
 	line++;
-	
+
 	switch (buf[0])
 	{
 	case '#':
@@ -82,17 +82,17 @@ helper_read (filename)
 	case '\n':
 	    continue;
 	}
-	p = strchr (buf, '\n');
+	p = strchr(buf, '\n');
 	if (p)
 	{
 	    *p = '\0';
 	}
 
-	hp = (HELPER *) malloc (sizeof (HELPER));
+	hp = (HELPER *) malloc(sizeof(HELPER));
 	if (hp == NULL)
 	{
-	    report (REPORT_ERROR, "helper_read: out of memory\n");
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: out of memory\n");
+	    done(1);
 	}
 	hp->next = NULL;
 	hp->program = NULL;
@@ -103,57 +103,62 @@ helper_read (filename)
 	hp->byte_order = 0;
 
 	/* pattern */
-	pat = strtok (buf, " \t");
+	pat = strtok(buf, " \t");
 	if (!pat)
 	{
-	    report (REPORT_ERROR, "helper_read: parse error line %d\n", line);
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: parse error line %d\n", line);
+	    done(1);
 	}
 	//memset ((char *) &hp->pattern, 0, sizeof (hp->pattern));
-	error = regncomp (&hp->pattern, pat, strlen (pat), REG_ICASE | REG_NOSUB);
+	error = regncomp(&hp->pattern, pat, strlen(pat), REG_ICASE | REG_NOSUB);
 	if (error)
 	{
-	    report (REPORT_ERROR, "helper_read: %d line %d\n", error, line);
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: %d line %d\n", error, line);
+	    done(1);
 	}
 
 	/* info */
-	info = strtok (NULL, " \t");
+	info = strtok(NULL, " \t");
 	if (!info)
 	{
-	    report (REPORT_ERROR, "helper_read: parse error line %d\n", line);
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: parse error line %d\n", line);
+	    done(1);
 	}
-	for (; *info && (*info == ' ' || *info == '\t'); info++);
-	
+	for (; *info && (*info == ' ' || *info == '\t'); info++) ;
+
 	/* program */
-	prog = strtok (NULL, "");
+	prog = strtok(NULL, "");
 	if (!prog)
 	{
-	    report (REPORT_ERROR, "helper_read: parse error line %d\n", line);
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: parse error line %d\n", line);
+	    done(1);
 	}
-	for (; *prog && (*prog == ' ' || *prog == '\t'); prog++);
-	hp->program = strdup (prog);
+	for (; *prog && (*prog == ' ' || *prog == '\t'); prog++) ;
+	hp->program = strdup(prog);
 
 	/* parse info */
-	p = strtok (info, ",");
-	if (p) hp->format = string_to_audio_format (p);
-	p = strtok (NULL, ",");
-	if (p) hp->sample_rate = atoi (p);
-	p = strtok (NULL, ",");
-	if (p) hp->precision = atoi (p);
-	p = strtok (NULL, ",");
-	if (p) hp->channels = atoi (p);
-	p = strtok (NULL, ",");
-	if (p) hp->byte_order = string_to_byte_order (p);
+	p = strtok(info, ",");
+	if (p)
+	    hp->format = string_to_audio_format(p);
+	p = strtok(NULL, ",");
+	if (p)
+	    hp->sample_rate = atoi(p);
+	p = strtok(NULL, ",");
+	if (p)
+	    hp->precision = atoi(p);
+	p = strtok(NULL, ",");
+	if (p)
+	    hp->channels = atoi(p);
+	p = strtok(NULL, ",");
+	if (p)
+	    hp->byte_order = string_to_byte_order(p);
 	if (!hp->format || !hp->sample_rate || !hp->precision || !hp->channels || !hp->byte_order)
 	{
-	    report (REPORT_ERROR, "helper_read: parse error line %d\n", line);
-	    done (1);
+	    report(REPORT_ERROR, "helper_read: parse error line %d\n", line);
+	    done(1);
 	}
 
-	report (REPORT_DEBUG, "adding helper for \"%s\"\n", pat);
+	report(REPORT_DEBUG, "adding helper for \"%s\"\n", pat);
 
 	if (helpers == NULL)
 	{
@@ -167,23 +172,23 @@ helper_read (filename)
 	}
     }
 
-    fclose (fp);
+    fclose(fp);
 }
 
 #ifdef __STDC__
 HELPER *
-helper_lookup (char *sound)
+helper_lookup(char *sound)
 #else
 HELPER *
-helper_lookup (sound)
+helper_lookup(sound)
     char *sound;
-#endif    
+#endif
 {
     HELPER *hp;
-    
+
     for (hp = helpers; hp; hp = hp->next)
     {
-	if (regnexec (&hp->pattern, sound, strlen (sound), 0, 0, 0) == 0)
+	if (regnexec(&hp->pattern, sound, strlen(sound), 0, 0, 0) == 0)
 	{
 	    return hp;
 	}
@@ -193,40 +198,40 @@ helper_lookup (sound)
 
 #ifdef __STDC__
 void
-helper_reread (char *filename)
+helper_reread(char *filename)
 #else
 void
-helper_reread (filename)
+helper_reread(filename)
     char *filename;
 #endif
 {
     HELPER *hp, *hp_next;
-    
-    report (REPORT_DEBUG, "re-reading helpers\n");
-    
+
+    report(REPORT_DEBUG, "re-reading helpers\n");
+
     for (hp = helpers; hp; hp = hp_next)
     {
 	hp_next = hp->next;
-	regfree (&hp->pattern);
-	free (hp->program);
+	regfree(&hp->pattern);
+	free(hp->program);
     }
 
     helpers = NULL;
-    helper_read (filename);
+    helper_read(filename);
 }
 
 #ifdef __STDC__
 void
-helper_stat (char *filename)
+helper_stat(char *filename)
 #else
 void
-helper_stat (filename)
+helper_stat(filename)
     char *filename;
 #endif
 {
-    if (modified (filename, helper_read_time))
+    if (modified(filename, helper_read_time))
     {
-	helper_reread (filename);
+	helper_reread(filename);
     }
 }
 

@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.2 1998/08/13 06:14:28 boyns Exp $ */
+/* $Id: rptp.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -51,45 +51,45 @@ typedef struct
 COMMAND;
 
 #ifdef __STDC__
-void command_open (int argc, char **argv);
-void command_close (int argc, char **argv);
-void command_play (int argc, char **argv);
-void command_help (int argc, char **argv);
-void command_list (int argc, char **argv);
-void command_quit (int argc, char **argv);
-void command_put (int argc, char **argv);
-void command_get (int argc, char **argv);
-void command_unknown (int argc, char **argv);
-void command_status (int argc, char **argv);
-void command_generic (int argc, char **argv);
-void command_volume (int argc, char **argv);
-void command_skip (int argc, char **argv);
-void argv_to_command (char **argv);
-int connected ();
-void done (int exit_value);
-void usage ();
-void do_application ();
-void do_error (char *repsonse);
+void command_open(int argc, char **argv);
+void command_close(int argc, char **argv);
+void command_play(int argc, char **argv);
+void command_help(int argc, char **argv);
+void command_list(int argc, char **argv);
+void command_quit(int argc, char **argv);
+void command_put(int argc, char **argv);
+void command_get(int argc, char **argv);
+void command_unknown(int argc, char **argv);
+void command_status(int argc, char **argv);
+void command_generic(int argc, char **argv);
+void command_volume(int argc, char **argv);
+void command_skip(int argc, char **argv);
+void argv_to_command(char **argv);
+int connected();
+void done(int exit_value);
+void usage();
+void do_application();
+void do_error(char *repsonse);
 #else
-void command_open ( /* int argc, char **argv */ );
-void command_close ( /* int argc, char **argv */ );
-void command_play ( /* int argc, char **argv */ );
-void command_help ( /* int argc, char **argv */ );
-void command_list ( /* int argc, char **argv */ );
-void command_quit ( /* int argc, char **argv */ );
-void command_put ( /* int argc, char **argv */ );
-void command_get ( /* int argc, char **argv */ );
-void command_unknown ( /* int argc, char **argv */ );
-void command_status ( /* int argc, char **argv */ );
-void command_generic ( /* int argc, char **argv */ );
-void command_volume ( /* int argc, char **argv */ );
-void command_skip ( /* int argc, char **argv */ );
-void argv_to_command ( /* char **argv */ );
-int connected ();
-void done ( /* int exit_value */ );
-void usage ();
-void do_application ();
-void do_error ( /* char *repsonse */ );
+void command_open( /* int argc, char **argv */ );
+void command_close( /* int argc, char **argv */ );
+void command_play( /* int argc, char **argv */ );
+void command_help( /* int argc, char **argv */ );
+void command_list( /* int argc, char **argv */ );
+void command_quit( /* int argc, char **argv */ );
+void command_put( /* int argc, char **argv */ );
+void command_get( /* int argc, char **argv */ );
+void command_unknown( /* int argc, char **argv */ );
+void command_status( /* int argc, char **argv */ );
+void command_generic( /* int argc, char **argv */ );
+void command_volume( /* int argc, char **argv */ );
+void command_skip( /* int argc, char **argv */ );
+void argv_to_command( /* char **argv */ );
+int connected();
+void done( /* int exit_value */ );
+void usage();
+void do_application();
+void do_error( /* char *repsonse */ );
 #endif
 
 COMMAND commands[] =
@@ -141,9 +141,9 @@ extern int optind;
 extern char *optarg;
 
 #ifdef __STDC__
-main (int argc, char **argv)
+main(int argc, char **argv)
 #else
-main (argc, argv)
+main(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -156,7 +156,7 @@ main (argc, argv)
     int ac, first;
     char numeric_string[128];
 
-    while ((c = getopt_long (argc, argv, "+h:p:rv", longopts, 0)) != -1)
+    while ((c = getopt_long(argc, argv, "+h:p:rv", longopts, 0)) != -1)
     {
 	switch (c)
 	{
@@ -165,8 +165,8 @@ main (argc, argv)
 	    break;
 
 	case 1:		/* --help */
-	    usage ();
-	    done (0);
+	    usage();
+	    done(0);
 
 	case 2:		/* --prompt */
 	    prompt = optarg;
@@ -177,7 +177,7 @@ main (argc, argv)
 	    break;
 
 	case 'p':
-	    port = atoi (optarg);
+	    port = atoi(optarg);
 	    break;
 
 	case 'r':
@@ -185,12 +185,12 @@ main (argc, argv)
 	    break;
 
 	case 'v':
-	    printf ("rplay %s\n", RPLAY_VERSION);
-	    done (0);
+	    printf("rplay %s\n", RPLAY_VERSION);
+	    done(0);
 
 	default:
-	    fprintf (stderr, "Try `rptp --help' for more information.\n");
-	    exit (1);
+	    fprintf(stderr, "Try `rptp --help' for more information.\n");
+	    exit(1);
 	}
     }
 
@@ -201,38 +201,38 @@ main (argc, argv)
 
     if (host == NULL)
     {
-	host = rplay_default_host ();
+	host = rplay_default_host();
     }
 
-    rptp_fd = rptp_open (host, port, response, sizeof (response));
+    rptp_fd = rptp_open(host, port, response, sizeof(response));
     if (rptp_fd < 0)
     {
-	rptp_perror ("open");
+	rptp_perror("open");
     }
     else if (interactive)
     {
 	if (raw)
 	{
-	    printf ("%s\n", response);
+	    printf("%s\n", response);
 	}
 	else
 	{
-	    if (strchr (response, '='))
+	    if (strchr(response, '='))
 	    {
-		rptp_parse (response, 0);
-		printf ("%s rplayd %s connected\n",
-			rptp_parse (0, "host"),
-			rptp_parse (0, "version"));
+		rptp_parse(response, 0);
+		printf("%s rplayd %s connected\n",
+		       rptp_parse(0, "host"),
+		       rptp_parse(0, "version"));
 	    }
 	    else
 	    {
-		printf ("Connected to %s port %d.\n", host, port);
-		printf ("%s\n", response + 1);
+		printf("Connected to %s port %d.\n", host, port);
+		printf("%s\n", response + 1);
 	    }
 	}
     }
 
-    do_application ();
+    do_application();
 
     do
     {
@@ -240,16 +240,16 @@ main (argc, argv)
 	{
 	    if (!raw)
 	    {
-		printf (prompt);
-		fflush (stdout);
+		printf(prompt);
+		fflush(stdout);
 	    }
-	    if (fgets (buf, sizeof (buf), stdin) == NULL)
+	    if (fgets(buf, sizeof(buf), stdin) == NULL)
 	    {
-		done (0);
+		done(0);
 	    }
 	    first = 1;
 	    ac = 0;
-	    while ((p = strtok (first ? buf : NULL, " \t\r\n")))
+	    while ((p = strtok(first ? buf : NULL, " \t\r\n")))
 	    {
 		av[ac++] = p;
 		first = 0;
@@ -275,12 +275,12 @@ main (argc, argv)
 
 	for (i = 0; i < NCOMMANDS; i++)
 	{
-	    if (strcasecmp (commands[i].name, av[0]) == 0)
+	    if (strcasecmp(commands[i].name, av[0]) == 0)
 	    {
 		if ((commands[i].min_args >= 0 && ac - 1 < commands[i].min_args)
 		    || (commands[i].max_args >= 0 && ac - 1 > commands[i].max_args))
 		{
-		    printf ("Usage: %s %s\n", commands[i].name, commands[i].usage);
+		    printf("Usage: %s %s\n", commands[i].name, commands[i].usage);
 		}
 		else
 		{
@@ -291,36 +291,36 @@ main (argc, argv)
 	}
 	if (i == NCOMMANDS)
 	{
-	    command_unknown (ac, av);
+	    command_unknown(ac, av);
 	}
     }
     while (interactive);
 
-    done (0);
+    done(0);
 }
 
 #ifdef __STDC__
 void
-argv_to_command (char **argv)
+argv_to_command(char **argv)
 #else
 void
-argv_to_command (argv)
+argv_to_command(argv)
     char **argv;
 #endif
 {
     command[0] = '\0';
     for (; *argv; argv++)
     {
-	strcat (command, *argv);
+	strcat(command, *argv);
 	if (*(argv + 1))
 	{
-	    strcat (command, " ");
+	    strcat(command, " ");
 	}
     }
 }
 
 int
-connected ()
+connected()
 {
     if (rptp_fd != -1)
     {
@@ -328,17 +328,17 @@ connected ()
     }
     else
     {
-	printf ("You're not connected, use `open' first.\n");
+	printf("You're not connected, use `open' first.\n");
 	return 0;
     }
 }
 
 #ifdef __STDC__
 void
-command_open (int argc, char **argv)
+command_open(int argc, char **argv)
 #else
 void
-command_open (argc, argv)
+command_open(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -347,88 +347,88 @@ command_open (argc, argv)
 
     if (rptp_fd != -1)
     {
-	printf ("You're already connected, use `close' first.\n");
+	printf("You're already connected, use `close' first.\n");
     }
     else
     {
-	port = argc == 3 ? atoi (argv[2]) : RPTP_PORT;
-	rptp_fd = rptp_open (argv[1], port, response, sizeof (response));
+	port = argc == 3 ? atoi(argv[2]) : RPTP_PORT;
+	rptp_fd = rptp_open(argv[1], port, response, sizeof(response));
 	if (rptp_fd < 0)
 	{
-	    rptp_perror ("open");
+	    rptp_perror("open");
 	}
 	else
 	{
 	    if (raw)
 	    {
-		printf ("%s\n", response);
+		printf("%s\n", response);
 	    }
 	    else
 	    {
-		if (strchr (response, '='))
+		if (strchr(response, '='))
 		{
-		    printf ("%s rplayd %s connected\n",
-			rptp_parse (response, "host"),
-			rptp_parse (0, "version"));
+		    printf("%s rplayd %s connected\n",
+			   rptp_parse(response, "host"),
+			   rptp_parse(0, "version"));
 		}
 		else
 		{
-		    printf ("Connected to %s port %d.\n", argv[1], port);
-		    printf ("%s\n", response + 1);
+		    printf("Connected to %s port %d.\n", argv[1], port);
+		    printf("%s\n", response + 1);
 		}
 	    }
-	    do_application ();
+	    do_application();
 	}
     }
 }
 
 #ifdef __STDC__
 void
-command_close (int argc, char **argv)
+command_close(int argc, char **argv)
 #else
 void
-command_close (argc, argv)
+command_close(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    if (connected ())
+    if (connected())
     {
-	rptp_close (rptp_fd);
+	rptp_close(rptp_fd);
 	rptp_fd = -1;
 	if (interactive)
 	{
-	    printf ("Connection closed.\n");
+	    printf("Connection closed.\n");
 	}
     }
 }
 
 #ifdef __STDC__
 void
-command_play (int argc, char **argv)
+command_play(int argc, char **argv)
 #else
 void
-command_play (argc, argv)
+command_play(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    argv_to_command (argv);
+    argv_to_command(argv);
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
@@ -437,51 +437,51 @@ command_play (argc, argv)
 
     if (raw)
     {
-	printf ("%s\n", response);
+	printf("%s\n", response);
     }
 }
 
 #ifdef __STDC__
 void
-command_generic (int argc, char **argv)
+command_generic(int argc, char **argv)
 #else
 void
-command_generic (argc, argv)
+command_generic(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    argv_to_command (argv);
+    argv_to_command(argv);
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	break;
     }
 
-    printf ("%s\n", raw ? response : response + 1);
+    printf("%s\n", raw ? response : response + 1);
 }
 
 #ifdef __STDC__
 void
-command_help (int argc, char **argv)
+command_help(int argc, char **argv)
 #else
 void
-command_help (argc, argv)
+command_help(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -492,122 +492,122 @@ command_help (argc, argv)
     {
 	for (i = 0; i < NCOMMANDS; i++)
 	{
-	    if (strcasecmp (commands[i].name, argv[1]) == 0)
+	    if (strcasecmp(commands[i].name, argv[1]) == 0)
 	    {
-		printf ("Usage: %s %s\n", commands[i].name, commands[i].usage);
+		printf("Usage: %s %s\n", commands[i].name, commands[i].usage);
 		return;
 	    }
 	}
-	command_unknown (argc, argv);
+	command_unknown(argc, argv);
     }
     else
     {
-	printf ("access   Display remote access permissions.\n");
-	printf ("close    Close the current server connection.\n");
-	printf ("continue Continue paused sounds.\n");
-	printf ("find     Search for a sound.\n");
-	printf ("get      Retrieve a sound.\n");
-	printf ("help     Display help information.\n");
-	printf ("info     Display sound information.\n");
-	printf ("list     Display various server information.\n");
-	printf ("open     Connect to a server.\n");
-	printf ("pause    Pause sounds that are playing.\n");
-	printf ("play     Play sounds\n");
-	printf ("put      Send a sound.\n");
-	printf ("quit     Terminate the rptp session.\n");
-	printf ("reset    Tell the server to reset itself.\n");
-	printf ("skip     Skip sounds in a sound list.\n");
-	printf ("status   Display server statistics.\n");
-	printf ("stop     Stop sounds that are playing.\n");
-	printf ("version  Display the version of the server.\n");
-	printf ("volume   Get and set the volume of the audio device.\n");
-	printf ("wait     Wait for a spool id, volume change, or command execution.\n");
+	printf("access   Display remote access permissions.\n");
+	printf("close    Close the current server connection.\n");
+	printf("continue Continue paused sounds.\n");
+	printf("find     Search for a sound.\n");
+	printf("get      Retrieve a sound.\n");
+	printf("help     Display help information.\n");
+	printf("info     Display sound information.\n");
+	printf("list     Display various server information.\n");
+	printf("open     Connect to a server.\n");
+	printf("pause    Pause sounds that are playing.\n");
+	printf("play     Play sounds\n");
+	printf("put      Send a sound.\n");
+	printf("quit     Terminate the rptp session.\n");
+	printf("reset    Tell the server to reset itself.\n");
+	printf("skip     Skip sounds in a sound list.\n");
+	printf("status   Display server statistics.\n");
+	printf("stop     Stop sounds that are playing.\n");
+	printf("version  Display the version of the server.\n");
+	printf("volume   Get and set the volume of the audio device.\n");
+	printf("wait     Wait for a spool id, volume change, or command execution.\n");
     }
 }
 
 #ifdef __STDC__
 void
-command_list (int argc, char **argv)
+command_list(int argc, char **argv)
 #else
 void
-command_list (argc, argv)
+command_list(argc, argv)
     int argc;
     char **argv;
 #endif
 {
     int n;
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    argv_to_command (argv);
+    argv_to_command(argv);
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	if (raw)
 	{
-	    printf ("%s\n", response);
+	    printf("%s\n", response);
 	}
 	break;
     }
 
     for (;;)
     {
-	n = rptp_getline (rptp_fd, rptp_buf, sizeof (rptp_buf));
+	n = rptp_getline(rptp_fd, rptp_buf, sizeof(rptp_buf));
 	if (n < 0)
 	{
-	    rptp_perror ("list");
-	    command_close (argc, argv);
+	    rptp_perror("list");
+	    command_close(argc, argv);
 	    break;
 	}
-	if (strcmp (rptp_buf, ".") == 0)
+	if (strcmp(rptp_buf, ".") == 0)
 	{
 	    if (raw)
 	    {
-		printf ("%s\n", rptp_buf);
+		printf("%s\n", rptp_buf);
 	    }
 	    break;
 	}
-	printf ("%s\n", rptp_buf);
+	printf("%s\n", rptp_buf);
     }
 }
 
 #ifdef __STDC__
 void
-command_quit (int argc, char **argv)
+command_quit(int argc, char **argv)
 #else
 void
-command_quit (argc, argv)
+command_quit(argc, argv)
     int argc;
     char **argv;
 #endif
 {
     if (rptp_fd != -1)
     {
-	rptp_close (rptp_fd);
-	printf ("Connection closed.\n");
+	rptp_close(rptp_fd);
+	printf("Connection closed.\n");
     }
-    done (0);
+    done(0);
 }
 
 #ifdef __STDC__
 void
-command_put (int argc, char **argv)
+command_put(int argc, char **argv)
 #else
 void
-command_put (argc, argv)
+command_put(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -617,65 +617,65 @@ command_put (argc, argv)
     struct stat st;
     char line[RPTP_MAX_LINE];
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    if (stat (argv[1], &st) < 0)
+    if (stat(argv[1], &st) < 0)
     {
-	perror (argv[1]);
+	perror(argv[1]);
 	return;
     }
-    fp = fopen (argv[1], "r");
+    fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
-	perror (argv[1]);
+	perror(argv[1]);
 	return;
     }
     size = st.st_size;
 
-    sprintf (line, "put sound=%s size=%d", argv[1], size);
+    sprintf(line, "put sound=%s size=%d", argv[1], size);
 
-    switch (rptp_command (rptp_fd, line, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, line, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	break;
     }
 
-    printf ("%s\n", raw ? response : response + 1);
+    printf("%s\n", raw ? response : response + 1);
 
     while (size > 0)
     {
-	n = fread (rptp_buf, 1, sizeof (rptp_buf), fp);
-	nwritten = rptp_write (rptp_fd, rptp_buf, n);
+	n = fread(rptp_buf, 1, sizeof(rptp_buf), fp);
+	nwritten = rptp_write(rptp_fd, rptp_buf, n);
 	if (nwritten != n)
 	{
-	    rptp_perror ("put");
-	    command_close (argc, argv);
+	    rptp_perror("put");
+	    command_close(argc, argv);
 	    break;
 	}
 	size -= nwritten;
     }
 
-    fclose (fp);
+    fclose(fp);
 }
 
 #ifdef __STDC__
 void
-command_get (int argc, char **argv)
+command_get(int argc, char **argv)
 #else
 void
-command_get (argc, argv)
+command_get(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -686,7 +686,7 @@ command_get (argc, argv)
     int size, n, nread;
     char line[RPTP_MAX_LINE];
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
@@ -701,97 +701,97 @@ command_get (argc, argv)
 	filename = argv[1];
     }
 
-    sprintf (line, "get sound=%s", argv[1]);
+    sprintf(line, "get sound=%s", argv[1]);
 
-    switch (rptp_command (rptp_fd, line, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, line, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	break;
     }
 
-    printf ("%s\n", raw ? response : response + 1);
+    printf("%s\n", raw ? response : response + 1);
 
-    fp = fopen (filename, "w");
+    fp = fopen(filename, "w");
     if (fp == NULL)
     {
-	perror (filename);
+	perror(filename);
 	return;
     }
 
-    if (strchr (response, '='))
+    if (strchr(response, '='))
     {
-	size = atoi (rptp_parse (response, "size"));
+	size = atoi(rptp_parse(response, "size"));
     }
     else
     {
-	p = strtok (response + 1, " ");
-	size = atoi (strtok (NULL, "\r\n"));
+	p = strtok(response + 1, " ");
+	size = atoi(strtok(NULL, "\r\n"));
     }
 
     while (size > 0)
     {
-	n = MIN (sizeof (rptp_buf), size);
-	nread = rptp_read (rptp_fd, rptp_buf, n);
+	n = MIN(sizeof(rptp_buf), size);
+	nread = rptp_read(rptp_fd, rptp_buf, n);
 	if (nread != n)
 	{
-	    rptp_perror ("get");
+	    rptp_perror("get");
 	    break;
 	}
-	fwrite (rptp_buf, 1, n, fp);
+	fwrite(rptp_buf, 1, n, fp);
 	size -= n;
     }
 
-    fclose (fp);
+    fclose(fp);
 }
 
 #ifdef __STDC__
 void
-command_unknown (int argc, char **argv)
+command_unknown(int argc, char **argv)
 #else
 void
-command_unknown (argc, argv)
+command_unknown(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    printf ("Unknown command `%s'.\n", argv[0]);
+    printf("Unknown command `%s'.\n", argv[0]);
 }
 
 #ifdef __STDC__
 void
-command_status (int argc, char **argv)
+command_status(int argc, char **argv)
 #else
 void
-command_status (argc, argv)
+command_status(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    argv_to_command (argv);
+    argv_to_command(argv);
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
@@ -800,149 +800,149 @@ command_status (argc, argv)
 
     if (raw)
     {
-	printf ("%s\n", response);
+	printf("%s\n", response);
     }
     else
     {
 	int first = 1;
 	char *name, *value;
 
-	while (name = rptp_parse (first ? response : 0, 0))
+	while (name = rptp_parse(first ? response : 0, 0))
 	{
 	    first = 0;
-	    value = rptp_parse (0, name);
-	    printf ("%s=%s\n", name, value);
+	    value = rptp_parse(0, name);
+	    printf("%s=%s\n", name, value);
 	}
     }
 }
 
 #ifdef __STDC__
 void
-command_volume (int argc, char **argv)
+command_volume(int argc, char **argv)
 #else
 void
-command_volume (argc, argv)
+command_volume(argc, argv)
     int argc;
     char **argv;
 #endif
 {
     char *volume;
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
     if (argc == 2)
     {
-	sprintf (command, "set volume=%s", argv[1]);
+	sprintf(command, "set volume=%s", argv[1]);
     }
     else
     {
-	sprintf (command, "set volume");
+	sprintf(command, "set volume");
     }
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	break;
     }
 
-    volume = rptp_parse (response, "volume");
+    volume = rptp_parse(response, "volume");
     if (volume && *volume)
     {
-	printf ("volume=%s\n", volume);
+	printf("volume=%s\n", volume);
     }
     else
     {
-	printf ("unknown response `%s'\n", response);
+	printf("unknown response `%s'\n", response);
     }
 }
 
 #ifdef __STDC__
 void
-command_skip (int argc, char **argv)
+command_skip(int argc, char **argv)
 #else
 void
-command_skip (argc, argv)
+command_skip(argc, argv)
     int argc;
     char **argv;
 #endif
 {
     char *value;
 
-    if (!connected ())
+    if (!connected())
     {
 	return;
     }
 
-    if (strchr (command, '='))
+    if (strchr(command, '='))
     {
 	/* Leave command alone. */
     }
     else if (argc == 3)
     {
-	sprintf (command, "skip id=%s count=%s", argv[1], argv[2]);
+	sprintf(command, "skip id=%s count=%s", argv[1], argv[2]);
     }
     else if (argc == 2)
     {
-	sprintf (command, "skip id=%s count=1", argv[1]);
+	sprintf(command, "skip id=%s count=1", argv[1]);
     }
     else
     {
-	sprintf (command, "skip id=#0 count=1");
+	sprintf(command, "skip id=#0 count=1");
     }
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	command_close (argc, argv);
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
 	break;
     }
 
-    value = rptp_parse (response, "message");
+    value = rptp_parse(response, "message");
     if (value && *value)
     {
-	printf ("%s\n", value);
+	printf("%s\n", value);
     }
     else
     {
-	printf ("unknown response `%s'\n", response);
+	printf("unknown response `%s'\n", response);
     }
 }
 
 void
-do_application ()
+do_application()
 {
-    sprintf (command, "set application=\"rptp %s\"", RPLAY_VERSION);
+    sprintf(command, "set application=\"rptp %s\"", RPLAY_VERSION);
 
-    switch (rptp_command (rptp_fd, command, response, sizeof (response)))
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
     {
     case -1:
-	rptp_perror ("application");
-	rptp_close (rptp_fd);
+	rptp_perror("application");
+	rptp_close(rptp_fd);
 	rptp_fd = -1;
 	return;
 
     case 1:
-	do_error (response);
+	do_error(response);
 	return;
 
     case 0:
@@ -952,64 +952,64 @@ do_application ()
 
 #ifdef __STDC__
 void
-do_error (char *response)
+do_error(char *response)
 #else
 void
-do_error (response)
+do_error(response)
     char *response;
 #endif
 {
     if (raw)
     {
-	printf ("%s\n", response);
+	printf("%s\n", response);
     }
     else
     {
 	char *error;
 
-	error = rptp_parse (response, "error");
+	error = rptp_parse(response, "error");
 	if (!error || !*error)
 	{
 	    error = response;
 	}
-	printf ("%s\n", error);
+	printf("%s\n", error);
     }
 }
 
 void
-usage ()
+usage()
 {
-    printf ("\nrplay %s\n\n", RPLAY_VERSION);
-    printf ("usage: rptp [options] [command]\n");
-    printf ("--help\n");
-    printf ("\tDisplay helpful information.\n");
-    printf ("\n");
+    printf("\nrplay %s\n\n", RPLAY_VERSION);
+    printf("usage: rptp [options] [command]\n");
+    printf("--help\n");
+    printf("\tDisplay helpful information.\n");
+    printf("\n");
 
-    printf ("-h HOST, --host=HOST\n");
-    printf ("\tSpecify the RPTP host, default = %s.\n",
-	rplay_default_host ());
-    printf ("\n");
+    printf("-h HOST, --host=HOST\n");
+    printf("\tSpecify the RPTP host, default = %s.\n",
+	   rplay_default_host());
+    printf("\n");
 
-    printf ("-p PORT, --port=PORT\n");
-    printf ("\tUse PORT instead of the default RPTP port, default = %d.\n", RPTP_PORT);
-    printf ("\n");
+    printf("-p PORT, --port=PORT\n");
+    printf("\tUse PORT instead of the default RPTP port, default = %d.\n", RPTP_PORT);
+    printf("\n");
 
-    printf ("-r, --raw\n");
-    printf ("\tEnable raw RPTP mode.\n");
-    printf ("\n");
+    printf("-r, --raw\n");
+    printf("\tEnable raw RPTP mode.\n");
+    printf("\n");
 
-    printf ("-v, --version\n");
-    printf ("\tDisplay rplay version information.\n");
+    printf("-v, --version\n");
+    printf("\tDisplay rplay version information.\n");
 }
 
 #ifdef __STDC__
 void
-done (int exit_value)
+done(int exit_value)
 #else
 void
-done (exit_value)
+done(exit_value)
     int exit_value;
 #endif
 {
-    exit (exit_value);
+    exit(exit_value);
 }

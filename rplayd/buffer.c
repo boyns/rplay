@@ -1,4 +1,4 @@
-/* $Id: buffer.c,v 1.2 1998/08/13 06:13:40 boyns Exp $ */
+/* $Id: buffer.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -37,21 +37,21 @@ static int next_id = 0;		/* next buffer id number */
 
 #ifdef __STDC__
 BUFFER *
-buffer_create (void)
+buffer_create(void)
 #else
 BUFFER *
-buffer_create ()
+buffer_create()
 #endif
 {
     BUFFER *b;
 
     if (buffers == NULL)
     {
-	b = (BUFFER *) malloc (sizeof (BUFFER));
+	b = (BUFFER *) malloc(sizeof(BUFFER));
 	if (b == NULL)
 	{
-	    report (REPORT_ERROR, "buffer_create: out of memory\n");
-	    done (1);
+	    report(REPORT_ERROR, "buffer_create: out of memory\n");
+	    done(1);
 	}
 	b->id = ++next_id;
     }
@@ -73,10 +73,10 @@ buffer_create ()
 
 #ifdef __STDC__
 void
-buffer_destroy (BUFFER *b)
+buffer_destroy(BUFFER *b)
 #else
 void
-buffer_destroy (b)
+buffer_destroy(b)
     BUFFER *b;
 #endif
 {
@@ -98,7 +98,7 @@ buffer_destroy (b)
     else
     {
 	/* Free the buffer. */
-	free ((char *) b);
+	free((char *) b);
     }
 }
 
@@ -107,10 +107,10 @@ buffer_destroy (b)
  */
 #ifdef __STDC__
 BUFFER *
-buffer_alloc (int nbytes, int type)
+buffer_alloc(int nbytes, int type)
 #else
 BUFFER *
-buffer_alloc (nbytes, type)
+buffer_alloc(nbytes, type)
     int nbytes;
     int type;
 #endif
@@ -119,7 +119,7 @@ buffer_alloc (nbytes, type)
 
     do
     {
-	*next = buffer_create ();
+	*next = buffer_create();
 	nbytes -= BUFFER_SIZE;
 	(*next)->status = type;
 	next = &(*next)->next;
@@ -133,10 +133,10 @@ buffer_alloc (nbytes, type)
 
 #ifdef __STDC__
 void
-buffer_dealloc (BUFFER *b, int force)
+buffer_dealloc(BUFFER *b, int force)
 #else
 void
-buffer_dealloc (b, force)
+buffer_dealloc(b, force)
     BUFFER *b;
     int force;
 #endif
@@ -150,28 +150,28 @@ buffer_dealloc (b, force)
 	{
 	    b->status = BUFFER_FREE;
 	}
-	buffer_destroy (b);
+	buffer_destroy(b);
 	b = next;
     }
 }
 
 #ifdef __STDC__
 void
-buffer_cleanup (void)
+buffer_cleanup(void)
 #else
 void
-buffer_cleanup ()
+buffer_cleanup()
 #endif
 {
     BUFFER *b;
 
-    report (REPORT_DEBUG, "cleaning up buffers - %d bytes\n", nbuffers * BUFFER_SIZE);
+    report(REPORT_DEBUG, "cleaning up buffers - %d bytes\n", nbuffers * BUFFER_SIZE);
 
     while (buffers)
     {
 	b = buffers;
 	buffers = buffers->next;
-	free ((char *) b);
+	free((char *) b);
     }
 
     buffers = NULL;

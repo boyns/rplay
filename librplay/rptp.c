@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.2 1998/08/13 06:13:38 boyns Exp $ */
+/* $Id: rptp.c,v 1.3 1998/11/07 21:15:33 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -64,31 +64,31 @@ char *rptp_errlist[] =
 };
 
 #ifdef __STDC__
-unsigned long inet_addr (char *rp);
+unsigned long inet_addr(char *rp);
 #else
-unsigned long inet_addr ();
+unsigned long inet_addr();
 #endif
 
 #ifndef HAVE_STRDUP
 #ifdef __STDC__
 static char *
-strdup (char *str)
+strdup(char *str)
 #else
 static char *
-strdup (str)
+strdup(str)
     char *str;
 #endif
 {
     char *p;
 
-    p = (char *) malloc (strlen (str) + 1);
+    p = (char *) malloc(strlen(str) + 1);
     if (p == NULL)
     {
 	return NULL;
     }
     else
     {
-	strcpy (p, str);
+	strcpy(p, str);
 	return p;
     }
 }
@@ -100,10 +100,10 @@ strdup (str)
  */
 #ifdef __STDC__
 int
-rptp_open (char *host, int port, char *response, int response_size)
+rptp_open(char *host, int port, char *response, int response_size)
 #else
 int
-rptp_open (host, port, response, response_size)
+rptp_open(host, port, response, response_size)
     char *host;
     int port;
     char *response;
@@ -118,49 +118,49 @@ rptp_open (host, port, response, response_size)
 
     rptp_errno = RPTP_ERROR_NONE;
 
-    memset ((char *) &s, 0, sizeof (s));
+    memset((char *) &s, 0, sizeof(s));
 
-    addr = inet_addr (host);
+    addr = inet_addr(host);
     if (addr == 0xffffffff)
     {
-	hp = gethostbyname (host);
+	hp = gethostbyname(host);
 	if (hp == NULL)
 	{
 	    rptp_errno = RPTP_ERROR_HOST;
 	    return -1;
 	}
-	memcpy ((char *) &s.sin_addr.s_addr, (char *) hp->h_addr, hp->h_length);
+	memcpy((char *) &s.sin_addr.s_addr, (char *) hp->h_addr, hp->h_length);
     }
     else
     {
-	memcpy ((char *) &s.sin_addr.s_addr, (char *) &addr, sizeof (addr));
+	memcpy((char *) &s.sin_addr.s_addr, (char *) &addr, sizeof(addr));
     }
 
-    s.sin_port = htons (port);
+    s.sin_port = htons(port);
     s.sin_family = AF_INET;
 
     for (i = 0; i < RPTP_CONNECT_ATTEMPTS; i++)
     {
-	if (rplay_ping (host) < 0)
+	if (rplay_ping(host) < 0)
 	{
 	    rptp_errno = RPTP_ERROR_PING;
 	    return -1;
 	}
 
-	rptp_fd = socket (AF_INET, SOCK_STREAM, 0);
+	rptp_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (rptp_fd < 0)
 	{
 	    rptp_errno = RPTP_ERROR_SOCKET;
 	    return -1;
 	}
 
-	n = connect (rptp_fd, (struct sockaddr *) &s, sizeof (s));
+	n = connect(rptp_fd, (struct sockaddr *) &s, sizeof(s));
 	if (n == 0)
 	{
 	    /*
 	     * successful connection
 	     */
-	    rptp_getline (rptp_fd, response, response_size);
+	    rptp_getline(rptp_fd, response, response_size);
 	    if (response[0] == RPTP_ERROR)
 	    {
 		rptp_errno = RPTP_ERROR_OPEN;
@@ -173,10 +173,10 @@ rptp_open (host, port, response, response_size)
 	{
 	case ECONNREFUSED:
 	case EINTR:
-	    close (rptp_fd);
+	    close(rptp_fd);
 	    if (i + 1 != RPTP_CONNECT_ATTEMPTS)
 	    {
-		sleep (RPTP_PING_DELAY);
+		sleep(RPTP_PING_DELAY);
 	    }
 	    break;
 
@@ -201,10 +201,10 @@ rptp_open (host, port, response, response_size)
  */
 #ifdef __STDC__
 int
-rptp_read (int rptp_fd, char *ptr, int nbytes)
+rptp_read(int rptp_fd, char *ptr, int nbytes)
 #else
 int
-rptp_read (rptp_fd, ptr, nbytes)
+rptp_read(rptp_fd, ptr, nbytes)
     int rptp_fd;
     char *ptr;
     int nbytes;
@@ -218,7 +218,7 @@ rptp_read (rptp_fd, ptr, nbytes)
 
     while (nleft > 0)
     {
-	nread = read (rptp_fd, ptr, nleft);
+	nread = read(rptp_fd, ptr, nleft);
 	if (nread < 0)
 	{
 	    if (errno == EINTR)
@@ -249,10 +249,10 @@ rptp_read (rptp_fd, ptr, nbytes)
  */
 #ifdef __STDC__
 int
-rptp_write (int rptp_fd, char *ptr, int nbytes)
+rptp_write(int rptp_fd, char *ptr, int nbytes)
 #else
 int
-rptp_write (rptp_fd, ptr, nbytes)
+rptp_write(rptp_fd, ptr, nbytes)
     int rptp_fd;
     char *ptr;
     int nbytes;
@@ -266,7 +266,7 @@ rptp_write (rptp_fd, ptr, nbytes)
 
     while (nleft > 0)
     {
-	nwritten = write (rptp_fd, ptr, nleft);
+	nwritten = write(rptp_fd, ptr, nleft);
 	if (nwritten < 0)
 	{
 	    if (errno == EINTR)
@@ -295,10 +295,10 @@ rptp_write (rptp_fd, ptr, nbytes)
  */
 #ifdef __STDC__
 int
-rptp_putline (int rptp_fd, char *fmt,...)
+rptp_putline(int rptp_fd, char *fmt,...)
 #else
 int
-rptp_putline (va_alist)
+rptp_putline(va_alist)
     va_dcl
 #endif
 {
@@ -306,22 +306,22 @@ rptp_putline (va_alist)
     char buf[RPTP_MAX_LINE];
 
 #ifdef __STDC__
-    va_start (args, fmt);
+    va_start(args, fmt);
 #else
     int rptp_fd;
     char *fmt;
-    va_start (args);
-    rptp_fd = va_arg (args, int);
-    fmt = va_arg (args, char *);
+    va_start(args);
+    rptp_fd = va_arg(args, int);
+    fmt = va_arg(args, char *);
 #endif
 
     rptp_errno = RPTP_ERROR_NONE;
 
-    vsprintf (buf, fmt, args);
-    va_end (args);
-    strcat (buf, "\r\n");
+    vsprintf(buf, fmt, args);
+    va_end(args);
+    strcat(buf, "\r\n");
 
-    return rptp_write (rptp_fd, buf, strlen (buf)) != strlen (buf) ? -1 : 0;
+    return rptp_write(rptp_fd, buf, strlen(buf)) != strlen(buf) ? -1 : 0;
 }
 
 /*
@@ -331,10 +331,10 @@ rptp_putline (va_alist)
  */
 #ifdef __STDC__
 int
-rptp_getline (int rptp_fd, char *buf, int nbytes)
+rptp_getline(int rptp_fd, char *buf, int nbytes)
 #else
 int
-rptp_getline (rptp_fd, buf, nbytes)
+rptp_getline(rptp_fd, buf, nbytes)
     int rptp_fd;
     char *buf;
     int nbytes;
@@ -355,7 +355,7 @@ rptp_getline (rptp_fd, buf, nbytes)
 	 * peek at the message so only the necessary data
 	 * is actually read
 	 */
-	n = recv (rptp_fd, ptr, nleft, MSG_PEEK);
+	n = recv(rptp_fd, ptr, nleft, MSG_PEEK);
 	if (n < 0)
 	{
 	    if (errno == EINTR)
@@ -384,7 +384,7 @@ rptp_getline (rptp_fd, buf, nbytes)
 	    }
 	}
       again:
-	x = read (rptp_fd, tmp_buf, i == n ? n : i + 1);
+	x = read(rptp_fd, tmp_buf, i == n ? n : i + 1);
 	if (x < 0)
 	{
 	    if (errno == EINTR)
@@ -420,10 +420,10 @@ rptp_getline (rptp_fd, buf, nbytes)
  */
 #ifdef __STDC__
 int
-rptp_command (int rptp_fd, char *command, char *response, int response_size)
+rptp_command(int rptp_fd, char *command, char *response, int response_size)
 #else
 int
-rptp_command (rptp_fd, command, response, response_size)
+rptp_command(rptp_fd, command, response, response_size)
     int rptp_fd;
     char *command;
     char *response;
@@ -432,11 +432,11 @@ rptp_command (rptp_fd, command, response, response_size)
 {
     rptp_errno = RPTP_ERROR_NONE;
 
-    if (rptp_putline (rptp_fd, command) < 0)
+    if (rptp_putline(rptp_fd, command) < 0)
     {
 	return -1;
     }
-    if (rptp_getline (rptp_fd, response, response_size) < 0)
+    if (rptp_getline(rptp_fd, response, response_size) < 0)
     {
 	return -1;
     }
@@ -464,16 +464,16 @@ rptp_command (rptp_fd, command, response, response_size)
  */
 #ifdef __STDC__
 int
-rptp_close (int rptp_fd)
+rptp_close(int rptp_fd)
 #else
 int
-rptp_close (rptp_fd)
+rptp_close(rptp_fd)
     int rptp_fd;
 #endif
 {
     rptp_errno = RPTP_ERROR_NONE;
 
-    close (rptp_fd);
+    close(rptp_fd);
 
     return 0;
 }
@@ -483,14 +483,14 @@ rptp_close (rptp_fd)
  */
 #ifdef __STDC__
 void
-rptp_perror (char *message)
+rptp_perror(char *message)
 #else
 void
-rptp_perror (message)
+rptp_perror(message)
     char *message;
 #endif
 {
-    fprintf (stderr, "%s: %s\n", message, rptp_errlist[rptp_errno]);
+    fprintf(stderr, "%s: %s\n", message, rptp_errlist[rptp_errno]);
 }
 
 /*
@@ -530,10 +530,10 @@ static LIST *list = NULL, **list_next = &list;
 
 #ifdef __STDC__
 char *
-rptp_parse (char *response, char *name)
+rptp_parse(char *response, char *name)
 #else
 char *
-rptp_parse (response, name)
+rptp_parse(response, name)
     char *response;
     char *name;
 #endif
@@ -552,12 +552,12 @@ rptp_parse (response, name)
 	char *p;
 	char *response_name = "", *response_value = "";
 
-	list_free ();
+	list_free();
 	if (buf)
 	{
-	    free ((char *) buf);
+	    free((char *) buf);
 	}
-	buf = strdup (response);
+	buf = strdup(response);
 
 	p = buf;
 
@@ -574,15 +574,15 @@ rptp_parse (response, name)
 	while (p && *p)
 	{
 	    /* Skip white-space. */
-	    if (isspace (*p))
+	    if (isspace(*p))
 	    {
-		for (p++; isspace (*p); p++) ;
+		for (p++; isspace(*p); p++) ;
 		continue;
 	    }
 
 	    /* `name' */
 	    response_name = p;
-	    p = strpbrk (p, "= \t\r\n");
+	    p = strpbrk(p, "= \t\r\n");
 
 	    /* `value' */
 	    if (p && *p == '=')
@@ -600,11 +600,11 @@ rptp_parse (response, name)
 		response_value = p;
 		if (quoted)
 		{
-		    p = strchr (p, '"');
+		    p = strchr(p, '"');
 		}
 		else
 		{
-		    p = strpbrk (p, " \t\r\n");
+		    p = strpbrk(p, " \t\r\n");
 		}
 		if (p)
 		{
@@ -616,7 +616,7 @@ rptp_parse (response, name)
 		*p++ = '\0';
 	    }
 
-	    list_add (response_name, response_value);
+	    list_add(response_name, response_value);
 	    response_name = "";
 	    response_value = "";
 	}
@@ -630,17 +630,17 @@ rptp_parse (response, name)
     {
 	LIST *l;
 	char *p;
-	
+
 	/* Skip any leading dashes. */
 	while (*name == '-')
 	{
 	    name++;
 	}
-	
+
 	if (cache_pos)
 	{
-	    for (p = cache_pos->name; *p && *p == '-'; p++) ; /* skip leading dashes */
-	    if (strcmp (name, p) == 0)
+	    for (p = cache_pos->name; *p && *p == '-'; p++) ;	/* skip leading dashes */
+	    if (strcmp(name, p) == 0)
 	    {
 		return cache_pos->value;
 	    }
@@ -648,8 +648,8 @@ rptp_parse (response, name)
 
 	for (l = list; l; l = l->next)
 	{
-	    for (p = l->name; *p && *p == '-'; p++) ; /* skip leading dashes */
-	    if (strcmp (p, name) == 0)
+	    for (p = l->name; *p && *p == '-'; p++) ;	/* skip leading dashes */
+	    if (strcmp(p, name) == 0)
 	    {
 		return l->value;
 	    }

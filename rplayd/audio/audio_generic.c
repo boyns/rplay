@@ -1,4 +1,4 @@
-/* $Id: audio_generic.c,v 1.3 1998/09/03 06:08:45 boyns Exp $ */
+/* $Id: audio_generic.c,v 1.4 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #include "rplayd.h"
 
 /*
@@ -85,15 +85,15 @@ static RPLAY_AUDIO_TABLE generic_table[] =
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_init ()
+rplay_audio_init()
 {
     if (rplay_audio_fd == -1)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
 	if (rplay_audio_fd == -1)
 	{
-	    report (REPORT_ERROR, "rplay_audio_init: cannot open %s\n",
-		rplay_audio_device);
+	    report(REPORT_ERROR, "rplay_audio_init: cannot open %s\n",
+		   rplay_audio_device);
 	    return -1;
 	}
     }
@@ -114,25 +114,25 @@ rplay_audio_init ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_open ()
+rplay_audio_open()
 {
     int flags;
 
-    rplay_audio_fd = open (rplay_audio_device, O_WRONLY | O_NDELAY, 0);
+    rplay_audio_fd = open(rplay_audio_device, O_WRONLY | O_NDELAY, 0);
     if (rplay_audio_fd < 0)
     {
 	return -1;
     }
 
-    if (fcntl (rplay_audio_fd, F_SETFD, 1) < 0)
+    if (fcntl(rplay_audio_fd, F_SETFD, 1) < 0)
     {
-	report (REPORT_ERROR,
-		"rplay_audio_open: close-on-exec %d\n",
-		sys_err_str(errno));
+	report(REPORT_ERROR,
+	       "rplay_audio_open: close-on-exec %d\n",
+	       sys_err_str(errno));
 	/* return -1; */
     }
 
-    if (rplay_audio_init () < 0)
+    if (rplay_audio_init() < 0)
     {
 	return -1;
     }
@@ -140,13 +140,13 @@ rplay_audio_open ()
     /*
      * Make sure the audio device writes are non-blocking.
      */
-    flags = fcntl (rplay_audio_fd, F_GETFL, 0);
+    flags = fcntl(rplay_audio_fd, F_GETFL, 0);
     if (flags < 0)
     {
 	return -1;
     }
     flags |= FNDELAY;
-    if (fcntl (rplay_audio_fd, F_SETFL, flags) < 0)
+    if (fcntl(rplay_audio_fd, F_SETFL, flags) < 0)
     {
 	return -1;
     }
@@ -160,7 +160,7 @@ rplay_audio_open ()
  * Return 1 for true and 0 for false.
  */
 int
-rplay_audio_isopen ()
+rplay_audio_isopen()
 {
     return rplay_audio_fd != -1;
 }
@@ -171,7 +171,7 @@ rplay_audio_isopen ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_flush ()
+rplay_audio_flush()
 {
     return 0;
 }
@@ -183,10 +183,10 @@ rplay_audio_flush ()
  */
 #ifdef __STDC__
 int
-rplay_audio_write (char *buf, int nbytes)
+rplay_audio_write(char *buf, int nbytes)
 #else
 int
-rplay_audio_write (buf, nbytes)
+rplay_audio_write(buf, nbytes)
     char *buf;
     int nbytes;
 #endif
@@ -199,7 +199,7 @@ rplay_audio_write (buf, nbytes)
 
     for (p = buf; nleft > 0; nleft -= n, p += n)
     {
-	n = write (rplay_audio_fd, p, nleft);
+	n = write(rplay_audio_fd, p, nleft);
 	if (n < 0)
 	{
 	    if (errno == EWOULDBLOCK)
@@ -227,11 +227,11 @@ rplay_audio_write (buf, nbytes)
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_close ()
+rplay_audio_close()
 {
     if (rplay_audio_fd != -1)
     {
-	close (rplay_audio_fd);
+	close(rplay_audio_fd);
     }
 
     rplay_audio_fd = -1;
@@ -245,7 +245,7 @@ rplay_audio_close ()
  * Return 0-255 or -1 on error.
  */
 int
-rplay_audio_get_volume ()
+rplay_audio_get_volume()
 {
 #ifdef FAKE_VOLUME
     return rplay_audio_volume;
@@ -262,10 +262,10 @@ rplay_audio_get_volume ()
  */
 #ifdef __STDC__
 int
-rplay_audio_set_volume (int volume)
+rplay_audio_set_volume(int volume)
 #else
 int
-rplay_audio_set_volume (volume)
+rplay_audio_set_volume(volume)
     int volume;
 #endif
 {

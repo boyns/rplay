@@ -1,4 +1,4 @@
-/* $Id: spool.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
+/* $Id: spool.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -54,7 +54,7 @@ int spool_needs_update = 0;	/* Need to call spool_update().  */
  * initialize the sound spool
  */
 void
-spool_init ()
+spool_init()
 {
     SPOOL *sp, *sp_next;
 
@@ -62,7 +62,7 @@ spool_init ()
     for (sp = spool; sp; sp = sp_next)
     {
 	sp_next = sp->next;
-	spool_destroy (sp);
+	spool_destroy(sp);
     }
 
     spool = NULL;
@@ -73,20 +73,20 @@ spool_init ()
 
 /* Create a new spool entry.  */
 SPOOL *
-spool_create ()
+spool_create()
 {
-    SPOOL *sp = (SPOOL *) malloc (sizeof (SPOOL));
+    SPOOL *sp = (SPOOL *) malloc(sizeof(SPOOL));
     if (sp == NULL)
     {
-	report (REPORT_ERROR, "spool_create: out of memory\n");
-	done (1);
+	report(REPORT_ERROR, "spool_create: out of memory\n");
+	done(1);
     }
 
     /* `sp' must be initialized before being reset.  */
-    memset ((char *) sp, 0, sizeof (SPOOL));
+    memset((char *) sp, 0, sizeof(SPOOL));
     sp->id = -1;		/* XXX */
 
-    spool_reset (sp);
+    spool_reset(sp);
 
     /* Insert the new entry into the spool list.  */
     sp->next = spool;
@@ -105,15 +105,15 @@ spool_create ()
 /* Destroy the given spool entry.  */
 #ifdef __STDC__
 void
-spool_destroy (SPOOL *sp)
+spool_destroy(SPOOL *sp)
 #else
 void
-spool_destroy (sp)
+spool_destroy(sp)
     SPOOL *sp;
 #endif
 {
     /* Reset `sp' in case any resources are allocated. */
-    spool_reset (sp);
+    spool_reset(sp);
 
     /* Remove `sp' from the spool list.  */
     if (sp->prev)
@@ -131,7 +131,7 @@ spool_destroy (sp)
 
     spool_size--;
 
-    free ((char *) sp);
+    free((char *) sp);
 }
 
 /*
@@ -142,10 +142,10 @@ spool_destroy (sp)
  */
 #ifdef __STDC__
 SPOOL *
-spool_next (int priority)
+spool_next(int priority)
 #else
 SPOOL *
-spool_next (priority)
+spool_next(priority)
     int priority;
 #endif
 {
@@ -156,8 +156,8 @@ spool_next (priority)
     /* There's room for a new entry.  */
     if (spool_size < SPOOL_SIZE)
     {
-	sp = spool_create ();
-	sp->id = spool_id ();
+	sp = spool_create();
+	sp->id = spool_id();
 	return sp;
     }
 
@@ -182,13 +182,13 @@ spool_next (priority)
 	sp = lowest;
 	if (sp->notify_position)
 	{
-	    connection_notify (0, NOTIFY_POSITION, sp);
+	    connection_notify(0, NOTIFY_POSITION, sp);
 	    sp->notify_position = 0;
 	}
-	connection_notify (0, NOTIFY_DONE, sp);
-	spool_reset (sp);
+	connection_notify(0, NOTIFY_DONE, sp);
+	spool_reset(sp);
 	spool_nplaying--;
-	sp->id = spool_id ();
+	sp->id = spool_id();
 	return sp;
     }
     else
@@ -201,10 +201,10 @@ spool_next (priority)
    `next' and `prev' are NOT changed.  */
 #ifdef __STDC__
 void
-spool_reset (SPOOL *sp)
+spool_reset(SPOOL *sp)
 #else
 void
-spool_reset (sp)
+spool_reset(sp)
     SPOOL *sp;
 #endif
 {
@@ -213,7 +213,7 @@ spool_reset (sp)
     {
 	/* Wakeup any connections that may be waiting for this
 	   spool entry. Their flow data will be ignored. */
-	connection_flow_continue (sp);
+	connection_flow_continue(sp);
     }
     sp->id = -1;
     sp->time = 0;
@@ -223,10 +223,10 @@ spool_reset (sp)
 
 	for (i = 0; i < sp->rp->nsounds; i++)
 	{
-	    sound_clean (sp->sound[i]);
+	    sound_clean(sp->sound[i]);
 	}
-	
-	rplay_destroy (sp->rp);
+
+	rplay_destroy(sp->rp);
     }
     sp->rp = NULL;
     sp->ptr = NULL;
@@ -240,18 +240,18 @@ spool_reset (sp)
     sp->oversample_inc[1] = 0;
     if (sp->curr_buffer)
     {
-	buffer_dealloc (sp->curr_buffer, 1);
+	buffer_dealloc(sp->curr_buffer, 1);
     }
     sp->curr_buffer = NULL;
     if (sp->next_buffer)
     {
-	buffer_dealloc (sp->next_buffer, 1);
+	buffer_dealloc(sp->next_buffer, 1);
     }
     sp->next_buffer = NULL;
     sp->offset = 0;
     if (sp->si)
     {
-	sound_close (sp->si);
+	sound_close(sp->si);
     }
     sp->si = NULL;
     sp->to_native = NULL;
@@ -259,16 +259,16 @@ spool_reset (sp)
     sp->auto_pause = 0;
     sp->notify_position = 0;
 
-    spool_setprio ();
+    spool_setprio();
 }
 
 /* Find the maximum spool priority.  */
 #ifdef __STDC__
 void
-spool_setprio (void)
+spool_setprio(void)
 #else
 void
-spool_setprio ()
+spool_setprio()
 #endif
 {
     SPOOL *sp;
@@ -278,7 +278,7 @@ spool_setprio ()
     {
 	if (sp->state == SPOOL_PLAY)
 	{
-	    spool_prio = MAX (spool_prio, sp->rp->priority);
+	    spool_prio = MAX(spool_prio, sp->rp->priority);
 	}
     }
 }
@@ -286,10 +286,10 @@ spool_setprio ()
 /* Find the given RPLAY object in the spool.  */
 #ifdef __STDC__
 int
-spool_match (RPLAY *match, void (*action) (SPOOL *), struct sockaddr_in sin)
+spool_match(RPLAY *match, void (*action) (SPOOL *), struct sockaddr_in sin)
 #else
 int
-spool_match (match, action, sin)
+spool_match(match, action, sin)
     RPLAY *match;
     void (*action) ();
     struct sockaddr_in sin;
@@ -314,7 +314,7 @@ spool_match (match, action, sin)
 	{
 	    for (; a2; a2 = a2->next)
 	    {
-		id = atoi (a2->sound + 1);
+		id = atoi(a2->sound + 1);
 		if (id == 0 || id == sp->id)
 		{
 		    sp->sin = sin;
@@ -329,7 +329,7 @@ spool_match (match, action, sin)
 	rp = sp->rp;
 	for (a1 = rp->attrs, a2 = match->attrs; a1 && a2; a1 = a1->next, a2 = a2->next)
 	{
-	    if (strcmp (a1->sound, a2->sound))
+	    if (strcmp(a1->sound, a2->sound))
 	    {
 		break;
 	    }
@@ -348,10 +348,10 @@ spool_match (match, action, sin)
 /* Remove any spool entries with `sound' from the spool. */
 #ifdef __STDC__
 void
-spool_remove (SOUND *sound)
+spool_remove(SOUND *sound)
 #else
 void
-spool_remove (sound)
+spool_remove(sound)
     SOUND *sound;
 #endif
 {
@@ -377,7 +377,7 @@ spool_remove (sound)
 	}
 	if (n)
 	{
-	    spool_done (sp);
+	    spool_done(sp);
 	}
     }
 }
@@ -387,10 +387,10 @@ spool_remove (sound)
  */
 #ifdef __STDC__
 void
-spool_ready (SOUND *sound)
+spool_ready(SOUND *sound)
 #else
 void
-spool_ready (sound)
+spool_ready(sound)
     SOUND *sound;
 #endif
 {
@@ -422,10 +422,10 @@ spool_ready (sound)
 	    {
 		for (j = 0; j < sp->rp->nsounds; j++)
 		{
-		    sound_map (sp->sound[j]);
+		    sound_map(sp->sound[j]);
 		}
 
-		spool_play (sp);
+		spool_play(sp);
 	    }
 	}
     }
@@ -433,7 +433,7 @@ spool_ready (sound)
 
 /* Return a buffer list for the `list spool' command.  */
 BUFFER *
-spool_list_create ()
+spool_list_create()
 {
     BUFFER *spool_list, *b;
     int i, n;
@@ -443,55 +443,55 @@ spool_list_create ()
     SPOOL *sp;
     int length;
 
-    b = buffer_create ();
+    b = buffer_create();
     spool_list = b;
-    SNPRINTF (SIZE(b->buf,BUFFER_SIZE), "+message=\"spool\"\r\n");
-    b->nbytes += strlen (b->buf);
+    SNPRINTF(SIZE(b->buf, BUFFER_SIZE), "+message=\"spool\"\r\n");
+    b->nbytes += strlen(b->buf);
 
     for (sp = spool; sp; sp = sp->next)
     {
 	length = 0;
 	line[0] = '\0';
 
-	SNPRINTF (SIZE(buf,sizeof(buf)), "id=#%d state=", sp->id);
-	strncat(line+length, buf, sizeof(line)-length);
+	SNPRINTF(SIZE(buf, sizeof(buf)), "id=#%d state=", sp->id);
+	strncat(line + length, buf, sizeof(line) - length);
 	length += strlen(buf);
 
 	switch (sp->state)
 	{
 	case SPOOL_PLAY:
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "play");
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "play");
 	    break;
 
 	case SPOOL_PAUSE:
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "pause");
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "pause");
 	    break;
 
 	case SPOOL_WAIT:
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "wait");
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "wait");
 	    break;
 
 	case SPOOL_NEXT:
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "next");
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "next");
 	    break;
 
 	case SPOOL_SKIP:
-	    SNPRINTF (SIZE(buf,sizeof(buf)), "skip");
+	    SNPRINTF(SIZE(buf, sizeof(buf)), "skip");
 	    break;
 
 	default:
 	    continue;
 	}
-	strncat(line+length, buf, sizeof(line)-length);
+	strncat(line + length, buf, sizeof(line) - length);
 	length += strlen(buf);
 
 	s = sp->sound[sp->curr_sound];
 
-	SNPRINTF (SIZE(buf,sizeof(buf)), "\
+	SNPRINTF(SIZE(buf, sizeof(buf)), "\
  sound=\"%s\" host=%s volume=%d priority=%d count=%d position=%.2f remain=%.2f seconds=%.2f size=%d\
  sample-rate=%d channels=%d bits=%g input=%s client-data=\"%s\" list-name=\"%s\"\r\n",
 		 sp->curr_attrs->sound,
-		 inet_ntoa (sp->sin.sin_addr),
+		 inet_ntoa(sp->sin.sin_addr),
 		 sp->curr_attrs->volume,
 		 sp->rp->priority,
 		 sp->curr_count,
@@ -502,30 +502,30 @@ spool_list_create ()
 		 sp->sample_rate,
 		 s->channels,
 		 s->input_precision,
-		 input_to_string (s->type),
+		 input_to_string(s->type),
 		 sp->curr_attrs->client_data,
 		 sp->rp->list_name);
 
-	strncat(line+length, buf, sizeof(line)-length);
+	strncat(line + length, buf, sizeof(line) - length);
 	length += strlen(buf);
 
 	if (b->nbytes + length > BUFFER_SIZE)
 	{
-	    b->next = buffer_create ();
+	    b->next = buffer_create();
 	    b = b->next;
 	}
 
-	strncat(b->buf+b->nbytes, line, BUFFER_SIZE-b->nbytes);
+	strncat(b->buf + b->nbytes, line, BUFFER_SIZE - b->nbytes);
 	b->nbytes += length;
     }
 
     if (b->nbytes + 3 > BUFFER_SIZE)
     {
-	b->next = buffer_create ();
+	b->next = buffer_create();
 	b = b->next;
     }
-    
-    strncat(b->buf+b->nbytes, ".\r\n", BUFFER_SIZE-b->nbytes);
+
+    strncat(b->buf + b->nbytes, ".\r\n", BUFFER_SIZE - b->nbytes);
     b->nbytes += 3;
 
     return spool_list;
@@ -535,7 +535,7 @@ spool_list_create ()
  * Return a unique spool id.
  */
 int
-spool_id ()
+spool_id()
 {
     static int id = 0;
     SPOOL *sp;
@@ -563,14 +563,14 @@ spool_id ()
 
 #ifdef __STDC__
 void
-spool_stop (SPOOL *sp)
+spool_stop(SPOOL *sp)
 #else
 void
-spool_stop (sp)
+spool_stop(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
     switch (sp->state)
     {
     case SPOOL_PLAY:
@@ -586,27 +586,27 @@ spool_stop (sp)
 	}
 	if (sp->notify_position)
 	{
-	    connection_notify (0, NOTIFY_POSITION, sp);
+	    connection_notify(0, NOTIFY_POSITION, sp);
 	    sp->notify_position = 0;
 	}
-	connection_notify (0, NOTIFY_STOP, sp);
-	connection_notify (0, NOTIFY_DONE, sp);
-	spool_destroy (sp);
+	connection_notify(0, NOTIFY_STOP, sp);
+	connection_notify(0, NOTIFY_DONE, sp);
+	spool_destroy(sp);
 	break;
     }
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_pause (SPOOL *sp)
+spool_pause(SPOOL *sp)
 #else
 void
-spool_pause (sp)
+spool_pause(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
     if (sp->state == SPOOL_PLAY)
     {
 	sp->state = SPOOL_PAUSE;
@@ -614,49 +614,49 @@ spool_pause (sp)
 	spool_npaused++;
 	if (sp->notify_position)
 	{
-	    connection_notify (0, NOTIFY_POSITION, sp);
+	    connection_notify(0, NOTIFY_POSITION, sp);
 	    sp->notify_position = 0;
 	}
-	connection_notify (0, NOTIFY_PAUSE, sp);
+	connection_notify(0, NOTIFY_PAUSE, sp);
     }
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_continue (SPOOL *sp)
+spool_continue(SPOOL *sp)
 #else
 void
-spool_continue (sp)
+spool_continue(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
     if (sp->state == SPOOL_PAUSE)
     {
 	sp->state = SPOOL_PLAY;
 	if (rplay_audio_match)
 	{
-	    rplayd_audio_match (sp);
+	    rplayd_audio_match(sp);
 	}
 	spool_nplaying++;
 	spool_npaused--;
 	spool_needs_update++;
-	connection_notify (0, NOTIFY_CONTINUE, sp);
+	connection_notify(0, NOTIFY_CONTINUE, sp);
     }
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_done (SPOOL *sp)
+spool_done(SPOOL *sp)
 #else
 void
-spool_done (sp)
+spool_done(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
     switch (sp->state)
     {
     case SPOOL_PLAY:
@@ -664,7 +664,7 @@ spool_done (sp)
     case SPOOL_WAIT:
 	if (sp->si && sp->si->is_flow && sp->state == SPOOL_PLAY)
 	{
-	    sp->si->eof = 1;  /* spool_update will deal with this */
+	    sp->si->eof = 1;	/* spool_update will deal with this */
 	}
 	else
 	{
@@ -678,27 +678,27 @@ spool_done (sp)
 	    }
 	    if (sp->notify_position)
 	    {
-		connection_notify (0, NOTIFY_POSITION, sp);
+		connection_notify(0, NOTIFY_POSITION, sp);
 		sp->notify_position = 0;
 	    }
-	    connection_notify (0, NOTIFY_DONE, sp);
-	    spool_destroy (sp);
+	    connection_notify(0, NOTIFY_DONE, sp);
+	    spool_destroy(sp);
 	}
 	break;
     }
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_flow_pause (SPOOL *sp)
+spool_flow_pause(SPOOL *sp)
 #else
 void
-spool_flow_pause (sp)
+spool_flow_pause(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
 
     if (sp->state == SPOOL_PLAY)
     {
@@ -706,19 +706,19 @@ spool_flow_pause (sp)
 	spool_nplaying--;
     }
 
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_flow_continue (SPOOL *sp)
+spool_flow_continue(SPOOL *sp)
 #else
 void
-spool_flow_continue (sp)
+spool_flow_continue(sp)
     SPOOL *sp;
 #endif
 {
-    timer_block ();
+    timer_block();
 
     if (sp->state == SPOOL_WAIT)
     {
@@ -727,15 +727,15 @@ spool_flow_continue (sp)
 	spool_needs_update++;
     }
 
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 int
-spool_flow_insert (SPOOL *sp, BUFFER *b)
+spool_flow_insert(SPOOL *sp, BUFFER *b)
 #else
 int
-spool_flow_insert (sp, b)
+spool_flow_insert(sp, b)
     SPOOL *sp;
     BUFFER *b;
 #endif
@@ -745,21 +745,21 @@ spool_flow_insert (sp, b)
 
     s = sp->sound[sp->curr_sound];
     *s->flowp = b;
-    for (tmp_buf = b; tmp_buf->next; tmp_buf = tmp_buf->next);
+    for (tmp_buf = b; tmp_buf->next; tmp_buf = tmp_buf->next) ;
     s->flowp = &tmp_buf->next;
 
     /* Enable the sound. */
     if (s->status == SOUND_NOT_READY)
     {
 	s->status = SOUND_READY;
-	if (sound_map (s) < 0)
+	if (sound_map(s) < 0)
 	{
 	    /* Punt - can't determine what type of sound it is. */
-	    spool_remove (s);
+	    spool_remove(s);
 	    /* spool_remove now deletes the sound - sound_delete (s, 0); */
 	    return -1;
 	}
-	spool_ready (s);
+	spool_ready(s);
     }
 
     for (tmp_buf = b; tmp_buf; tmp_buf = tmp_buf->next)
@@ -768,12 +768,12 @@ spool_flow_insert (sp, b)
 	sp->si->water_mark += tmp_buf->nbytes;
     }
 
-    s->samples = number_of_samples (s, sp->si->water_mark);
+    s->samples = number_of_samples(s, sp->si->water_mark);
 
     /* Wakeup the spool entry. */
     if (sp->state == SPOOL_WAIT)
     {
-	spool_flow_continue (sp);
+	spool_flow_continue(sp);
     }
 
     return 0;
@@ -781,17 +781,17 @@ spool_flow_insert (sp, b)
 
 #ifdef __STDC__
 void
-spool_skip (SPOOL *sp, int count)
+spool_skip(SPOOL *sp, int count)
 #else
 void
-spool_skip (sp, count)
+spool_skip(sp, count)
     SPOOL *sp;
     int count;
 #endif
 {
     SOUND *s;
 
-    timer_block ();
+    timer_block();
     s = sp->sound[sp->curr_sound];
     /* Only sounds that are playing or paused can be skipped.
        Flows can't be skipped right now. */
@@ -806,17 +806,17 @@ spool_skip (sp, count)
 	sp->state = SPOOL_SKIP;
 	sp->skip_count = count;
 	spool_needs_update++;
-	connection_notify (0, NOTIFY_SKIP, sp);
+	connection_notify(0, NOTIFY_SKIP, sp);
     }
-    timer_unblock ();
+    timer_unblock();
 }
 
 #ifdef __STDC__
 void
-spool_play (SPOOL *sp)
+spool_play(SPOOL *sp)
 #else
 void
-spool_play (sp)
+spool_play(sp)
     SPOOL *sp;
 #endif
 {
@@ -830,45 +830,45 @@ spool_play (sp)
     {
 	char name_buf[MAXPATHLEN];
 	char *p;
-	
-	strncpy (name_buf, sp->curr_attrs->sound, sizeof(name_buf));
-	p = strchr (name_buf, ':');
+
+	strncpy(name_buf, sp->curr_attrs->sound, sizeof(name_buf));
+	p = strchr(name_buf, ':');
 	if (p == NULL)
 	{
-	    report (REPORT_DEBUG, "spool_play: can't parse cdrom name `%s'\n", s->name);
+	    report(REPORT_DEBUG, "spool_play: can't parse cdrom name `%s'\n", s->name);
 	    return;
 	}
 	*p++ = '\0';
 
-	if (strchr (p, '-'))
+	if (strchr(p, '-'))
 	{
-	    p = strtok (p, "-");
+	    p = strtok(p, "-");
 	    if (p)
 	    {
-		s->starting_track = atoi (p);
-		p = strtok (NULL, "");
+		s->starting_track = atoi(p);
+		p = strtok(NULL, "");
 		if (p)
 		{
-		    s->ending_track = atoi (p);
+		    s->ending_track = atoi(p);
 		}
 	    }
 	}
 	else
 	{
-	    s->starting_track = atoi (p);
-	    s->ending_track = atoi (p);
+	    s->starting_track = atoi(p);
+	    s->ending_track = atoi(p);
 	}
     }
-#endif /* HAVE_CDROM */    
+#endif /* HAVE_CDROM */
 
-    sp->si = sound_open (s, 1);
+    sp->si = sound_open(s, 1);
     if (sp->si == NULL)
     {
-	spool_destroy (sp);
+	spool_destroy(sp);
 	return;
     }
 
-    sound_seek (sp->si, s->offset, SEEK_SET);	/* skip the audio header */
+    sound_seek(sp->si, s->offset, SEEK_SET);	/* skip the audio header */
 
     sp->curr_buffer = NULL;
     sp->next_buffer = NULL;
@@ -876,32 +876,32 @@ spool_play (sp)
     sp->to_native = native_table[s->format].to_native[s->byte_order - 1];
 
 
-    spool_set_sample_rate (sp, 
-			   (sp->curr_attrs->sample_rate == RPLAY_DEFAULT_SAMPLE_RATE)
-			   ? s->sample_rate : sp->curr_attrs->sample_rate);
+    spool_set_sample_rate(sp,
+		  (sp->curr_attrs->sample_rate == RPLAY_DEFAULT_SAMPLE_RATE)
+			  ? s->sample_rate : sp->curr_attrs->sample_rate);
 
     /* Change the state to SPOOL_PLAY when ALL fields have been assigned. */
     sp->state = SPOOL_PLAY;
-    
+
     spool_nplaying++;
-    spool_setprio ();
+    spool_setprio();
     spool_needs_update++;
-    connection_notify (0, NOTIFY_PLAY, sp);
-    connection_notify (0, NOTIFY_POSITION, sp);
+    connection_notify(0, NOTIFY_PLAY, sp);
+    connection_notify(0, NOTIFY_POSITION, sp);
 
     if (sp->auto_pause)
     {
-	spool_pause (sp);
+	spool_pause(sp);
 	sp->auto_pause = 0;
     }
 }
 
 #ifdef __STDC__
 void
-spool_update (void)
+spool_update(void)
 #else
 void
-spool_update ()
+spool_update()
 #endif
 {
     int i, n;
@@ -909,10 +909,10 @@ spool_update ()
     SOUND *s;
     BUFFER *b;
     time_t now;
-    
+
     spool_needs_update = 0;
-    now = time (0);
-    
+    now = time(0);
+
     for (sp = spool; sp; sp = sp_next)
     {
 	sp_next = sp->next;	/* sp may be destroyed */
@@ -929,22 +929,22 @@ spool_update ()
 	case SPOOL_NEXT:
 	    if (sp->notify_position)
 	    {
-		connection_notify (0, NOTIFY_POSITION, sp);
+		connection_notify(0, NOTIFY_POSITION, sp);
 		sp->notify_position = 0;
 	    }
-	    
+
 	    if (!sp->auto_pause)	/* something was playing */
 	    {
 		spool_nplaying--;
 	    }
-	    
+
 	    if (sp->si)
 	    {
-		sound_close (sp->si);
+		sound_close(sp->si);
 		sp->si = NULL;
 	    }
-	    buffer_dealloc (sp->curr_buffer, 0);
-	    buffer_dealloc (sp->next_buffer, 0);
+	    buffer_dealloc(sp->curr_buffer, 0);
+	    buffer_dealloc(sp->next_buffer, 0);
 	    sp->curr_buffer = NULL;
 	    sp->next_buffer = NULL;
 	    sp->offset = 0;
@@ -952,8 +952,8 @@ spool_update ()
 	    if (sp->state == SPOOL_SKIP)
 	    {
 		/* The current sound is now `done'. */
-		connection_notify (0, NOTIFY_DONE, sp);
-		
+		connection_notify(0, NOTIFY_DONE, sp);
+
 		if (sp->skip_count == 0)
 		{
 		    sp->curr_count++;	/* "play it again Sam" */
@@ -1014,14 +1014,15 @@ spool_update ()
 			sp->curr_attrs = sp->rp->attrs;
 			sp->curr_sound = 0;
 		    }
-		    else /* The spool entry is finished. */
-		    {			
-			if (sp->state != SPOOL_SKIP) /* already sent `done' */
+		    else
+			/* The spool entry is finished. */
+		    {
+			if (sp->state != SPOOL_SKIP)	/* already sent `done' */
 			{
-			    connection_notify (0, NOTIFY_DONE, sp);
+			    connection_notify(0, NOTIFY_DONE, sp);
 			}
 
-			spool_destroy (sp);
+			spool_destroy(sp);
 			continue;
 		    }
 		}
@@ -1048,7 +1049,7 @@ spool_update ()
 
 		sp->curr_count = sp->curr_attrs->count;
 	    }
-	    spool_play (sp);
+	    spool_play(sp);
 	    /* break; */
 
 	case SPOOL_PLAY:
@@ -1057,21 +1058,21 @@ spool_update ()
 	    {
 		s = sp->sound[sp->curr_sound];
 
-#ifdef HAVE_OSS		
-		b = buffer_alloc (MIN (s->sample_rate * s->output_sample_size, SOUND_FILL_SIZE),
-				  BUFFER_REUSE);
+#ifdef HAVE_OSS
+		b = buffer_alloc(MIN(s->sample_rate * s->output_sample_size, SOUND_FILL_SIZE),
+				 BUFFER_REUSE);
 #else
-		b = buffer_alloc (MIN (MAX (curr_bufsize * curr_rate,
-					    s->sample_rate * s->output_sample_size),
-				       SOUND_FILL_SIZE),
-				  BUFFER_REUSE);
-#endif		
+		b = buffer_alloc(MIN(MAX(curr_bufsize * curr_rate,
+				    s->sample_rate * s->output_sample_size),
+				     SOUND_FILL_SIZE),
+				 BUFFER_REUSE);
+#endif
 
-		n = sound_fill (sp->si, b, 0);
-		
+		n = sound_fill(sp->si, b, 0);
+
 		if (n <= 0)
 		{
-		    buffer_dealloc (b, 1);
+		    buffer_dealloc(b, 1);
 
 		    if (s->needs_helper)
 		    {
@@ -1079,20 +1080,20 @@ spool_update ()
 			{
 			    if (sp->si->eof)
 			    {
-				sound_close (sp->si);
-				sp->si = NULL; /* rplayd_write will see this as a dead sound */
+				sound_close(sp->si);
+				sp->si = NULL;	/* rplayd_write will see this as a dead sound */
 				spool_needs_update++;
 			    }
 			    else
 			    {
-				spool_flow_pause (sp);
+				spool_flow_pause(sp);
 			    }
 			}
 		    }
 		    else if (s->type == SOUND_FILE)
 		    {
-			sound_close (sp->si);
-			sp->si = NULL; /* rplayd_write will see this as a dead sound */
+			sound_close(sp->si);
+			sp->si = NULL;	/* rplayd_write will see this as a dead sound */
 		    }
 		    else if (s->type == SOUND_FLOW)
 		    {
@@ -1100,13 +1101,13 @@ spool_update ()
 			{
 			    if (sp->si->eof)
 			    {
-				sound_close (sp->si);
-				sp->si = NULL; /* rplayd_write will see this as a dead sound */
+				sound_close(sp->si);
+				sp->si = NULL;	/* rplayd_write will see this as a dead sound */
 				spool_needs_update++;
 			    }
 			    else
 			    {
-				spool_flow_pause (sp);
+				spool_flow_pause(sp);
 			    }
 			}
 		    }
@@ -1117,13 +1118,13 @@ spool_update ()
 			{
 			    if (sp->si->eof)
 			    {
-				sound_close (sp->si);
-				sp->si = NULL; /* rplayd_write will see this as a dead sound */
+				sound_close(sp->si);
+				sp->si = NULL;	/* rplayd_write will see this as a dead sound */
 				spool_needs_update++;
 			    }
 			    else
 			    {
-				spool_flow_pause (sp);
+				spool_flow_pause(sp);
 			    }
 			}
 #endif /* HAVE_CDROM */
@@ -1132,25 +1133,25 @@ spool_update ()
 		else
 		{
 		    sp->time = now;
-		    
+
 		    if (!sp->curr_buffer)
 		    {
-			timer_block ();
+			timer_block();
 			sp->ptr = (unsigned char *) b->buf + sp->offset;
 			sp->ptr_end = (unsigned char *) b->buf + b->nbytes;
 			sp->curr_buffer = b;
-			timer_unblock ();
+			timer_unblock();
 		    }
 		    else
 		    {
 			sp->next_buffer = b;
 		    }
-	    
+
 #ifdef HAVE_HELPERS
 		    if (s->needs_helper
 			&& ((sp->si->water_mark - sp->si->offset) < sp->si->low_water_mark))
 		    {
-			FD_SET (sp->si->fd, &read_mask);
+			FD_SET(sp->si->fd, &read_mask);
 		    }
 #else
 		    if (0)
@@ -1159,16 +1160,16 @@ spool_update ()
 		    }
 #endif /* HAVE_HELPERS */
 		    else if (s->type == SOUND_FLOW
-			&& ((sp->si->water_mark - sp->si->offset) < sp->si->low_water_mark))
+			     && ((sp->si->water_mark - sp->si->offset) < sp->si->low_water_mark))
 		    {
-			connection_notify (0, NOTIFY_FLOW, sp);
-			connection_flow_continue (sp);
+			connection_notify(0, NOTIFY_FLOW, sp);
+			connection_flow_continue(sp);
 		    }
 #ifdef HAVE_CDROM
 		    else if (s->type == SOUND_CDROM
 			     && ((sp->si->water_mark - sp->si->offset) < sp->si->low_water_mark))
 		    {
-			FD_SET (sp->si->fd, &read_mask);
+			FD_SET(sp->si->fd, &read_mask);
 		    }
 #endif /* HAVE_CDROM */
 		}
@@ -1180,10 +1181,10 @@ spool_update ()
 
 #ifdef __STDC__
 int
-spool_process (char *buf, int nbytes)
+spool_process(char *buf, int nbytes)
 #else
 int
-spool_process (buf, nbytes)
+spool_process(buf, nbytes)
     char *buf;
     int nbytes;
 #endif
@@ -1195,8 +1196,8 @@ spool_process (buf, nbytes)
     /* Determine the number of samples that need to be processed.  */
     nsamples = nbytes / ((rplay_audio_precision >> 3) * rplay_audio_channels);
 
-    zero_native (rplay_audio_buf, nsamples, rplay_audio_channels);
-	
+    zero_native(rplay_audio_buf, nsamples, rplay_audio_channels);
+
     for (sp = spool; sp; sp = sp_next)
     {
 	sp_next = sp->next;
@@ -1213,7 +1214,7 @@ spool_process (buf, nbytes)
 	    }
 	    /* See if more buffers need to be filled by `spool_update'.  */
 	    else if (sp->curr_buffer == NULL ||
-		(sp->si && !sp->si->eof && !sp->next_buffer))
+		     (sp->si && !sp->si->eof && !sp->next_buffer))
 	    {
 		spool_needs_update++;
 	    }
@@ -1225,19 +1226,19 @@ spool_process (buf, nbytes)
     if (number_playing)
     {
 #ifdef TEST_FLANGE
-	flange (rplay_audio_buf, nsamples, rplay_audio_channels);
+	flange(rplay_audio_buf, nsamples, rplay_audio_channels);
 #endif
 
 #ifdef FAKE_VOLUME
-	fake_volume (rplay_audio_buf, nsamples, rplay_audio_channels);
+	fake_volume(rplay_audio_buf, nsamples, rplay_audio_channels);
 #endif
-			
+
 	/* Only calculate left and right levels if there's a connection
 	   that needs the information. */
 	if (connection_want_level_notify)
 	{
-	    level (rplay_audio_buf, nsamples, rplay_audio_channels);
-	    connection_level_notify++;	    
+	    level(rplay_audio_buf, nsamples, rplay_audio_channels);
+	    connection_level_notify++;
 	}
 
 	/* Convert rplay_audio_buf to the audio device format.  */
@@ -1250,15 +1251,15 @@ spool_process (buf, nbytes)
 
 #ifdef __STDC__
 SPOOL *
-spool_find (int id)
+spool_find(int id)
 #else
 SPOOL *
-spool_find (id)
+spool_find(id)
     int id;
 #endif
 {
     SPOOL *sp;
-    
+
     for (sp = spool; sp; sp = sp->next)
     {
 	if (sp->id == id)
@@ -1273,35 +1274,35 @@ spool_find (id)
 /* This routine can be used to remove idle flows from the spool. */
 #ifdef __STDC__
 void
-spool_cleanup (void)
+spool_cleanup(void)
 #else
 void
-spool_cleanup ()
+spool_cleanup()
 #endif
 {
     SPOOL *sp;
     int flows_cleaned = 0;
-    
+
     for (sp = spool; sp; sp = sp->next)
     {
 	if (sp->state == SPOOL_WAIT
 	    && sp->sound[sp->curr_sound]->type == SOUND_FLOW)
 	{
-	    spool_done (sp);
+	    spool_done(sp);
 	    flows_cleaned++;
 	}
     }
 
-    report (REPORT_DEBUG, "cleaning up the spool - %d flows\n",
-	    flows_cleaned);
+    report(REPORT_DEBUG, "cleaning up the spool - %d flows\n",
+	   flows_cleaned);
 }
 
 #ifdef __STDC__
 void
-spool_set_count (SPOOL *sp, int count)
+spool_set_count(SPOOL *sp, int count)
 #else
 void
-spool_set_count (sp, count)
+spool_set_count(sp, count)
     SPOOL *sp;
     int count;
 #endif
@@ -1315,10 +1316,10 @@ spool_set_count (sp, count)
 
 #ifdef __STDC__
 void
-spool_set_list_count (SPOOL *sp, int count)
+spool_set_list_count(SPOOL *sp, int count)
 #else
 void
-spool_set_list_count (sp, count)
+spool_set_list_count(sp, count)
     SPOOL *sp;
     int count;
 #endif
@@ -1332,10 +1333,10 @@ spool_set_list_count (sp, count)
 
 #ifdef __STDC__
 void
-spool_set_priority (SPOOL *sp, int priority)
+spool_set_priority(SPOOL *sp, int priority)
 #else
 void
-spool_set_priority (sp, priority)
+spool_set_priority(sp, priority)
     SPOOL *sp;
     int priority;
 #endif
@@ -1343,16 +1344,16 @@ spool_set_priority (sp, priority)
     if (sp)
     {
 	sp->rp->priority = priority;
-	spool_setprio ();
+	spool_setprio();
     }
 }
 
 #ifdef __STDC__
 void
-spool_set_sample_rate (SPOOL *sp, int sample_rate)
+spool_set_sample_rate(SPOOL *sp, int sample_rate)
 #else
 void
-spool_set_sample_rate (sp, sample_rate)
+spool_set_sample_rate(sp, sample_rate)
     SPOOL *sp;
     int sample_rate;
 #endif
@@ -1365,17 +1366,17 @@ spool_set_sample_rate (sp, sample_rate)
 
 	if (rplay_audio_match)
 	{
-	    rplayd_audio_match (sp);
+	    rplayd_audio_match(sp);
 	}
     }
 }
 
 #ifdef __STDC__
 void
-spool_set_volume (SPOOL *sp, int volume)
+spool_set_volume(SPOOL *sp, int volume)
 #else
 void
-spool_set_volume (sp, volume)
+spool_set_volume(sp, volume)
     SPOOL *sp;
     int volume;
 #endif
@@ -1388,10 +1389,10 @@ spool_set_volume (sp, volume)
 
 #ifdef __STDC__
 void
-spool_set_client_data (SPOOL *sp, char *client_data)
+spool_set_client_data(SPOOL *sp, char *client_data)
 #else
 void
-spool_set_client_data (sp, client_data)
+spool_set_client_data(sp, client_data)
     SPOOL *sp;
     char *client_data;
 #endif
@@ -1400,24 +1401,24 @@ spool_set_client_data (sp, client_data)
     {
 	if (*sp->curr_attrs->client_data)
 	{
-	    free ((char *) sp->curr_attrs->client_data);
+	    free((char *) sp->curr_attrs->client_data);
 	}
-	
-	sp->curr_attrs->client_data = strdup (client_data);
+
+	sp->curr_attrs->client_data = strdup(client_data);
     }
 }
 
 #ifdef __STDC__
 SPOOL *
-spool_find_pid (int pid)
+spool_find_pid(int pid)
 #else
 SPOOL *
-spool_find_pid (pid)
+spool_find_pid(pid)
     int pid;
 #endif
 {
     SPOOL *sp;
-    
+
 #if defined(HAVE_CDROM) || defined(HAVE_HELPERS)
     for (sp = spool; sp; sp = sp->next)
     {

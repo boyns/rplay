@@ -1,4 +1,4 @@
-/* $Id: misc.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
+/* $Id: misc.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -45,15 +45,15 @@
 
 #ifdef __STDC__
 char *
-sys_err_str (int error)
+sys_err_str(int error)
 #else
 char *
-sys_err_str (error)
+sys_err_str(error)
     int error;
 #endif
 {
 #ifdef HAVE_STRERROR
-    return (char *) strerror (error);
+    return (char *) strerror(error);
 #else
     extern char *sys_errlist[];
     return sys_errlist[error];
@@ -62,31 +62,31 @@ sys_err_str (error)
 
 #ifdef __STDC__
 int
-udp_socket (int port)
+udp_socket(int port)
 #else
 int
-udp_socket (port)
+udp_socket(port)
     int port;
 #endif
 {
     int fd;
     struct sockaddr_in s;
 
-    fd = socket (AF_INET, SOCK_DGRAM, 0);
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd < 0)
     {
-	report (REPORT_ERROR, "socket: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "socket: %s\n", sys_err_str(errno));
+	done(1);
     }
 
     s.sin_family = AF_INET;
-    s.sin_port = htons (port);
+    s.sin_port = htons(port);
     s.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind (fd, (struct sockaddr *) &s, sizeof (s)) < 0)
+    if (bind(fd, (struct sockaddr *) &s, sizeof(s)) < 0)
     {
-	report (REPORT_ERROR, "bind: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "bind: %s\n", sys_err_str(errno));
+	done(1);
     }
 
     return fd;
@@ -94,10 +94,10 @@ udp_socket (port)
 
 #ifdef __STDC__
 int
-tcp_socket (int port)
+tcp_socket(int port)
 #else
 int
-tcp_socket (port)
+tcp_socket(port)
     int port;
 #endif
 {
@@ -105,33 +105,33 @@ tcp_socket (port)
     struct sockaddr_in s;
     int on = 1;
 
-    fd = socket (AF_INET, SOCK_STREAM, 0);
+    fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0)
     {
-	report (REPORT_ERROR, "socket: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "socket: %s\n", sys_err_str(errno));
+	done(1);
     }
 
-    if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof (on)) < 0)
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *) &on, sizeof(on)) < 0)
     {
-	report (REPORT_ERROR, "setsockopt: SO_REUSEADDR: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "setsockopt: SO_REUSEADDR: %s\n", sys_err_str(errno));
+	done(1);
     }
 
     s.sin_family = AF_INET;
-    s.sin_port = htons (port);
+    s.sin_port = htons(port);
     s.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind (fd, (struct sockaddr *) &s, sizeof (s)) < 0)
+    if (bind(fd, (struct sockaddr *) &s, sizeof(s)) < 0)
     {
-	report (REPORT_ERROR, "bind: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "bind: %s\n", sys_err_str(errno));
+	done(1);
     }
 
-    if (listen (fd, 5) < 0)
+    if (listen(fd, 5) < 0)
     {
-	report (REPORT_ERROR, "listen: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "listen: %s\n", sys_err_str(errno));
+	done(1);
     }
 
     return fd;
@@ -142,30 +142,30 @@ tcp_socket (port)
  */
 #ifdef __STDC__
 void
-fd_nonblock (int fd)
+fd_nonblock(int fd)
 #else
 void
-fd_nonblock (fd)
+fd_nonblock(fd)
     int fd;
 #endif
 {
     int flags;
 
-    flags = fcntl (fd, F_GETFL, 0);
+    flags = fcntl(fd, F_GETFL, 0);
     if (flags < 0)
     {
-	report (REPORT_ERROR, "fd_nonblock: F_GETFL fcntl: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "fd_nonblock: F_GETFL fcntl: %s\n", sys_err_str(errno));
+	done(1);
     }
 #ifdef linux
     flags |= O_NONBLOCK;
 #else
     flags |= FNDELAY;
 #endif
-    if (fcntl (fd, F_SETFL, flags) < 0)
+    if (fcntl(fd, F_SETFL, flags) < 0)
     {
-	report (REPORT_ERROR, "fd_nonblock: F_SETFL fcntl: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "fd_nonblock: F_SETFL fcntl: %s\n", sys_err_str(errno));
+	done(1);
     }
 }
 
@@ -174,48 +174,48 @@ fd_nonblock (fd)
  */
 #ifdef __STDC__
 void
-fd_block (int fd)
+fd_block(int fd)
 #else
 void
-fd_block (fd)
+fd_block(fd)
     int fd;
 #endif
 {
     int flags;
 
-    flags = fcntl (fd, F_GETFL, 0);
+    flags = fcntl(fd, F_GETFL, 0);
     if (flags < 0)
     {
-	report (REPORT_ERROR, "fd_block: F_GETFL fcntl: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "fd_block: F_GETFL fcntl: %s\n", sys_err_str(errno));
+	done(1);
     }
 #ifdef linux
     flags &= ~O_NONBLOCK;
 #else
     flags &= ~FNDELAY;
 #endif
-    if (fcntl (fd, F_SETFL, flags) < 0)
+    if (fcntl(fd, F_SETFL, flags) < 0)
     {
-	report (REPORT_ERROR, "fd_block: F_SETFL fcntl: %s\n", sys_err_str (errno));
-	done (1);
+	report(REPORT_ERROR, "fd_block: F_SETFL fcntl: %s\n", sys_err_str(errno));
+	done(1);
     }
 }
 
 #ifdef __STDC__
 int
-modified (char *filename, time_t since)
+modified(char *filename, time_t since)
 #else
 int
-modified (filename, since)
+modified(filename, since)
     char *filename;
     time_t since;
 #endif
 {
     struct stat st;
 
-    if (stat (filename, &st) < 0)
+    if (stat(filename, &st) < 0)
     {
-	report (REPORT_ERROR, "%s: %s\n", filename, sys_err_str (errno));
+	report(REPORT_ERROR, "%s: %s\n", filename, sys_err_str(errno));
 	return 0;
     }
 
@@ -224,10 +224,10 @@ modified (filename, since)
 
 #ifdef __STDC__
 char *
-time2string (time_t t)
+time2string(time_t t)
 #else
 char *
-time2string (t)
+time2string(t)
     time_t t;
 #endif
 {
@@ -246,10 +246,10 @@ time2string (t)
 
     if (days > 0)
     {
-	SNPRINTF (SIZE(buf,sizeof(buf)), "%d+", days);
+	SNPRINTF(SIZE(buf, sizeof(buf)), "%d+", days);
     }
 
-    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)-strlen(buf)), "%02d:%02d:%02d", hours, mins, secs);
+    SNPRINTF(SIZE(buf + strlen(buf), sizeof(buf) - strlen(buf)), "%02d:%02d:%02d", hours, mins, secs);
 
     return buf;
 }
@@ -257,10 +257,10 @@ time2string (t)
 
 #ifdef __STDC__
 char *
-audio_format_to_string (int format)
+audio_format_to_string(int format)
 #else
 char *
-audio_format_to_string (format)
+audio_format_to_string(format)
     int format;
 #endif
 {
@@ -274,7 +274,7 @@ audio_format_to_string (format)
 
     case RPLAY_FORMAT_ULINEAR_8:
 	return "ulinear-8";
-	
+
     case RPLAY_FORMAT_LINEAR_16:
 	return "linear-16";
 
@@ -282,17 +282,17 @@ audio_format_to_string (format)
 	return "ulinear-16";
 
     case RPLAY_FORMAT_G721:
-        return "g721";
+	return "g721";
 
     case RPLAY_FORMAT_G723_3:
-        return "g723-3";
+	return "g723-3";
 
     case RPLAY_FORMAT_G723_5:
-        return "g723-5";
+	return "g723-5";
 
     case RPLAY_FORMAT_GSM:
 	return "gsm";
-	
+
     default:
 	return "unknown";
     }
@@ -300,59 +300,59 @@ audio_format_to_string (format)
 
 #ifdef __STDC__
 int
-string_to_audio_format (char *string)
+string_to_audio_format(char *string)
 #else
 int
-string_to_audio_format (string)
+string_to_audio_format(string)
     char *string;
 #endif
 {
-    if (strcmp (string, "ulaw") == 0
-	|| strcmp (string, "u_law") == 0
-	|| strcmp (string, "u-law") == 0)
+    if (strcmp(string, "ulaw") == 0
+	|| strcmp(string, "u_law") == 0
+	|| strcmp(string, "u-law") == 0)
     {
 	return RPLAY_FORMAT_ULAW;
     }
-    else if (strcmp (string, "linear-16") == 0
-	     || strcmp (string, "linear_16") == 0
-	     || strcmp (string, "linear16") == 0)
+    else if (strcmp(string, "linear-16") == 0
+	     || strcmp(string, "linear_16") == 0
+	     || strcmp(string, "linear16") == 0)
     {
 	return RPLAY_FORMAT_LINEAR_16;
     }
-    else if (strcmp (string, "ulinear-16") == 0
-	     || strcmp (string, "ulinear_16") == 0
-	     || strcmp (string, "ulinear16") == 0)
+    else if (strcmp(string, "ulinear-16") == 0
+	     || strcmp(string, "ulinear_16") == 0
+	     || strcmp(string, "ulinear16") == 0)
     {
 	return RPLAY_FORMAT_ULINEAR_16;
     }
-    else if (strcmp (string, "linear-8") == 0
-	     || strcmp (string, "linear_8") == 0
-	     || strcmp (string, "linear8") == 0)
+    else if (strcmp(string, "linear-8") == 0
+	     || strcmp(string, "linear_8") == 0
+	     || strcmp(string, "linear8") == 0)
     {
 	return RPLAY_FORMAT_LINEAR_8;
     }
-    else if (strcmp (string, "ulinear-8") == 0
-	     || strcmp (string, "ulinear_8") == 0
-	     || strcmp (string, "ulinear8") == 0)
+    else if (strcmp(string, "ulinear-8") == 0
+	     || strcmp(string, "ulinear_8") == 0
+	     || strcmp(string, "ulinear8") == 0)
     {
 	return RPLAY_FORMAT_ULINEAR_8;
     }
-    else if (strcmp (string, "g721") == 0)
+    else if (strcmp(string, "g721") == 0)
     {
 	return RPLAY_FORMAT_G721;
     }
-    else if (strcmp (string, "g723-3") == 0
-	     || strcmp (string, "g723_3") == 0)
+    else if (strcmp(string, "g723-3") == 0
+	     || strcmp(string, "g723_3") == 0)
     {
 	return RPLAY_FORMAT_G723_3;
     }
-    else if (strcmp (string, "g723-5") == 0
-	     || strcmp (string, "g723_5") == 0)
+    else if (strcmp(string, "g723-5") == 0
+	     || strcmp(string, "g723_5") == 0)
     {
 	return RPLAY_FORMAT_G723_5;
     }
-    else if (strcmp (string, "gsm") == 0
-	     || strcmp (string, "GSM") == 0)
+    else if (strcmp(string, "gsm") == 0
+	     || strcmp(string, "GSM") == 0)
     {
 	return RPLAY_FORMAT_GSM;
     }
@@ -364,10 +364,10 @@ string_to_audio_format (string)
 
 #ifdef __STDC__
 char *
-byte_order_to_string (int byte_order)
+byte_order_to_string(int byte_order)
 #else
 char *
-byte_order_to_string (byte_order)
+byte_order_to_string(byte_order)
     int byte_order;
 #endif
 {
@@ -386,20 +386,20 @@ byte_order_to_string (byte_order)
 
 #ifdef __STDC__
 int
-string_to_byte_order (char *string)
+string_to_byte_order(char *string)
 #else
 int
-string_to_byte_order (string)
+string_to_byte_order(string)
     char *string;
 #endif
 {
-    if (strcmp (string, "big-endian") == 0
-	|| strcmp (string, "big") == 0)
+    if (strcmp(string, "big-endian") == 0
+	|| strcmp(string, "big") == 0)
     {
 	return RPLAY_BIG_ENDIAN;
     }
-    else if (strcmp (string, "little-endian") == 0
-	     || strcmp (string, "little") == 0)
+    else if (strcmp(string, "little-endian") == 0
+	     || strcmp(string, "little") == 0)
     {
 	return RPLAY_LITTLE_ENDIAN;
     }
@@ -411,10 +411,10 @@ string_to_byte_order (string)
 
 #ifdef __STDC__
 char *
-storage_to_string (int storage)
+storage_to_string(int storage)
 #else
 char *
-storage_to_string (storage)
+storage_to_string(storage)
     int storage;
 #endif
 {
@@ -436,22 +436,22 @@ storage_to_string (storage)
 
 #ifdef __STDC__
 int
-string_to_storage (char *string)
+string_to_storage(char *string)
 #else
 int
-string_to_storage (string)
+string_to_storage(string)
     char *string;
 #endif
 {
-    if (strcmp (string, "none") == 0)
+    if (strcmp(string, "none") == 0)
     {
 	return SOUND_STORAGE_NONE;
     }
-    else if (strcmp (string, "disk") == 0)
+    else if (strcmp(string, "disk") == 0)
     {
 	return SOUND_STORAGE_DISK;
     }
-    else if (strcmp (string, "memory") == 0)
+    else if (strcmp(string, "memory") == 0)
     {
 	return SOUND_STORAGE_MEMORY;
     }
@@ -463,10 +463,10 @@ string_to_storage (string)
 
 #ifdef __STDC__
 char *
-input_to_string (int input)
+input_to_string(int input)
 #else
 char *
-input_to_string (input)
+input_to_string(input)
     int input;
 #endif
 {
@@ -481,7 +481,7 @@ input_to_string (input)
 #ifdef HAVE_CDROM
     case SOUND_CDROM:
 	return "cdrom";
-#endif /* HAVE_CDROM */	
+#endif /* HAVE_CDROM */
 
     case SOUND_VIRTUAL:
 	return "virtual";
@@ -493,18 +493,18 @@ input_to_string (input)
 
 #ifdef __STDC__
 int
-string_to_input (char *string)
+string_to_input(char *string)
 #else
 int
-string_to_input (string)
+string_to_input(string)
     char *string;
 #endif
 {
-    if (strcmp (string, "file") == 0)
+    if (strcmp(string, "file") == 0)
     {
 	return SOUND_FILE;
     }
-    else if (strcmp (string, "flow") == 0)
+    else if (strcmp(string, "flow") == 0)
     {
 	return SOUND_FLOW;
     }
@@ -516,10 +516,10 @@ string_to_input (string)
 
 #ifdef __STDC__
 char *
-audio_port_to_string (int port)
+audio_port_to_string(int port)
 #else
 char *
-audio_port_to_string (port)
+audio_port_to_string(port)
     int port;
 #endif
 {
@@ -527,29 +527,29 @@ audio_port_to_string (port)
     int n;
 
     string[0] = '\0';
-    if (BIT (port, RPLAY_AUDIO_PORT_NONE))
+    if (BIT(port, RPLAY_AUDIO_PORT_NONE))
     {
-	strncat(string, "none,", sizeof(string)-strlen(string));
+	strncat(string, "none,", sizeof(string) - strlen(string));
     }
-    if (BIT (port, RPLAY_AUDIO_PORT_SPEAKER))
+    if (BIT(port, RPLAY_AUDIO_PORT_SPEAKER))
     {
-	strncat(string, "speaker,", sizeof(string)-strlen(string));
+	strncat(string, "speaker,", sizeof(string) - strlen(string));
     }
-    if (BIT (port, RPLAY_AUDIO_PORT_HEADPHONE))
+    if (BIT(port, RPLAY_AUDIO_PORT_HEADPHONE))
     {
-	strncat(string, "headphone,", sizeof(string)-strlen(string));
+	strncat(string, "headphone,", sizeof(string) - strlen(string));
     }
-    if (BIT (port, RPLAY_AUDIO_PORT_LINEOUT))
+    if (BIT(port, RPLAY_AUDIO_PORT_LINEOUT))
     {
-	strncat(string, "lineout,", sizeof(string)-strlen(string));
+	strncat(string, "lineout,", sizeof(string) - strlen(string));
     }
-    string[strlen(string)-1] = '\0';
+    string[strlen(string) - 1] = '\0';
 
     return string;
 }
 
 unsigned short
-little_short (p)
+little_short(p)
     char *p;
 {
     return (((unsigned long) (((unsigned char *) p)[1])) << 8) |
@@ -557,7 +557,7 @@ little_short (p)
 }
 
 unsigned short
-big_short (p)
+big_short(p)
     char *p;
 {
     return (((unsigned long) (((unsigned char *) p)[0])) << 8) |
@@ -565,7 +565,7 @@ big_short (p)
 }
 
 unsigned long
-little_long (p)
+little_long(p)
     char *p;
 {
     return (((unsigned long) (((unsigned char *) p)[3])) << 24) |
@@ -575,7 +575,7 @@ little_long (p)
 }
 
 unsigned long
-big_long (p)
+big_long(p)
     char *p;
 {
     return (((unsigned long) (((unsigned char *) p)[0])) << 24) |
@@ -631,7 +631,7 @@ big_long (p)
  ****************************************************************/
 
 double
-ConvertFromIeeeExtended (bytes)
+ConvertFromIeeeExtended(bytes)
     unsigned char *bytes;	/* LCN */
 {
     double f;
@@ -661,8 +661,8 @@ ConvertFromIeeeExtended (bytes)
 	else
 	{
 	    expon -= 16383;
-	    f = ldexp (UnsignedToFloat (hiMant), expon -= 31);
-	    f += ldexp (UnsignedToFloat (loMant), expon -= 32);
+	    f = ldexp(UnsignedToFloat(hiMant), expon -= 31);
+	    f += ldexp(UnsignedToFloat(loMant), expon -= 32);
 	}
     }
 

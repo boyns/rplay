@@ -80,7 +80,7 @@ static int rplay_audio_fd = -1;
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_init ()
+rplay_audio_init()
 {
     struct audio_describe ad;
     struct audio_status as;
@@ -92,66 +92,66 @@ rplay_audio_init ()
     /* Open the audio device */
     if (rplay_audio_fd == -1)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
 	if (rplay_audio_fd == -1)
 	{
-	    report (REPORT_ERROR, "rplay_audio_init: cannot open %s\n",
-		    rplay_audio_device);
+	    report(REPORT_ERROR, "rplay_audio_init: cannot open %s\n",
+		   rplay_audio_device);
 	    return -1;
 	}
     }
 
     /* Reset the audio device */
-    if (ioctl (rplay_audio_fd, AUDIO_RESET, RESET_RX_BUF | RESET_TX_BUF | RESET_RX_OVF | RESET_TX_UNF) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_RESET, RESET_RX_BUF | RESET_TX_BUF | RESET_RX_OVF | RESET_TX_UNF) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_RESET: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_RESET: %s\n", sys_err_str(errno));
 	return -1;
     }
 
     /* Interrogate the audio device */
-    if (ioctl (rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_DESCRIBE: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_DESCRIBE: %s\n", sys_err_str(errno));
 	return -1;
     }
 
-    if (ioctl (rplay_audio_fd, AUDIO_GET_STATUS, &as) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_STATUS, &as) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_GET_STATUS: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_GET_STATUS: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_GET_SAMPLE_RATE, &ar) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_SAMPLE_RATE, &ar) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_GET_SAMPLE_RATE: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_GET_SAMPLE_RATE: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_GET_DATA_FORMAT, &af) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_DATA_FORMAT, &af) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_GET_DATA_FORMAT: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_GET_DATA_FORMAT: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_GET_OUTPUT, &ao) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_OUTPUT, &ao) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_GET_OUTPUT: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_GET_OUTPUT: %s\n", sys_err_str(errno));
 	return -1;
     }
 
 #ifdef DEBUG
-    printf ("*** AUDIO_DESCRIBE DATA ***\n");
-    printf ("audio_id:\t\t%d\tnrates:\t\t\t%d\tflags:\t%X\n",
-	    ad.audio_id, ad.nrates, ad.flags);
-    printf ("max_bits_per_sample:\t%d\tnchannels:\t\t%d\n",
-	    ad.max_bits_per_sample, ad.nchannels);
-    printf ("min_receive_gain:\t%d\tmin_transmit_gain:\t%d\tmin_monitor_gain:\t%d\n",
-	    ad.min_receive_gain, ad.min_transmit_gain, ad.min_monitor_gain);
-    printf ("max_receive_gain:\t%d\tmax_transmit_gain:\t%d\tmax_monitor_gain:\t%d\n",
-	    ad.max_receive_gain, ad.max_transmit_gain, ad.max_monitor_gain);
-    printf ("*** AUDIO_STATUS DATA ***\n");
-    printf ("receive_status:  %x\treceive_buffer_count:  %d\treceive_overflow_count:   %d\n",
-	    as.receive_status, as.receive_buffer_count, as.receive_overflow_count);
-    printf ("transmit_status: %x\ttransmit_buffer_count: %d\ttransmit_underflow_count: %d\n",
-	    as.transmit_status, as.transmit_buffer_count, as.transmit_underflow_count);
-    printf ("*** END DATA ***\n");
+    printf("*** AUDIO_DESCRIBE DATA ***\n");
+    printf("audio_id:\t\t%d\tnrates:\t\t\t%d\tflags:\t%X\n",
+	   ad.audio_id, ad.nrates, ad.flags);
+    printf("max_bits_per_sample:\t%d\tnchannels:\t\t%d\n",
+	   ad.max_bits_per_sample, ad.nchannels);
+    printf("min_receive_gain:\t%d\tmin_transmit_gain:\t%d\tmin_monitor_gain:\t%d\n",
+	   ad.min_receive_gain, ad.min_transmit_gain, ad.min_monitor_gain);
+    printf("max_receive_gain:\t%d\tmax_transmit_gain:\t%d\tmax_monitor_gain:\t%d\n",
+	   ad.max_receive_gain, ad.max_transmit_gain, ad.max_monitor_gain);
+    printf("*** AUDIO_STATUS DATA ***\n");
+    printf("receive_status:  %x\treceive_buffer_count:  %d\treceive_overflow_count:   %d\n",
+     as.receive_status, as.receive_buffer_count, as.receive_overflow_count);
+    printf("transmit_status: %x\ttransmit_buffer_count: %d\ttransmit_underflow_count: %d\n",
+	   as.transmit_status, as.transmit_buffer_count, as.transmit_underflow_count);
+    printf("*** END DATA ***\n");
 #endif
 
     /* Set internal configuration */
@@ -169,7 +169,7 @@ rplay_audio_init ()
     /* Only Ulaw, Alaw and linear 16-bit formats are allowed - anyone know what Alaw is ? */
     rplay_audio_format = optional_format ?
 	((optional_format == RPLAY_FORMAT_ULAW) ? RPLAY_FORMAT_ULAW :
-	RPLAY_FORMAT_LINEAR_16) : RPLAY_FORMAT_LINEAR_16;
+	 RPLAY_FORMAT_LINEAR_16) : RPLAY_FORMAT_LINEAR_16;
     af = (rplay_audio_format == RPLAY_FORMAT_ULAW) ? AUDIO_FORMAT_ULAW :
 	AUDIO_FORMAT_LINEAR16BIT;
 
@@ -178,45 +178,45 @@ rplay_audio_init ()
 
     /* Set the output device - how should this be specified ? */
     rplay_audio_port = optional_port ? optional_port :
-	RPLAY_AUDIO_PORT_SPEAKER | RPLAY_AUDIO_PORT_HEADPHONE; /* default ports */
+	RPLAY_AUDIO_PORT_SPEAKER | RPLAY_AUDIO_PORT_HEADPHONE;	/* default ports */
     ao = 0;
-    if (BIT (rplay_audio_port, RPLAY_AUDIO_PORT_LINEOUT))
+    if (BIT(rplay_audio_port, RPLAY_AUDIO_PORT_LINEOUT))
     {
 #ifdef AUDIO_LINE_OUT
-	SET_BIT (ao, AUDIO_LINE_OUT);
+	SET_BIT(ao, AUDIO_LINE_OUT);
 #endif
 #ifdef AUDIO_OUT_LINE
-	SET_BIT (ao, AUDIO_OUT_LINE);
+	SET_BIT(ao, AUDIO_OUT_LINE);
 #endif
     }
-    if (BIT (rplay_audio_port, RPLAY_AUDIO_PORT_HEADPHONE))
+    if (BIT(rplay_audio_port, RPLAY_AUDIO_PORT_HEADPHONE))
     {
-	SET_BIT (ao, AUDIO_OUT_HEADPHONE);
+	SET_BIT(ao, AUDIO_OUT_HEADPHONE);
     }
-    if (BIT (rplay_audio_port, RPLAY_AUDIO_PORT_SPEAKER))
+    if (BIT(rplay_audio_port, RPLAY_AUDIO_PORT_SPEAKER))
     {
-	SET_BIT (ao, AUDIO_OUT_SPEAKER);
+	SET_BIT(ao, AUDIO_OUT_SPEAKER);
     }
 
     /* Program the audio device */
-    if (ioctl (rplay_audio_fd, AUDIO_SET_SAMPLE_RATE, ar) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_SET_SAMPLE_RATE, ar) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_SET_SAMPLE_RATE: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_SET_SAMPLE_RATE: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_SET_CHANNELS, ac) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_SET_CHANNELS, ac) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_SET_CHANNELS: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_SET_CHANNELS: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_SET_DATA_FORMAT, af) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_SET_DATA_FORMAT, af) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_SET_DATA_FORMAT: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_SET_DATA_FORMAT: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_SET_OUTPUT, ao) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_SET_OUTPUT, ao) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_init: AUDIO_SET_OUTPUTT: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_init: AUDIO_SET_OUTPUTT: %s\n", sys_err_str(errno));
 	return -1;
     }
 
@@ -229,27 +229,27 @@ rplay_audio_init ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_open ()
+rplay_audio_open()
 {
     int flags;
 
-    report (REPORT_DEBUG, "opening device >%s<\n", rplay_audio_device);
+    report(REPORT_DEBUG, "opening device >%s<\n", rplay_audio_device);
 
-    rplay_audio_fd = open (rplay_audio_device, O_WRONLY | O_NDELAY, 0);
+    rplay_audio_fd = open(rplay_audio_device, O_WRONLY | O_NDELAY, 0);
     if (rplay_audio_fd < 0)
     {
 	return -1;
     }
 
-    if (fcntl (rplay_audio_fd, F_SETFD, 1) < 0)
+    if (fcntl(rplay_audio_fd, F_SETFD, 1) < 0)
     {
-	report (REPORT_ERROR,
-		"rplay_audio_open: close-on-exec %d\n",
-		sys_err_str(errno));
+	report(REPORT_ERROR,
+	       "rplay_audio_open: close-on-exec %d\n",
+	       sys_err_str(errno));
 	/* return -1; */
     }
 
-    if (rplay_audio_init () < 0)
+    if (rplay_audio_init() < 0)
     {
 	return -1;
     }
@@ -257,13 +257,13 @@ rplay_audio_open ()
     /*
      * Make sure the audio device writes are non-blocking.
      */
-    flags = fcntl (rplay_audio_fd, F_GETFL, 0);
+    flags = fcntl(rplay_audio_fd, F_GETFL, 0);
     if (flags < 0)
     {
 	return -1;
     }
     flags |= FNDELAY;
-    if (fcntl (rplay_audio_fd, F_SETFL, flags) < 0)
+    if (fcntl(rplay_audio_fd, F_SETFL, flags) < 0)
     {
 	return -1;
     }
@@ -277,7 +277,7 @@ rplay_audio_open ()
  * Return 1 for true and 0 for false.
  */
 int
-rplay_audio_isopen ()
+rplay_audio_isopen()
 {
     return (rplay_audio_fd != -1);
 }
@@ -288,13 +288,13 @@ rplay_audio_isopen ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_flush ()
+rplay_audio_flush()
 {
     if (rplay_audio_fd != -1)
     {
-	if (ioctl (rplay_audio_fd, AUDIO_DRAIN, 0) < 0)
+	if (ioctl(rplay_audio_fd, AUDIO_DRAIN, 0) < 0)
 	{
-	    report (REPORT_ERROR, "rplay_audio_init: AUDIO_DRAIN: %s\n", sys_err_str (errno));
+	    report(REPORT_ERROR, "rplay_audio_init: AUDIO_DRAIN: %s\n", sys_err_str(errno));
 	}
     }
 
@@ -308,10 +308,10 @@ rplay_audio_flush ()
  */
 #ifdef __STDC__
 int
-rplay_audio_write (char *buf, int nbytes)
+rplay_audio_write(char *buf, int nbytes)
 #else
 int
-rplay_audio_write (buf, nbytes)
+rplay_audio_write(buf, nbytes)
     char *buf;
     int nbytes;
 #endif
@@ -324,7 +324,7 @@ rplay_audio_write (buf, nbytes)
 
     for (p = buf; nleft > 0; nleft -= n, p += n)
     {
-	if ((n = write (rplay_audio_fd, p, nleft)) < 0)
+	if ((n = write(rplay_audio_fd, p, nleft)) < 0)
 	{
 /*                      report(RPLAY_DEBUG, "rplay_audio_write: %s\n", sys_err_str(errno)); */
 
@@ -334,7 +334,7 @@ rplay_audio_write (buf, nbytes)
 	    }
 	    else if (errno != EINTR)
 	    {
-		report (REPORT_ERROR, "rplay_audio_write: %s\n", sys_err_str (errno));
+		report(REPORT_ERROR, "rplay_audio_write: %s\n", sys_err_str(errno));
 		return -1;
 	    }
 	    n = 0;
@@ -354,11 +354,11 @@ rplay_audio_write (buf, nbytes)
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_close ()
+rplay_audio_close()
 {
     if (rplay_audio_fd != -1)
     {
-	close (rplay_audio_fd);
+	close(rplay_audio_fd);
     }
 
     rplay_audio_fd = -1;
@@ -372,7 +372,7 @@ rplay_audio_close ()
  * Return 0-255 or -1 on error.
  */
 int
-rplay_audio_get_volume ()
+rplay_audio_get_volume()
 {
 #ifdef FAKE_VOLUME
     return rplay_audio_volume;
@@ -382,35 +382,35 @@ rplay_audio_get_volume ()
 
     if (rplay_audio_fd < 0)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
     }
     if (rplay_audio_fd < 0)
     {
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_GET_GAINS, &ag) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_GAINS, &ag) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: AUDIO_GET_GAINS: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_get_volume: AUDIO_GET_GAINS: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: AUDIO_DESCRIBE: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_get_volume: AUDIO_DESCRIBE: %s\n", sys_err_str(errno));
 	return -1;
     }
 
 #ifdef DEBUG
-    printf ("audio.c: ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
-	    ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
-    printf ("audio.c: ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
-	    ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
-    printf ("audio.c: channel_mask: %d\n", ag.channel_mask);
+    printf("audio.c: ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
+	   ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
+    printf("audio.c: ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
+	   ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
+    printf("audio.c: channel_mask: %d\n", ag.channel_mask);
 #endif
 
     return ((unsigned char) (
-	    ((double) ag.cgain[1].transmit_gain - ad.min_transmit_gain)
-	    / (ad.max_transmit_gain - ad.min_transmit_gain)
-	    * 256));
+		 ((double) ag.cgain[1].transmit_gain - ad.min_transmit_gain)
+			     / (ad.max_transmit_gain - ad.min_transmit_gain)
+				* 256));
 #endif /* not FAKE_VOLUME */
 }
 
@@ -422,10 +422,10 @@ rplay_audio_get_volume ()
  */
 #ifdef __STDC__
 int
-rplay_audio_set_volume (int volume)
+rplay_audio_set_volume(int volume)
 #else
 int
-rplay_audio_set_volume (volume)
+rplay_audio_set_volume(volume)
     int volume;
 #endif
 {
@@ -449,52 +449,52 @@ rplay_audio_set_volume (volume)
 
     if (rplay_audio_fd < 0)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
     }
     if (rplay_audio_fd < 0)
     {
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_GET_GAINS, &ag) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_GET_GAINS, &ag) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: AUDIO_GET_GAINS: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_get_volume: AUDIO_GET_GAINS: %s\n", sys_err_str(errno));
 	return -1;
     }
-    if (ioctl (rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_DESCRIBE, &ad) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: AUDIO_DESCRIBE: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_get_volume: AUDIO_DESCRIBE: %s\n", sys_err_str(errno));
 	return -1;
     }
 
 #ifdef DEBUG
-    printf ("ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
-	    ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
-    printf ("ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
-	    ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
-    printf ("channel_mask: %d\n", ag.channel_mask);
+    printf("ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
+	   ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
+    printf("ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
+	   ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
+    printf("channel_mask: %d\n", ag.channel_mask);
 #endif
 
     ag.cgain[1].transmit_gain = ((int) (
-	    (((double) volume)
-		* (ad.max_transmit_gain - ad.min_transmit_gain)
-		/ 256)
-	    + ad.min_transmit_gain));
+					   (((double) volume)
+			     * (ad.max_transmit_gain - ad.min_transmit_gain)
+					    / 256)
+					   + ad.min_transmit_gain));
 
-#ifdef DEBUG    
-    printf ("ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
-	    ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
-    printf ("ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
-	    ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
-    printf ("channel_mask: %d\n", ag.channel_mask);
-#endif    
+#ifdef DEBUG
+    printf("ag.cgain[1].receive_gain: %d\tag.cgain[1].transmit_gain: %d\tag.cgain[1].monitor_gain: %d\n",
+	   ag.cgain[1].receive_gain, ag.cgain[1].transmit_gain, ag.cgain[1].monitor_gain);
+    printf("ag.cgain[2].receive_gain: %d\tag.cgain[2].transmit_gain: %d\tag.cgain[2].monitor_gain: %d\n",
+	   ag.cgain[2].receive_gain, ag.cgain[2].transmit_gain, ag.cgain[2].monitor_gain);
+    printf("channel_mask: %d\n", ag.channel_mask);
+#endif
 
-    if (ioctl (rplay_audio_fd, AUDIO_SET_GAINS, ag) < 0)
+    if (ioctl(rplay_audio_fd, AUDIO_SET_GAINS, ag) < 0)
     {
-	report (REPORT_ERROR, "rplay_audio_get_volume: AUDIO_SET_GAINS: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "rplay_audio_get_volume: AUDIO_SET_GAINS: %s\n", sys_err_str(errno));
 	return -1;
     }
 
-    rplay_audio_volume = rplay_audio_get_volume ();
+    rplay_audio_volume = rplay_audio_get_volume();
 
     return rplay_audio_volume;
 #endif /* not FAKE_VOLUME */

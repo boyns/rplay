@@ -1,4 +1,5 @@
-/* $Id: audio_sgi.c,v 1.2 1998/08/13 06:14:21 boyns Exp $ */
+
+/* $Id: audio_sgi.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -80,7 +81,7 @@ static ALport rplay_audio_fd = NULL;
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_init ()
+rplay_audio_init()
 {
     ALconfig SGIconfig;
     long PVbuffer[4];
@@ -97,11 +98,11 @@ rplay_audio_init ()
      */
     if (rplay_audio_fd == NULL)
     {
-	SGIconfig = ALnewconfig ();
+	SGIconfig = ALnewconfig();
     }
     else
     {
-	SGIconfig = ALgetconfig (rplay_audio_fd);
+	SGIconfig = ALgetconfig(rplay_audio_fd);
     }
     if (SGIconfig == NULL)
     {
@@ -116,14 +117,14 @@ rplay_audio_init ()
     switch (rplay_audio_precision)
     {
     case 8:
-	ALsetwidth (SGIconfig, AL_SAMPLE_8);
+	ALsetwidth(SGIconfig, AL_SAMPLE_8);
 	if (errno != 0)
 	{
 	    return -1;
 	}
 	break;
     case 16:
-	ALsetwidth (SGIconfig, AL_SAMPLE_16);
+	ALsetwidth(SGIconfig, AL_SAMPLE_16);
 	if (errno != 0)
 	{
 	    return -1;
@@ -139,7 +140,7 @@ rplay_audio_init ()
      */
     rplay_audio_format = (rplay_audio_precision == 16) ? RPLAY_FORMAT_LINEAR_16 : RPLAY_FORMAT_LINEAR_8;
 #ifdef AL_SAMPFMT_TWOSCOMP
-    if (ALsetsampfmt (SGIconfig, AL_SAMPFMT_TWOSCOMP) < 0)
+    if (ALsetsampfmt(SGIconfig, AL_SAMPFMT_TWOSCOMP) < 0)
 	if (errno != 0)
 	{
 	    return -1;
@@ -154,14 +155,14 @@ rplay_audio_init ()
     switch (rplay_audio_channels)
     {
     case 1:
-	ALsetchannels (SGIconfig, AL_MONO);
+	ALsetchannels(SGIconfig, AL_MONO);
 	if (errno != 0)
 	{
 	    return -1;
 	}
 	break;
     case 2:
-	ALsetchannels (SGIconfig, AL_STEREO);
+	ALsetchannels(SGIconfig, AL_STEREO);
 	if (errno != 0)
 	{
 	    return -1;
@@ -174,12 +175,12 @@ rplay_audio_init ()
     /*
      * Open the audio port.
      */
-    rplay_audio_fd = ALopenport ("rplayd", "w", SGIconfig);
+    rplay_audio_fd = ALopenport("rplayd", "w", SGIconfig);
     if (rplay_audio_fd == NULL)
     {
 	return -1;
     }
-    ALfreeconfig (SGIconfig);
+    ALfreeconfig(SGIconfig);
 
     /*
      * Set the sample rate of the output port. This defaults to 44100Khz
@@ -188,7 +189,7 @@ rplay_audio_init ()
     rplay_audio_sample_rate = optional_sample_rate ? optional_sample_rate : 44100;
     PVbuffer[0] = AL_OUTPUT_RATE;
     PVbuffer[1] = rplay_audio_sample_rate;
-    ALsetparams (AL_DEFAULT_DEVICE, PVbuffer, 2);
+    ALsetparams(AL_DEFAULT_DEVICE, PVbuffer, 2);
     if (errno != 0)
     {
 	return -1;
@@ -209,9 +210,9 @@ rplay_audio_init ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_open ()
+rplay_audio_open()
 {
-    if (rplay_audio_init () < 0)
+    if (rplay_audio_init() < 0)
     {
 	return -1;
     }
@@ -225,7 +226,7 @@ rplay_audio_open ()
  * Return 1 for true and 0 for false.
  */
 int
-rplay_audio_isopen ()
+rplay_audio_isopen()
 {
     return rplay_audio_fd != NULL;
 }
@@ -236,7 +237,7 @@ rplay_audio_isopen ()
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_flush ()
+rplay_audio_flush()
 {
     return 0;
 }
@@ -248,10 +249,10 @@ rplay_audio_flush ()
  */
 #ifdef __STDC__
 int
-rplay_audio_write (char *buf, int nbytes)
+rplay_audio_write(char *buf, int nbytes)
 #else
 int
-rplay_audio_write (buf, nbytes)
+rplay_audio_write(buf, nbytes)
     char *buf;
     int nbytes;
 #endif
@@ -260,7 +261,7 @@ rplay_audio_write (buf, nbytes)
 
     if (rplay_audio_fd == NULL)
     {
-	if (rplay_audio_open () < 0)
+	if (rplay_audio_open() < 0)
 	{
 	    return -1;
 	}
@@ -274,7 +275,7 @@ rplay_audio_write (buf, nbytes)
     /*
      * Write the samples to the audio port.
      */
-    ALwritesamps (rplay_audio_fd, buf, samples);
+    ALwritesamps(rplay_audio_fd, buf, samples);
     if (errno != 0)
     {
 	return nbytes;
@@ -288,11 +289,11 @@ rplay_audio_write (buf, nbytes)
  * Return 0 on success and -1 on error.
  */
 int
-rplay_audio_close ()
+rplay_audio_close()
 {
     if (rplay_audio_fd != NULL)
     {
-	ALcloseport (rplay_audio_fd);
+	ALcloseport(rplay_audio_fd);
     }
 
     rplay_audio_fd = NULL;
@@ -306,7 +307,7 @@ rplay_audio_close ()
  * Return 0-255 or -1 on error.
  */
 int
-rplay_audio_get_volume ()
+rplay_audio_get_volume()
 {
     long PVbuffer[4];
 
@@ -315,7 +316,7 @@ rplay_audio_get_volume ()
 #else /* not FAKE_VOLUME */
     if (rplay_audio_fd == NULL)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
     }
     if (rplay_audio_fd == NULL)
     {
@@ -323,7 +324,7 @@ rplay_audio_get_volume ()
     }
     PVbuffer[0] = AL_LEFT_SPEAKER_GAIN;
     PVbuffer[2] = AL_RIGHT_SPEAKER_GAIN;
-    ALgetparams (AL_DEFAULT_DEVICE, PVbuffer, 4);
+    ALgetparams(AL_DEFAULT_DEVICE, PVbuffer, 4);
     if (errno != 0)
     {
 	return -1;
@@ -340,10 +341,10 @@ rplay_audio_get_volume ()
  */
 #ifdef __STDC__
 int
-rplay_audio_set_volume (int volume)
+rplay_audio_set_volume(int volume)
 #else
 int
-rplay_audio_set_volume (volume)
+rplay_audio_set_volume(volume)
     int volume;
 #endif
 {
@@ -367,7 +368,7 @@ rplay_audio_set_volume (volume)
 
     if (rplay_audio_fd == NULL)
     {
-	rplay_audio_open ();
+	rplay_audio_open();
     }
     if (rplay_audio_fd == NULL)
     {
@@ -377,13 +378,13 @@ rplay_audio_set_volume (volume)
     PVbuffer[1] = volume;
     PVbuffer[2] = AL_RIGHT_SPEAKER_GAIN;
     PVbuffer[3] = volume;
-    ALsetparams (AL_DEFAULT_DEVICE, PVbuffer, 4);
+    ALsetparams(AL_DEFAULT_DEVICE, PVbuffer, 4);
     if (errno != 0)
     {
 	return -1;
     }
 
-    rplay_audio_volume = rplay_audio_get_volume ();
+    rplay_audio_volume = rplay_audio_get_volume();
 
     return rplay_audio_volume;
 #endif /* not FAKE_VOLUME */

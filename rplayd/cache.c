@@ -1,4 +1,4 @@
-/* $Id: cache.c,v 1.2 1998/08/13 06:13:42 boyns Exp $ */
+/* $Id: cache.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -59,28 +59,28 @@ int cache_remove = 0;
  */
 #ifdef __STDC__
 void
-cache_init (char *dir_name)
+cache_init(char *dir_name)
 #else
 void
-cache_init (dir_name)
+cache_init(dir_name)
     char *dir_name;
 #endif
 {
     struct stat st;
 
-    strcpy (cache_directory, dir_name);
-    if (stat (cache_directory, &st) < 0)
+    strcpy(cache_directory, dir_name);
+    if (stat(cache_directory, &st) < 0)
     {
-	report (REPORT_DEBUG, "creating cache directory `%s'\n", cache_directory);
-	if (mkdir (cache_directory, 0777) < 0)
+	report(REPORT_DEBUG, "creating cache directory `%s'\n", cache_directory);
+	if (mkdir(cache_directory, 0777) < 0)
 	{
-	    report (REPORT_ERROR, "cache_init: cannot create cache directory '%s'\n", cache_directory);
+	    report(REPORT_ERROR, "cache_init: cannot create cache directory '%s'\n", cache_directory);
 	}
     }
-    else if (!S_ISDIR (st.st_mode))
+    else if (!S_ISDIR(st.st_mode))
     {
-	report (REPORT_ERROR, "cache_init: %s not a directory\n", cache_directory);
-	done (1);
+	report(REPORT_ERROR, "cache_init: %s not a directory\n", cache_directory);
+	done(1);
     }
 }
 
@@ -88,46 +88,46 @@ cache_init (dir_name)
  * return the name of the first cache entry
  */
 char *
-cache_first ()
+cache_first()
 {
     if (cache_dir)
     {
-	rewinddir (cache_dir);
+	rewinddir(cache_dir);
     }
     else
     {
-	cache_dir = opendir (cache_directory);
+	cache_dir = opendir(cache_directory);
 	if (cache_dir == NULL)
 	{
-	    report (REPORT_ERROR, "cache_first: opendir %s: %s\n", cache_directory, sys_err_str (errno));
+	    report(REPORT_ERROR, "cache_first: opendir %s: %s\n", cache_directory, sys_err_str(errno));
 	    return NULL;
 	}
     }
 
-    return cache_next ();
+    return cache_next();
 }
 
 /*
  * return the name of the next cache entry
  */
 char *
-cache_next ()
+cache_next()
 {
     struct dirent *dp;
 
     do
     {
-	dp = readdir (cache_dir);
+	dp = readdir(cache_dir);
 	if (dp == NULL)
 	{
-	    closedir (cache_dir);
+	    closedir(cache_dir);
 	    cache_dir = NULL;
 	    return "";
 	}
     }
-    while (strcmp (dp->d_name, ".") == 0 || strcmp (dp->d_name, "..") == 0);
+    while (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0);
 
-    SNPRINTF (SIZE(cache_path,sizeof(cache_path)), "%s/%s", cache_directory, dp->d_name);
+    SNPRINTF(SIZE(cache_path, sizeof(cache_path)), "%s/%s", cache_directory, dp->d_name);
 
     return cache_path;
 }
@@ -136,17 +136,17 @@ cache_next ()
  * calculate the size of the cache
  */
 int
-cache_size ()
+cache_size()
 {
     struct stat st;
     int size = 0;
     char *file;
 
-    for (file = cache_first (); file && *file; file = cache_next ())
+    for (file = cache_first(); file && *file; file = cache_next())
     {
-	if (stat (file, &st) < 0)
+	if (stat(file, &st) < 0)
 	{
-	    report (REPORT_ERROR, "cache_size: stat %s: %s\n", file, sys_err_str (errno));
+	    report(REPORT_ERROR, "cache_size: stat %s: %s\n", file, sys_err_str(errno));
 	    return -1;
 	}
 	size += (int) st.st_size;
@@ -159,13 +159,13 @@ cache_size ()
  * load files that are already in the cache
  */
 void
-cache_read ()
+cache_read()
 {
     char *file;
 
-    for (file = cache_first (); file && *file; file = cache_next ())
+    for (file = cache_first(); file && *file; file = cache_next())
     {
-	sound_insert (file, SOUND_READY, SOUND_FILE);
+	sound_insert(file, SOUND_READY, SOUND_FILE);
     }
 }
 
@@ -176,16 +176,16 @@ cache_read ()
  */
 #ifdef __STDC__
 char *
-cache_name (char *sound)
+cache_name(char *sound)
 #else
 char *
-cache_name (sound)
+cache_name(sound)
     char *sound;
 #endif
 {
     static char _cache_path[MAXPATHLEN];
 
-    SNPRINTF (SIZE(_cache_path,sizeof(_cache_path)), "%s/%s", cache_directory, sound);
+    SNPRINTF(SIZE(_cache_path, sizeof(_cache_path)), "%s/%s", cache_directory, sound);
 
     return _cache_path;
 }
@@ -195,10 +195,10 @@ cache_name (sound)
  */
 #ifdef __STDC__
 int
-cache_free (int size)
+cache_free(int size)
 #else
 int
-cache_free (size)
+cache_free(size)
     int size;
 #endif
 {
@@ -215,13 +215,13 @@ cache_free (size)
 
     if (size > cache_max_size)
     {
-	report (REPORT_DEBUG, "%d bytes cannot fit in the cache\n", size);
+	report(REPORT_DEBUG, "%d bytes cannot fit in the cache\n", size);
 	return -1;
     }
 
-    curr_size = cache_size ();
+    curr_size = cache_size();
 
-    report (REPORT_DEBUG, "sound_count = %d, current cache size = %d bytes\n", sound_count, curr_size);
+    report(REPORT_DEBUG, "sound_count = %d, current cache size = %d bytes\n", sound_count, curr_size);
 
     if (size + curr_size <= cache_max_size)
     {
@@ -235,26 +235,26 @@ cache_free (size)
 
     for (;;)
     {
-	report (REPORT_DEBUG, "removing cache entries (limit = %d)\n", limit);
+	report(REPORT_DEBUG, "removing cache entries (limit = %d)\n", limit);
 
-	for (file = cache_first (); file && *file; file = cache_next ())
+	for (file = cache_first(); file && *file; file = cache_next())
 	{
-	    s = sound_lookup (file, SOUND_DONT_COUNT, NULL);
+	    s = sound_lookup(file, SOUND_DONT_COUNT, NULL);
 	    if (s == NULL || s->status != SOUND_READY)
 	    {
 		continue;
 	    }
 	    if (s->count < limit)
 	    {
-		if (stat (file, &st) < 0)
+		if (stat(file, &st) < 0)
 		{
-		    report (REPORT_ERROR, "cache_free: stat %s: %s\n", file, sys_err_str (errno));
+		    report(REPORT_ERROR, "cache_free: stat %s: %s\n", file, sys_err_str(errno));
 		    continue;
 		}
 		curr_size -= (int) st.st_size;
-		spool_remove (s);
-		sound_delete (s, 1);
-		report (REPORT_DEBUG, "removed %s size=%d count=%d\n", file, st.st_size, s->count);
+		spool_remove(s);
+		sound_delete(s, 1);
+		report(REPORT_DEBUG, "removed %s size=%d count=%d\n", file, st.st_size, s->count);
 	    }
 	}
 
@@ -264,14 +264,14 @@ cache_free (size)
 	}
 	else if (limit == sound_count)
 	{
-	    report (REPORT_ERROR, "cache_free: cannot make room for %d bytes in the cache\n", size);
+	    report(REPORT_ERROR, "cache_free: cannot make room for %d bytes in the cache\n", size);
 	    return -1;
 	}
 	else
 	{
 	    n = limit / 4;
 	    limit += n ? n : 1;
-	    limit = MIN (limit, sound_count);
+	    limit = MIN(limit, sound_count);
 	}
     }
 
@@ -283,44 +283,44 @@ cache_free (size)
  */
 #ifdef __STDC__
 int
-cache_create (char *name, int size)
+cache_create(char *name, int size)
 #else
 int
-cache_create (name, size)
+cache_create(name, size)
     char *name;
     int size;
 #endif
 {
     int fd;
 
-    fd = open (name, O_RDWR | O_CREAT, 0666);
+    fd = open(name, O_RDWR | O_CREAT, 0666);
     if (fd < 0)
     {
-	report (REPORT_ERROR, "cache_create: open: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "cache_create: open: %s\n", sys_err_str(errno));
 	return -1;
     }
 
-    if (lseek (fd, size - 1, SEEK_SET) < 0)
+    if (lseek(fd, size - 1, SEEK_SET) < 0)
     {
-	report (REPORT_ERROR, "cache_create: lseek: %d %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "cache_create: lseek: %d %s\n", sys_err_str(errno));
 	return -1;
     }
 
   restart:
-    if (write (fd, "", 1) != 1)
+    if (write(fd, "", 1) != 1)
     {
 	if (errno == EINTR || errno == EAGAIN)
 	{
 	    goto restart;
 	}
-	report (REPORT_ERROR, "cache_create: write: %s\n", sys_err_str (errno));
+	report(REPORT_ERROR, "cache_create: write: %s\n", sys_err_str(errno));
 	return -1;
     }
 
-    if (lseek (fd, 0, SEEK_SET) < 0)
+    if (lseek(fd, 0, SEEK_SET) < 0)
     {
-	report (REPORT_ERROR, "cache_create: lseek: 0 %s\n", sys_err_str (errno));
-	unlink (name);
+	report(REPORT_ERROR, "cache_create: lseek: 0 %s\n", sys_err_str(errno));
+	unlink(name);
 	return -1;
     }
 
@@ -329,33 +329,33 @@ cache_create (name, size)
 
 /* Optionally remove the cache directory and all its contents. */
 void
-cache_cleanup ()
+cache_cleanup()
 {
     int size;
     char *file;
 
-    if (*cache_directory == '\0') /* cache_init wasn't called */
+    if (*cache_directory == '\0')	/* cache_init wasn't called */
     {
 	return;
     }
-    
-    size = cache_size ();
+
+    size = cache_size();
     if (size == 0 || cache_remove)
     {
-	report (REPORT_DEBUG, "cleaning `%s'\n", cache_directory);
-	for (file = cache_first (); file && *file; file = cache_next ())
+	report(REPORT_DEBUG, "cleaning `%s'\n", cache_directory);
+	for (file = cache_first(); file && *file; file = cache_next())
 	{
-	    if (unlink (file) < 0)
+	    if (unlink(file) < 0)
 	    {
-		report (REPORT_ERROR, "cache_cleanup: unlink %s: %s\n",
-			file, sys_err_str (errno));
+		report(REPORT_ERROR, "cache_cleanup: unlink %s: %s\n",
+		       file, sys_err_str(errno));
 	    }
 	}
-	
-	if (rmdir (cache_directory) < 0)
+
+	if (rmdir(cache_directory) < 0)
 	{
-	    report (REPORT_ERROR, "cache_cleanup: rmdir %s: %s\n",
-		    cache_directory, sys_err_str (errno));
+	    report(REPORT_ERROR, "cache_cleanup: rmdir %s: %s\n",
+		   cache_directory, sys_err_str(errno));
 	}
     }
 }

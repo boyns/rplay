@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.4 1998/10/15 15:15:25 boyns Exp $ */
+/* $Id: rplay.c,v 1.5 1998/11/07 21:15:39 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,9 +20,9 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
+
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -48,6 +48,7 @@ struct option longopts[] =
 {
     {"continue", no_argument, NULL, 'c'},
     {"count", required_argument, NULL, 'n'},
+    {"flow", required_argument, NULL, 14},
     {"help", no_argument, NULL, 3},
     {"host", required_argument, NULL, 'h'},
     {"hosts", required_argument, NULL, 'h'},
@@ -57,6 +58,7 @@ struct option longopts[] =
     {"info-cs4231", no_argument, NULL, 10},
     {"info-dbri", no_argument, NULL, 9},
     {"info-gsm", no_argument, NULL, 13},
+    {"info-cd", no_argument, NULL, 15},
     {"buffer-size", required_argument, NULL, 'b'},
     {"list-count", required_argument, NULL, 'N'},
     {"list-name", required_argument, NULL, 7},
@@ -87,10 +89,10 @@ typedef int (*PLAY_FUNC) (int, char *, int, RPLAY *, int);
 typedef int (*PLAY_FUNC) ();
 #endif
 
-void doit (), play (), usage (), interrupt ();
-int server_has_sound ();
-char *info2str ();
-int play_with_flow (), play_with_play ();
+void doit(), play(), usage(), interrupt();
+int server_has_sound();
+char *info2str();
+int play_with_flow(), play_with_play();
 
 RPLAY *rp;
 char cwd[MAXPATHLEN];
@@ -98,11 +100,12 @@ int interrupted = 0;
 int which_protocol = PROTOCOL_GUESS;
 int which_port = -1;
 int buffer_size = BUFFER_SIZE;
+int force_flow = 0;
 
 #ifdef __STDC__
-main (int argc, char **argv)
+main(int argc, char **argv)
 #else
-main (argc, argv)
+main(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -118,22 +121,22 @@ main (argc, argv)
 
     if (argc < 2)
     {
-	usage ();
+	usage();
     }
 
-    signal (SIGPIPE, SIG_IGN);
-    
-    if (getcwd (cwd, sizeof (cwd)) == NULL)
+    signal(SIGPIPE, SIG_IGN);
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
     {
 	cwd[0] = '\0';
     }
-    
+
     command = RPLAY_PLAY;
     list_count = RPLAY_DEFAULT_LIST_COUNT;
     list_name = NULL;
     priority = RPLAY_DEFAULT_PRIORITY;
     do_random = 0;
-    hosts = rplay_default_host ();
+    hosts = rplay_default_host();
 
     name = NULL;
     sample_rate = RPLAY_DEFAULT_SAMPLE_RATE;
@@ -141,22 +144,22 @@ main (argc, argv)
     count = RPLAY_DEFAULT_COUNT;
 
     /* First scan the args to see what the command is. */
-    opterr = 0; /* disable getopt errors */
-    while ((c = getopt_long (argc, argv, OPTIONS, longopts, 0)) != -1)
+    opterr = 0;			/* disable getopt errors */
+    while ((c = getopt_long(argc, argv, OPTIONS, longopts, 0)) != -1)
     {
 	switch (c)
 	{
 	case 2:		/* --version */
-	    printf ("rplay %s\n", RPLAY_VERSION);
-	    exit (0);
+	    printf("rplay %s\n", RPLAY_VERSION);
+	    exit(0);
 
 	case 3:		/* --help */
-	    usage ();
+	    usage();
 
 	case 5:		/* --reset */
 	    if (command != RPLAY_PLAY)
 	    {
-		usage ();
+		usage();
 	    }
 	    command = RPLAY_RESET;
 	    break;
@@ -164,7 +167,7 @@ main (argc, argv)
 	case 's':
 	    if (command != RPLAY_PLAY)
 	    {
-		usage ();
+		usage();
 	    }
 	    command = RPLAY_STOP;
 	    break;
@@ -172,7 +175,7 @@ main (argc, argv)
 	case 'p':
 	    if (command != RPLAY_PLAY)
 	    {
-		usage ();
+		usage();
 	    }
 	    command = RPLAY_PAUSE;
 	    break;
@@ -180,7 +183,7 @@ main (argc, argv)
 	case 'c':
 	    if (command != RPLAY_PLAY)
 	    {
-		usage ();
+		usage();
 	    }
 	    command = RPLAY_CONTINUE;
 	    break;
@@ -190,18 +193,18 @@ main (argc, argv)
     optind = optind_val;	/* reset optind */
 
     /* Create the RPLAY object. */
-    rp = rplay_create (command);
+    rp = rplay_create(command);
     if (rp == NULL)
     {
-	rplay_perror ("rplay_create");
-	exit (1);
+	rplay_perror("rplay_create");
+	exit(1);
     }
 
     /* Build a list of sounds to be played along with their
        attributes. */
     while (argc > 1)
     {
-	while ((c = getopt_long (argc, argv, OPTIONS, longopts, 0)) != -1)
+	while ((c = getopt_long(argc, argv, OPTIONS, longopts, 0)) != -1)
 	{
 	    switch (c)
 	    {
@@ -211,16 +214,16 @@ main (argc, argv)
 
 	    case 1:
 		break;
-		
+
 	    case 2:		/* --version */
-		printf ("rplay %s\n", RPLAY_VERSION);
-		exit (0);
+		printf("rplay %s\n", RPLAY_VERSION);
+		exit(0);
 
 	    case 3:		/* --help */
-		usage ();
+		usage();
 
 	    case 4:		/* --port */
-		which_port = atoi (optarg);
+		which_port = atoi(optarg);
 		break;
 
 	    case 5:		/* --reset */
@@ -260,13 +263,22 @@ main (argc, argv)
 		/* GSM encoded u-law files */
 		sound_info = "gsm,8000";
 		break;
-		
+
+	    case 14:		/* --flow */
+		force_flow++;
+		break;
+
+	    case 15:		/* --info-cd */
+		/* cd quality */
+		sound_info = "linear16,44100,16,2,little-endian";
+		break;
+
 	    case 'N':
-		list_count = atoi (optarg);
+		list_count = atoi(optarg);
 		break;
 
 	    case 'P':
-		priority = atoi (optarg);
+		priority = atoi(optarg);
 		break;
 
 	    case 'r':
@@ -278,15 +290,15 @@ main (argc, argv)
 		break;
 
 	    case 'v':
-		volume = atoi (optarg);
+		volume = atoi(optarg);
 		break;
 
 	    case 'n':
-		count = atoi (optarg);
+		count = atoi(optarg);
 		break;
 
 	    case 'R':
-		sample_rate = atoi (optarg);
+		sample_rate = atoi(optarg);
 		break;
 
 	    case 'i':
@@ -294,12 +306,12 @@ main (argc, argv)
 		break;
 
 	    case 'b':
-		buffer_size = atoi (optarg);
+		buffer_size = atoi(optarg);
 		break;
 
 	    default:
-		fprintf (stderr, "Try `rplay --help' for more information.\n");
-		exit (1);
+		fprintf(stderr, "Try `rplay --help' for more information.\n");
+		exit(1);
 	    }
 	}
 
@@ -307,25 +319,25 @@ main (argc, argv)
 	{
 	    if (command == RPLAY_PLAY)
 	    {
-		usage ();
+		usage();
 	    }
 	    name = "#0";
 	}
 	/* Convert relative file names to absolute. */
-	else if ((*(argv[optind]) != '/') && (strchr (argv[optind], '/')))
+	else if ((*(argv[optind]) != '/') && (strchr(argv[optind], '/')))
 	{
 	    if (*cwd)
 	    {
-		name = (char *) malloc (strlen (cwd) + strlen (argv[optind]) + 2);
-		strcpy (name, cwd);
-		strcat (name, "/");
-		if (strncmp (argv[optind], "./", 2) == 0)
+		name = (char *) malloc(strlen(cwd) + strlen(argv[optind]) + 2);
+		strcpy(name, cwd);
+		strcat(name, "/");
+		if (strncmp(argv[optind], "./", 2) == 0)
 		{
-		    strcat (name, argv[optind]+2);
+		    strcat(name, argv[optind] + 2);
 		}
 		else
 		{
-		    strcat (name, argv[optind]);
+		    strcat(name, argv[optind]);
 		}
 	    }
 	    else
@@ -342,81 +354,81 @@ main (argc, argv)
 	argc -= optind;
 	optind = optind_val;
 
-	if (rplay_set (rp, RPLAY_LIST_COUNT, list_count, NULL) < 0)
+	if (rplay_set(rp, RPLAY_LIST_COUNT, list_count, NULL) < 0)
 	{
-	    rplay_perror ("rplay_set");
-	    exit (1);
+	    rplay_perror("rplay_set");
+	    exit(1);
 	}
 
-	if (rplay_set (rp, RPLAY_PRIORITY, priority, NULL) < 0)
+	if (rplay_set(rp, RPLAY_PRIORITY, priority, NULL) < 0)
 	{
-	    rplay_perror ("rplay_set");
-	    exit (1);
+	    rplay_perror("rplay_set");
+	    exit(1);
 	}
 
-	if (list_name && rplay_set (rp, RPLAY_LIST_NAME, list_name, NULL) < 0)
+	if (list_name && rplay_set(rp, RPLAY_LIST_NAME, list_name, NULL) < 0)
 	{
-	    rplay_perror ("rplay_set");
-	    exit (1);
+	    rplay_perror("rplay_set");
+	    exit(1);
 	}
-	
-	val = rplay_set (rp, RPLAY_APPEND,
-			 RPLAY_SOUND, name,
-			 RPLAY_VOLUME, volume,
-			 RPLAY_COUNT, count,
-			 RPLAY_SAMPLE_RATE, sample_rate,
-			 RPLAY_CLIENT_DATA, sound_info,
-			 NULL);
+
+	val = rplay_set(rp, RPLAY_APPEND,
+			RPLAY_SOUND, name,
+			RPLAY_VOLUME, volume,
+			RPLAY_COUNT, count,
+			RPLAY_SAMPLE_RATE, sample_rate,
+			RPLAY_CLIENT_DATA, sound_info,
+			NULL);
 	if (val < 0)
 	{
-	    rplay_perror ("rplay_set");
-	    exit (1);
+	    rplay_perror("rplay_set");
+	    exit(1);
 	}
     }
 
     /* Pick the random sound. */
     if (do_random)
     {
-	val = rplay_set (rp, RPLAY_RANDOM_SOUND, NULL);
+	val = rplay_set(rp, RPLAY_RANDOM_SOUND, NULL);
 	if (val < 0)
 	{
-	    rplay_perror ("rplay_set");
-	    exit (1);
+	    rplay_perror("rplay_set");
+	    exit(1);
 	}
     }
 
-    doit (hosts);
-    
-    exit (0);
+    doit(hosts);
+
+    exit(0);
 }
 
 #ifdef __STDC__
 void
-doit (char *hostp)
+doit(char *hostp)
 #else
 void
-doit (hostp)
+doit(hostp)
     char *hostp;
 #endif
 {
     PLAY_FUNC *play_table;
     char *host;
 
-    play_table = (PLAY_FUNC *) malloc (rplay_get (rp, RPLAY_NSOUNDS) * sizeof (PLAY_FUNC));
+    play_table = (PLAY_FUNC *) malloc(rplay_get(rp, RPLAY_NSOUNDS) * sizeof(PLAY_FUNC));
     if (play_table == NULL)
     {
-	fprintf (stderr, "rplay: out of memory\n");
-	exit (1);
+	fprintf(stderr, "rplay: out of memory\n");
+	exit(1);
     }
-    
+
     /* Cycle through each colon-separated host. */
     do
     {
 	int protocol, port;
 	int rplay_fd = -1;
-	
+
 	host = hostp;
-	hostp = strchr (host, ':');
+	hostp = strchr(host, ':');
 	if (hostp != NULL)
 	{
 	    *hostp++ = '\0';
@@ -424,11 +436,16 @@ doit (hostp)
 
 	/* Determine which protocol to use. */
 
-	if (rplay_get (rp, RPLAY_COMMAND) != RPLAY_PLAY)
+	if (rplay_get(rp, RPLAY_COMMAND) != RPLAY_PLAY)
 	{
 	    protocol = PROTOCOL_RPLAY;
 	}
-	else if (strcmp ((char *) rplay_get (rp, RPLAY_SOUND, 0), "-") == 0)
+	else if (force_flow)
+	{
+	    protocol = PROTOCOL_RPTP;
+	    play_table[0] = play_with_flow;
+	}
+	else if (strcmp((char *) rplay_get(rp, RPLAY_SOUND, 0), "-") == 0)
 	{
 	    protocol = PROTOCOL_RPTP;
 	    play_table[0] = play_with_flow;
@@ -436,7 +453,7 @@ doit (hostp)
 	else if (which_protocol == PROTOCOL_GUESS)
 	{
 	    char response[RPTP_MAX_LINE];
-	    rplay_fd = rptp_open (host, RPTP_PORT, response, sizeof (response));
+	    rplay_fd = rptp_open(host, RPTP_PORT, response, sizeof(response));
 	    if (rplay_fd < 0)
 	    {
 		protocol = PROTOCOL_RPLAY;
@@ -445,20 +462,20 @@ doit (hostp)
 	    {
 		int i, n, sounds_not_found = 0;
 		char *sound_name;
-		
+
 		/* Count the number of sounds the server doesn't have */
-		n = (int) rplay_get (rp, RPLAY_NSOUNDS);
+		n = (int) rplay_get(rp, RPLAY_NSOUNDS);
 		for (i = 0; i < n; i++)
 		{
 		    struct stat st;
-			
-		    sound_name = (char *) rplay_get (rp, RPLAY_SOUND, i);
-		    if (stat (sound_name, &st) < 0)
+
+		    sound_name = (char *) rplay_get(rp, RPLAY_SOUND, i);
+		    if (stat(sound_name, &st) < 0)
 		    {
 			st.st_size = 0;
 		    }
-			
-		    if (!server_has_sound (rplay_fd, sound_name, (int)st.st_size))
+
+		    if (!server_has_sound(rplay_fd, sound_name, (int) st.st_size))
 		    {
 			if (st.st_size)
 			{
@@ -468,7 +485,7 @@ doit (hostp)
 			else
 			{
 			    /* Assume the server can get the sound
-                               from another server. */
+			       from another server. */
 			    play_table[i] = play_with_play;
 			}
 		    }
@@ -492,18 +509,18 @@ doit (hostp)
 
 	/* Allow the protocol choice to be overridden. */
 	if (which_protocol != PROTOCOL_GUESS
-	    && rplay_get (rp, RPLAY_COMMAND) == RPLAY_PLAY)
+	    && rplay_get(rp, RPLAY_COMMAND) == RPLAY_PLAY)
 	{
 	    int i, n;
-	    
+
 	    protocol = which_protocol;
-	    n = (int) rplay_get (rp, RPLAY_NSOUNDS);
+	    n = (int) rplay_get(rp, RPLAY_NSOUNDS);
 	    for (i = 0; i < n; i++)
 	    {
 		play_table[i] = (protocol == PROTOCOL_RPTP) ? play_with_flow : play_with_play;
 	    }
 	}
-	
+
 	port = which_port;
 	if (port == -1)
 	{
@@ -512,7 +529,7 @@ doit (hostp)
 	    case PROTOCOL_RPLAY:
 		port = RPLAY_PORT;
 		break;
-	    
+
 	    case PROTOCOL_RPTP:
 		port = RPTP_PORT;
 		break;
@@ -522,31 +539,31 @@ doit (hostp)
 	switch (protocol)
 	{
 	case PROTOCOL_RPTP:
-	    play (rplay_fd, host, port, rp, play_table);
+	    play(rplay_fd, host, port, rp, play_table);
 	    break;
 
 	case PROTOCOL_RPLAY:
 	    if (rplay_fd != -1)
 	    {
-		rptp_close (rplay_fd);
+		rptp_close(rplay_fd);
 	    }
-	    rplay_fd = rplay_open_port (host, port);
+	    rplay_fd = rplay_open_port(host, port);
 	    if (rplay_fd < 0)
 	    {
-		rplay_perror (host);
-		exit (1);
+		rplay_perror(host);
+		exit(1);
 	    }
-	    if (rplay (rplay_fd, rp) < 0)
+	    if (rplay(rplay_fd, rp) < 0)
 	    {
-		rplay_perror (host);
-		exit (1);
+		rplay_perror(host);
+		exit(1);
 	    }
-	    rplay_close (rplay_fd);
+	    rplay_close(rplay_fd);
 	    break;
 
 	default:
-	    fprintf (stderr, "unknown protocol\n");
-	    exit (1);
+	    fprintf(stderr, "unknown protocol\n");
+	    exit(1);
 	}
     }
     while (hostp != NULL);
@@ -555,14 +572,14 @@ doit (hostp)
 
 #ifdef __STDC__
 int
-server_has_sound (int rplay_fd, char *sound_name, int size)
+server_has_sound(int rplay_fd, char *sound_name, int size)
 #else
 int
-server_has_sound (rplay_fd, sound_name, size)
+server_has_sound(rplay_fd, sound_name, size)
     int rplay_fd;
     char *sound_name;
     int size;
-#endif    
+#endif
 {
     char command[RPTP_MAX_LINE];
     char response[RPTP_MAX_LINE];
@@ -574,21 +591,22 @@ server_has_sound (rplay_fd, sound_name, size)
     {
 	if (try == 0)
 	{
-	    sprintf (command, "info sound=%s", sound_name);
+	    sprintf(command, "info sound=%s", sound_name);
 	}
 	else
 	{
-	    sprintf (command, "info sound=%s/%s", cwd, sound_name);
+	    sprintf(command, "info sound=%s/%s", cwd, sound_name);
 	}
-		
-	if (rptp_command (rplay_fd, command, response, sizeof (response)) < 0)
+
+	if (rptp_command(rplay_fd, command, response, sizeof(response)) < 0)
 	{
 	    return 0;
 	}
 
 	remote_size = -1;
-	p = rptp_parse (response, "size");
-	if (p) remote_size = atoi(p);
+	p = rptp_parse(response, "size");
+	if (p)
+	    remote_size = atoi(p);
 
 	if (remote_size != -1
 	    && (size == 0 || remote_size == 0 || size == remote_size))
@@ -602,33 +620,33 @@ server_has_sound (rplay_fd, sound_name, size)
 
 #ifdef __STDC__
 void
-play (int rplay_fd, char *host, int port, RPLAY *rp, PLAY_FUNC *play_table)
+play(int rplay_fd, char *host, int port, RPLAY *rp, PLAY_FUNC *play_table)
 #else
 void
-play (rplay_fd, rp, play_table)
+play(rplay_fd, rp, play_table)
     int rplay_fd;
     RPLAY *rp;
     PLAY_TABLE *play_table;
-#endif	
+#endif
 {
     int i, n;
     char response[RPTP_MAX_LINE];
 
-    n = rplay_get (rp, RPLAY_NSOUNDS);
+    n = rplay_get(rp, RPLAY_NSOUNDS);
     for (i = 0; i < n; i++)
     {
 	if (rplay_fd < 0)
 	{
-	    rplay_fd = rptp_open (host, port, response, sizeof (response));
+	    rplay_fd = rptp_open(host, port, response, sizeof(response));
 	}
 	if (rplay_fd < 0)
 	{
-	    rptp_perror (host);
+	    rptp_perror(host);
 	    continue;
 	}
-	if ((*play_table[i])(rplay_fd, host, port, rp, i) < 0)
+	if ((*play_table[i]) (rplay_fd, host, port, rp, i) < 0)
 	{
-	    rptp_close (rplay_fd);
+	    rptp_close(rplay_fd);
 	    rplay_fd = -1;
 	}
     }
@@ -636,10 +654,10 @@ play (rplay_fd, rp, play_table)
 
 #ifdef __STDC__
 int
-play_with_play (int rplay_fd, char *host, int port, RPLAY *rp, int index)
+play_with_play(int rplay_fd, char *host, int port, RPLAY *rp, int index)
 #else
 int
-play_with_play (rplay_fd, host, port, rp, index)
+play_with_play(rplay_fd, host, port, rp, index)
     int rplay_fd;
     char *host;
     int port;
@@ -651,33 +669,33 @@ play_with_play (rplay_fd, host, port, rp, index)
     char response[RPTP_MAX_LINE];
 
     /* Enable `done' notification. */
-    rptp_putline (rplay_fd, "set notify=done,position notify-rate=1.0");
-    rptp_getline (rplay_fd, response, sizeof (response));
+    rptp_putline(rplay_fd, "set notify=done,position notify-rate=1.0");
+    rptp_getline(rplay_fd, response, sizeof(response));
 
     /* Play the sound. */
-    rptp_putline (rplay_fd, "play priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
-		  (int) rplay_get (rp, RPLAY_PRIORITY, index),
-		  (int) rplay_get (rp, RPLAY_SAMPLE_RATE, index),
-		  (int) rplay_get (rp, RPLAY_VOLUME, index),
-		  rplay_get (rp, RPLAY_LIST_NAME) ? (char *) rplay_get (rp, RPLAY_LIST_NAME) : "",
-		  (int) rplay_get (rp, RPLAY_SOUND, index));
-    n = rptp_getline (rplay_fd, response, sizeof (response));
+    rptp_putline(rplay_fd, "play priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
+		 (int) rplay_get(rp, RPLAY_PRIORITY, index),
+		 (int) rplay_get(rp, RPLAY_SAMPLE_RATE, index),
+		 (int) rplay_get(rp, RPLAY_VOLUME, index),
+		 rplay_get(rp, RPLAY_LIST_NAME) ? (char *) rplay_get(rp, RPLAY_LIST_NAME) : "",
+		 (int) rplay_get(rp, RPLAY_SOUND, index));
+    n = rptp_getline(rplay_fd, response, sizeof(response));
     if (n < 0 || response[0] != RPTP_OK)
     {
-	fprintf (stderr, "rplay: can't play `%s'\n",
-		 (int) rplay_get (rp, RPLAY_SOUND, index));
+	fprintf(stderr, "rplay: can't play `%s'\n",
+		(int) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
-    
+
     /* Grab the spool id. */
-    spool_id = atoi (1 + rptp_parse (response, "id"));
-    
+    spool_id = atoi(1 + rptp_parse(response, "id"));
+
     /* Wait for the sound to finish playing. */
-    signal (SIGINT, interrupt);
+    signal(SIGINT, interrupt);
     interrupted = 0;
     for (;;)
     {
-	n = rptp_getline (rplay_fd, response, sizeof (response));
+	n = rptp_getline(rplay_fd, response, sizeof(response));
 	fprintf(stderr, response);
 	if (interrupted)
 	{
@@ -689,24 +707,24 @@ play_with_play (rplay_fd, host, port, rp, index)
 	}
 	else if (response[0] != RPTP_NOTIFY)
 	{
-	    fprintf (stderr, "rplay: %s\n", response+1);
+	    fprintf(stderr, "rplay: %s\n", response + 1);
 	    break;
 	}
 
 	rptp_parse(response, NULL);
-	if (strcmp (rptp_parse(NULL, "event"), "done") == 0
-	    && atoi (1 + rptp_parse (NULL, "id")) == spool_id)
+	if (strcmp(rptp_parse(NULL, "event"), "done") == 0
+	    && atoi(1 + rptp_parse(NULL, "id")) == spool_id)
 	{
 	    break;
 	}
     }
-    signal (SIGINT, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
 
     /* Eat any events and turn off notification. */
-    rptp_putline (rplay_fd, "set notify=none");
+    rptp_putline(rplay_fd, "set notify=none");
     for (;;)
     {
-	n = rptp_getline (rplay_fd, response, sizeof (response));
+	n = rptp_getline(rplay_fd, response, sizeof(response));
 	if (n < 0)
 	{
 	    return -1;
@@ -722,88 +740,88 @@ play_with_play (rplay_fd, host, port, rp, index)
 
 #ifdef __STDC__
 int
-play_with_flow (int rplay_fd, char *host, int port, RPLAY *rp, int index)
+play_with_flow(int rplay_fd, char *host, int port, RPLAY *rp, int index)
 #else
 int
-play_with_flow (rplay_fd, host, port, rp, index)
+play_with_flow(rplay_fd, host, port, rp, index)
     int rplay_fd;
     char *host;
     int port;
     RPLAY *rp;
     int index;
-#endif    
+#endif
 {
-    char *sound_name = (char *) rplay_get (rp, RPLAY_SOUND, index);
-    char *sound_info = (char *) rplay_get (rp, RPLAY_CLIENT_DATA, index);
+    char *sound_name = (char *) rplay_get(rp, RPLAY_SOUND, index);
+    char *sound_info = (char *) rplay_get(rp, RPLAY_CLIENT_DATA, index);
     char command[RPTP_MAX_LINE];
     char response[RPTP_MAX_LINE];
     char *buffer;
     int spool_id, n, fd, flow_fd;
 
-    if (strcmp (sound_name, "-") == 0)
+    if (strcmp(sound_name, "-") == 0)
     {
 	fd = 0;
     }
     else
     {
-	fd = open (sound_name, O_RDONLY, 0);
+	fd = open(sound_name, O_RDONLY, 0);
 	if (fd < 0)
 	{
-	    fprintf (stderr, "rplay: sound `%s' not found\n", sound_name);
+	    fprintf(stderr, "rplay: sound `%s' not found\n", sound_name);
 	    return 0;
 	}
     }
 
     /* Open a connection for the flow. */
-    flow_fd = rptp_open (host, port, response, sizeof (response));
+    flow_fd = rptp_open(host, port, response, sizeof(response));
     if (flow_fd < 0)
     {
-	rptp_perror (host);
+	rptp_perror(host);
 	return -1;
     }
-    
+
     /* Enable `done' notification. */
-    rptp_putline (rplay_fd, "set notify=done");
-    rptp_getline (rplay_fd, response, sizeof (response));
+    rptp_putline(rplay_fd, "set notify=done");
+    rptp_getline(rplay_fd, response, sizeof(response));
 
     /* Send the flow play command. */
-    rptp_putline (flow_fd, "play input=flow %s priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
-		  info2str (sound_info),
-		  (int) rplay_get (rp, RPLAY_PRIORITY, index),
-		  (int) rplay_get (rp, RPLAY_SAMPLE_RATE, index),
-		  (int) rplay_get (rp, RPLAY_VOLUME, index),
-		  rplay_get (rp, RPLAY_LIST_NAME) ? (char *) rplay_get (rp, RPLAY_LIST_NAME) : "",
-		  strcmp (sound_name, "-") ? sound_name : "stdin");
-    n = rptp_getline (flow_fd, response, sizeof (response));
+    rptp_putline(flow_fd, "play input=flow %s priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
+		 info2str(sound_info),
+		 (int) rplay_get(rp, RPLAY_PRIORITY, index),
+		 (int) rplay_get(rp, RPLAY_SAMPLE_RATE, index),
+		 (int) rplay_get(rp, RPLAY_VOLUME, index),
+		 rplay_get(rp, RPLAY_LIST_NAME) ? (char *) rplay_get(rp, RPLAY_LIST_NAME) : "",
+		 strcmp(sound_name, "-") ? sound_name : "stdin");
+    n = rptp_getline(flow_fd, response, sizeof(response));
     if (n < 0 || response[0] != RPTP_OK)
     {
-	fprintf (stderr, "rplay: can't play `%s'\n",
-		 (int) rplay_get (rp, RPLAY_SOUND, index));
+	fprintf(stderr, "rplay: can't play `%s'\n",
+		(int) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
 
     /* Grab the spool id. */
-    spool_id = atoi (1 + rptp_parse (response, "id"));
+    spool_id = atoi(1 + rptp_parse(response, "id"));
 
     /* Send the put command. */
-    rptp_putline (flow_fd, "put id=#%d size=0", spool_id);
-    n = rptp_getline (flow_fd, response, sizeof (response));
+    rptp_putline(flow_fd, "put id=#%d size=0", spool_id);
+    n = rptp_getline(flow_fd, response, sizeof(response));
     if (n < 0 || response[0] != RPTP_OK)
     {
-	fprintf (stderr, "rplay: can't play `%s'\n",
-		 (int) rplay_get (rp, RPLAY_SOUND, index));
+	fprintf(stderr, "rplay: can't play `%s'\n",
+		(int) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
-    
+
     /* Allocate the buffer. */
-    buffer = (char *) malloc (buffer_size);
+    buffer = (char *) malloc(buffer_size);
     if (buffer == NULL)
     {
-	fprintf (stderr, "rplay: out of memory\n");
-	exit (1);
+	fprintf(stderr, "rplay: out of memory\n");
+	exit(1);
     }
-    
-    signal (SIGINT, interrupt);
+
+    signal(SIGINT, interrupt);
     interrupted = 0;
     for (;;)
     {
@@ -811,25 +829,25 @@ play_with_flow (rplay_fd, host, port, rp, index)
 	{
 	    break;
 	}
-	n = read (fd, buffer, buffer_size);
+	n = read(fd, buffer, buffer_size);
 	if (n <= 0)
 	{
 	    break;
 	}
-	if (rptp_write (flow_fd, buffer, n) != n)
+	if (rptp_write(flow_fd, buffer, n) != n)
 	{
 	    break;
 	}
     }
 
-    close (fd);
-    /*sleep (1);*/
-    rptp_close (flow_fd);
+    close(fd);
+    /*sleep (1); */
+    rptp_close(flow_fd);
 
     /* Wait for the sound to finish. */
     for (;;)
     {
-	n = rptp_getline (rplay_fd, response, sizeof (response));
+	n = rptp_getline(rplay_fd, response, sizeof(response));
 	if (interrupted)
 	{
 	    break;
@@ -840,22 +858,22 @@ play_with_flow (rplay_fd, host, port, rp, index)
 	}
 	else if (response[0] != RPTP_NOTIFY)
 	{
-	    fprintf (stderr, "rplay: %s\n", response+1);
+	    fprintf(stderr, "rplay: %s\n", response + 1);
 	    break;
 	}
-	else if (atoi (1 + rptp_parse (response, "id")) == spool_id)
+	else if (atoi(1 + rptp_parse(response, "id")) == spool_id)
 	{
 	    break;
 	}
     }
-    
-    signal (SIGINT, SIG_DFL);
+
+    signal(SIGINT, SIG_DFL);
 
     /* Eat any events and turn off notification. */
-    rptp_putline (rplay_fd, "set notify=none");
+    rptp_putline(rplay_fd, "set notify=none");
     for (;;)
     {
-	n = rptp_getline (rplay_fd, response, sizeof (response));
+	n = rptp_getline(rplay_fd, response, sizeof(response));
 	if (n < 0)
 	{
 	    return -1;
@@ -871,12 +889,12 @@ play_with_flow (rplay_fd, host, port, rp, index)
 
 #ifdef __STDC__
 char *
-info2str (char *sound_info)
+info2str(char *sound_info)
 #else
 char *
-info2str (sound_info)
+info2str(sound_info)
     char *sound_info;
-#endif    
+#endif
 {
     static char str[1024];
 
@@ -885,138 +903,144 @@ info2str (sound_info)
     {
 	char buf[1024];
 	char *p;
-	
-	strcpy (buf, sound_info);
+
+	strcpy(buf, sound_info);
 	/* Example: ulaw,8000,8,1,big-endian,offset */
-	p = strtok (buf, ", ");
-	if (p) sprintf (str + strlen(str), "input-format=%s ", p);
-	p = strtok (NULL, ", ");
-	if (p) sprintf (str + strlen(str), "input-sample-rate=%s ", p);
-	p = strtok (NULL, ", ");
-	if (p) sprintf (str + strlen(str), "input-bits=%s ", p);
-	p = strtok (NULL, ", ");
-	if (p) sprintf (str + strlen(str), "input-channels=%s ", p);
-	p = strtok (NULL, ", ");
-	if (p) sprintf (str + strlen(str), "input-byte-order=%s ", p);
-	p = strtok (NULL, ", ");
-	if (p) sprintf (str + strlen(str), "input-offset=%s ", p);
+	p = strtok(buf, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-format=%s ", p);
+	p = strtok(NULL, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-sample-rate=%s ", p);
+	p = strtok(NULL, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-bits=%s ", p);
+	p = strtok(NULL, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-channels=%s ", p);
+	p = strtok(NULL, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-byte-order=%s ", p);
+	p = strtok(NULL, ", ");
+	if (p)
+	    sprintf(str + strlen(str), "input-offset=%s ", p);
     }
-    
+
     return str;
 }
 
 void
-interrupt ()
+interrupt()
 {
     interrupted++;
     fprintf(stderr, "rplay: *interrupt*\n");
 }
 
 void
-usage ()
+usage()
 {
-    printf ("\nrplay %s\n\n", RPLAY_VERSION);
-    printf ("usage: rplay [options] [sound ... ]\n\n");
+    printf("\nrplay %s\n\n", RPLAY_VERSION);
+    printf("usage: rplay [options] [sound ... ]\n\n");
 
-    printf ("-b BYTES, --buffer-size=BYTES\n");
-    printf ("\tUse of a buffer size of BYTES when playing sounds using RPTP flows.\n");
-    printf ("\tThe default is 8K.\n");
-    printf ("\n");
-    
-    printf ("-c, --continue\n");
-    printf ("\tContinue sounds.\n");
-    printf ("\n");
+    printf("-b BYTES, --buffer-size=BYTES\n");
+    printf("\tUse of a buffer size of BYTES when playing sounds using RPTP flows.\n");
+    printf("\tThe default is 8K.\n");
+    printf("\n");
 
-    printf ("-n N, --count=N\n");
-    printf ("\tNumber of times to play the sound, default = %d.\n",
-	    RPLAY_DEFAULT_COUNT);
-    printf ("\n");
+    printf("-c, --continue\n");
+    printf("\tContinue sounds.\n");
+    printf("\n");
 
-    printf ("-N N, --list-count=N\n");
-    printf ("\tNumber of times to play all the sounds, default = %d.\n",
-	    RPLAY_DEFAULT_LIST_COUNT);
-    printf ("\n");
+    printf("-n N, --count=N\n");
+    printf("\tNumber of times to play the sound, default = %d.\n",
+	   RPLAY_DEFAULT_COUNT);
+    printf("\n");
 
-    printf ("--list-name=NAME\n");
-    printf ("\tName this list NAME.  rplayd appends sounds with the same\n");
-    printf ("\tNAME into the same sound list -- it plays them sequentially.\n");
-    printf ("\n");
+    printf("-N N, --list-count=N\n");
+    printf("\tNumber of times to play all the sounds, default = %d.\n",
+	   RPLAY_DEFAULT_LIST_COUNT);
+    printf("\n");
 
-    printf ("--help\n");
-    printf ("\tDisplay helpful information.\n");
-    printf ("\n");
+    printf("--list-name=NAME\n");
+    printf("\tName this list NAME.  rplayd appends sounds with the same\n");
+    printf("\tNAME into the same sound list -- it plays them sequentially.\n");
+    printf("\n");
 
-    printf ("-h HOST, --host=HOST, --hosts=HOST\n");
-    printf ("\tSpecify the rplay host, default = %s.\n", rplay_default_host ());
-    printf ("\n");
+    printf("--help\n");
+    printf("\tDisplay helpful information.\n");
+    printf("\n");
 
-    printf ("-i INFO, --info=INFO\n");
-    printf ("\tAudio information for a sound file.  This option is intended\n");
-    printf ("\tto be used when sounds are read from standard input.\n");
-    printf ("\tINFO must be of the form:\n");
-    printf ("\t    `format,sample-rate,bits,channels,byte-order,offset'\n");
-    printf ("\tExamples: ulaw,8000,8,1,big-endian,0\n");
-    printf ("\t          gsm,8000\n");
-    printf ("\tShorthand info is provided for Sun's audio devices using the\n");
-    printf ("\tfollowing options: --info-amd, --info-dbri, --info-cs4231.\n");
-    printf ("\tThere's also: --info-ulaw and --info-gsm.\n");
-    printf ("\n");
+    printf("-h HOST, --host=HOST, --hosts=HOST\n");
+    printf("\tSpecify the rplay host, default = %s.\n", rplay_default_host());
+    printf("\n");
 
-    printf ("-p, --pause\n");
-    printf ("\tPause sounds.\n");
-    printf ("\n");
+    printf("-i INFO, --info=INFO\n");
+    printf("\tAudio information for a sound file.  This option is intended\n");
+    printf("\tto be used when sounds are read from standard input.\n");
+    printf("\tINFO must be of the form:\n");
+    printf("\t    `format,sample-rate,bits,channels,byte-order,offset'\n");
+    printf("\tExamples: ulaw,8000,8,1,big-endian,0\n");
+    printf("\t          gsm,8000\n");
+    printf("\tShorthand info is provided for Sun's audio devices using the\n");
+    printf("\tfollowing options: --info-amd, --info-dbri, --info-cs4231.\n");
+    printf("\tThere's also: --info-ulaw and --info-gsm.\n");
+    printf("\n");
 
-    printf ("--port=PORT\n");
-    printf ("\tUse PORT instead of the default RPLAY/UDP or RPTP/TCP port.\n");
-    printf ("\n");
+    printf("-p, --pause\n");
+    printf("\tPause sounds.\n");
+    printf("\n");
 
-    printf ("-P N, --priority=N\n");
-    printf ("\tPlay sounds at priority N (%d <= N <= %d), default = %d.\n",
-	    RPLAY_MIN_PRIORITY,
-	    RPLAY_MAX_PRIORITY,
-	    RPLAY_DEFAULT_PRIORITY);
-    printf ("\n");
+    printf("--port=PORT\n");
+    printf("\tUse PORT instead of the default RPLAY/UDP or RPTP/TCP port.\n");
+    printf("\n");
 
-    printf ("-r, --random\n");
-    printf ("\tRandomly choose one of the given sounds.\n");
-    printf ("\n");
+    printf("-P N, --priority=N\n");
+    printf("\tPlay sounds at priority N (%d <= N <= %d), default = %d.\n",
+	   RPLAY_MIN_PRIORITY,
+	   RPLAY_MAX_PRIORITY,
+	   RPLAY_DEFAULT_PRIORITY);
+    printf("\n");
 
-    printf ("--reset\n");
-    printf ("\tTell the server to reset itself.\n");
-    printf ("\n");
+    printf("-r, --random\n");
+    printf("\tRandomly choose one of the given sounds.\n");
+    printf("\n");
 
-    printf ("--rplay, --RPLAY\n");
-    printf ("\tForce the use of the RPLAY protocol.\n");
-    printf ("\
+    printf("--reset\n");
+    printf("\tTell the server to reset itself.\n");
+    printf("\n");
+
+    printf("--rplay, --RPLAY\n");
+    printf("\tForce the use of the RPLAY protocol.\n");
+    printf("\
 \tThe default protocol to be used is determined by checking whether or not\n\
 \tthe server has local access to the specified sounds.  RPLAY is used when\n\
 \tsounds are accessible, otherwise RPTP and possibly flows are used.\n\
 \tRPLAY will also be used when sound accessibility cannot be determined.\n");
-    printf ("\n");
+    printf("\n");
 
-    printf ("--rptp, --RPTP\n");
-    printf ("\tForce the use of the RPTP protocol.\n");
-    printf ("\tSee `--rplay' for more information about protocols.\n");
-    printf ("\n");
+    printf("--rptp, --RPTP\n");
+    printf("\tForce the use of the RPTP protocol.\n");
+    printf("\tSee `--rplay' for more information about protocols.\n");
+    printf("\n");
 
-    printf ("-R N, --sample-rate=N\n");
-    printf ("\tPlay sounds at sample rate N, default = %d.\n",
-	    RPLAY_DEFAULT_SAMPLE_RATE);
-    printf ("\n");
+    printf("-R N, --sample-rate=N\n");
+    printf("\tPlay sounds at sample rate N, default = %d.\n",
+	   RPLAY_DEFAULT_SAMPLE_RATE);
+    printf("\n");
 
-    printf ("-s, --stop\n");
-    printf ("\tStop sounds.\n");
-    printf ("\n");
+    printf("-s, --stop\n");
+    printf("\tStop sounds.\n");
+    printf("\n");
 
-    printf ("--version\n");
-    printf ("\tPrint the rplay version and exit.\n");
-    printf ("\n");
+    printf("--version\n");
+    printf("\tPrint the rplay version and exit.\n");
+    printf("\n");
 
-    printf ("-v N, --volume=N\n");
-    printf ("\tPlay sounds at volume N (%d <= N <= %d), default = %d.\n",
-	    RPLAY_MIN_VOLUME,
-	    RPLAY_MAX_VOLUME,
-	    RPLAY_DEFAULT_VOLUME);
+    printf("-v N, --volume=N\n");
+    printf("\tPlay sounds at volume N (%d <= N <= %d), default = %d.\n",
+	   RPLAY_MIN_VOLUME,
+	   RPLAY_MAX_VOLUME,
+	   RPLAY_DEFAULT_VOLUME);
 
-    exit (1);
+    exit(1);
 }
