@@ -20,8 +20,6 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -1210,8 +1208,6 @@ sound_map (s)
 	    block_length = (unsigned char) *p++;
 	    block_length |= ((unsigned char) *p++ << 8);
 	    block_length |= ((unsigned char) *p++ << 16);
-
-	    printf ("voc length %d\n", block_length);
 
 	    if (block_id == 1)	/* VOC_DATA */
 	    {
