@@ -1,4 +1,4 @@
-/* $Id: config.h.in,v 1.4 1999/06/09 06:25:20 boyns Exp $	-*- c -*- */
+/* $Id: config.h.in,v 1.5 2002/02/08 22:15:23 lmoore Exp $	-*- c -*- */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -40,7 +40,7 @@
 /*
  * Use host authentication.
  */
-#define AUTH	
+#define AUTH
 
 /*
  * Support rplay 2.0 packets.  If you define this then you
@@ -75,7 +75,7 @@
  *	1 - System and rplayd errors.
  *	2 - + RPTP connections, get, put, find.
  *	3 - + play, stop, pause, continue, etc.
- *	4 - + Debug messages. 
+ *	4 - + Debug messages.
  *
  * Note that the logging level can also be specified with
  * rplayd command line options.  This is only used if
@@ -192,6 +192,7 @@
 #undef HAVE_LIBREADLINE
 #undef HAVE_RANDOM
 #undef HAVE_SRANDOM
+#undef HAVE_REGCOMP
 
 #undef HAVE_STDC_HEADERS
 #undef HAVE_MEMORY_H
@@ -207,6 +208,7 @@
 
 #undef HAVE_GSM_H
 #undef HAVE_GSM_GSM_H
+#undef HAVE_REGEX_H
 #undef HAVE_RXPOSIX_H
 #undef HAVE_RX_RXPOSIX_H
 
