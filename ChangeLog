@@ -1,3 +1,8 @@
+1998-09-02  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/audio/audio_*.c (rplay_audio_open): enabled close-on-exec
+ 	on rplay_audio_fd to fix mp3 helper bug.
+
 1998-07-14  Mark R. Boyns  <boyns@doit.org>
 
 	* rplayd/sound.c: improved header parsing.
