@@ -1,4 +1,4 @@
-/* $Id: devrplay.c,v 1.5 2000/02/02 17:37:37 boyns Exp $ */
+/* $Id: devrplay.c,v 1.6 2002/02/08 22:07:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -26,6 +26,9 @@
  * Copyright (C) 1998, 1999 Manish Singh <yosh@gimp.org>
  */
 
+#define _GNU_SOURCE
+#define __USE_GNU
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -34,6 +37,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -56,6 +60,7 @@ static int dsp_channels;
 static int dsp_speed;
 static int dsp_blksize;
 static int streaming;
+static int opened;
 
 static char *
 getsound()
@@ -95,12 +100,35 @@ open(const char *pathname, int flags,...)
 
     if (strcmp(pathname, "/dev/dsp") == 0)
     {
+        char response[RPTP_MAX_LINE];
+        char *acc;
+
 	rplay_fd = rptp_open(rplay_default_host(), RPTP_PORT, response,
 			     sizeof(response));
 	if (rplay_fd < 0)
 	{
 	    rptp_perror(rplay_default_host());
 	}
+        else
+        {
+            rptp_putline(rplay_fd, "access");
+            rptp_getline(rplay_fd, response, sizeof(response));
+            acc = rptp_parse(response, "access");
+
+            if (!acc || !strchr(acc, 'w'))
+            {
+                fprintf(stderr,
+                        "RPLAY-ERROR: please add 'w' to rplay.hosts or man rplay.hosts\n");
+                errno = EACCES;
+                close(rplay_fd);
+                rplay_fd = -1;
+            }
+            else
+            {
+                opened = 1;
+            }
+        }
+
 	return rplay_fd;
     }
     else
@@ -158,6 +186,7 @@ dspctl(int fd, int request, void *argp)
 	break;
     }
 
+    /*
     if (spool_id == -1 && dsp_fmt && dsp_speed && dsp_channels)
     {
 	char response[RPTP_MAX_LINE];
@@ -174,11 +203,18 @@ dspctl(int fd, int request, void *argp)
 		     getsound());
 	rptp_getline(rplay_fd, response, sizeof(response));
 
+        if (response[0] != RPTP_OK)
+        {
+            errno = EINVAL;
+            return -1;
+        }
+
 	spool_id = atoi(1 + rptp_parse(response, "id"));
 
 	rptp_putline(rplay_fd, "put id=#%d size=0", spool_id);
 	rptp_getline(rplay_fd, response, sizeof(response));
     }
+    */
 
     return 0;
 }
@@ -214,7 +250,7 @@ write(int fd, const void *buf, size_t count)
     if (!func)
 	func = (int (*)(int, const void *, size_t)) dlsym(REAL_LIBC, "write");
 
-    if (fd == rplay_fd && !streaming)
+    if (fd == rplay_fd && !streaming && opened)
     {
 	char info[64];
 	char response[RPTP_MAX_LINE];
@@ -241,7 +277,7 @@ write(int fd, const void *buf, size_t count)
 	}
 	/* otherwise let rplayd figure out the format using
 	   the sound header and/or name. */
-	
+
 	streaming = 1;
 	rptp_putline(rplay_fd, "play input=flow %s sound=\"%s\"",
 		     info, getsound());
@@ -269,6 +305,7 @@ close(int fd)
 	rplay_fd = -1;
 	spool_id = -1;
 	streaming = 0;
+        opened = 0;
 	dsp_fmt = dsp_speed = dsp_channels = dsp_speed = dsp_blksize = 0;
     }
 
