@@ -1,4 +1,4 @@
-/* $Id: strdup.c,v 1.2 1998/08/13 06:13:31 boyns Exp $ */
+/* $Id: strdup.c,v 1.3 1998/11/07 21:30:25 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -20,8 +20,8 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -31,24 +31,24 @@
 #ifndef HAVE_STRDUP
 #ifdef __STDC__
 char *
-strdup (char *str)
+strdup(char *str)
 #else
 char *
-strdup (str)
-	char	*str;
+strdup(str)
+    char *str;
 #endif
 {
-	char	*p;
+    char *p;
 
-	p = (char *)malloc(strlen(str)+1);
-	if (p == NULL)
-	{
-		return NULL;
-	}
-	else
-	{
-		strcpy(p, str);
-		return p;
-	}
+    p = (char *) malloc(strlen(str) + 1);
+    if (p == NULL)
+    {
+	return NULL;
+    }
+    else
+    {
+	strcpy(p, str);
+	return p;
+    }
 }
 #endif /* HAVE_STRDUP */

@@ -1,4 +1,4 @@
-/* $Id: xmalloc.c,v 1.2 1998/08/13 06:13:34 boyns Exp $ */
+/* $Id: xmalloc.c,v 1.3 1998/11/07 21:30:25 boyns Exp $ */
 
 /* 
  * Copyright (C) 1994 Mark Boyns
@@ -31,30 +31,30 @@
 
 #ifdef __STDC__
 PTR
-xmalloc (size_t size)
+xmalloc(size_t size)
 #else
 PTR
-xmalloc (size)
+xmalloc(size)
     size_t size;
 #endif
 {
     PTR p;
 
-    p = (PTR) malloc (size);
+    p = (PTR) malloc(size);
     if (p == 0)
     {
-	fprintf (stderr, "xmalloc: Virtual memory exhausted.\n");
-	exit (1);
+	fprintf(stderr, "xmalloc: Virtual memory exhausted.\n");
+	exit(1);
     }
     return p;
 }
 
 #ifdef __STDC__
 PTR
-xrealloc (PTR oldmem, size_t size)
+xrealloc(PTR oldmem, size_t size)
 #else
 PTR
-xrealloc (oldmem, size)
+xrealloc(oldmem, size)
     PTR oldmem;
     size_t size;
 #endif
@@ -66,14 +66,13 @@ xrealloc (oldmem, size)
 	size = 1;
     }
 
-    newmem = (oldmem) ? (PTR) realloc (oldmem, size) : (PTR) malloc (size);
-    
+    newmem = (oldmem) ? (PTR) realloc(oldmem, size) : (PTR) malloc(size);
+
     if (!newmem)
     {
-	fprintf (stderr, "xrealloc: Virtual memory exhausted.\n");
-	exit (1);
+	fprintf(stderr, "xrealloc: Virtual memory exhausted.\n");
+	exit(1);
     }
 
     return newmem;
 }
-
