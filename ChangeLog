@@ -1,3 +1,21 @@
+1999-03-09  Mark R. Boyns  <boyns@doit.org>
+
+	* rptp/rptp.c: added monitor support
+	support for GNU readline
+	display progress info for get, put, and monitor
+
+	* rplayd/connection.c: monitor support
+
+	* rplayd/rplayd.c: added audio monitor support
+
+	* rplayd/command: added rptp monitor command
+
+	* rplayd/host.c: added "m" monitor access
+
+1999-03-02  Mark R. Boyns  <boyns@doit.org>
+
+	* devrplay/devrplay.c: new fake /dev/dsp hack based on esddsp.
+
 1998-11-10  Mark R. Boyns  <boyns@doit.org>
 
 	* rptp/rptp.c: added set command.

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.3 1998/11/07 21:30:19 boyns Exp $
+dnl $Id: configure.in,v 1.4 1999/03/10 07:51:00 boyns Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
@@ -73,6 +73,7 @@ AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(getcwd gethostname mkdir re_comp regcomp select snprintf socket strdup strerror strstr fstat fchmod fchown utime utimes memmove sigset vsnprintf waitpid)
 AC_CHECK_LIB(socket, socket, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(nsl, t_accept, [LIBS="$LIBS -lnsl"])
+AC_CHECK_LIB(readline, readline)
 
 RPLAY_TOP=`pwd`
 AC_SUBST(RPLAY_TOP)
@@ -226,7 +227,10 @@ fi
 AC_SUBST(LIBS)
 
 BUILD_TARGETS="include lib rx adpcm gsm librplay rplayd rplay rptp doc"
+if test $RPLAY_TARGET = "oss"; then
+	BUILD_TARGETS="$BUILD_TARGETS devrplay"
+fi
 AC_SUBST(BUILD_TARGETS)
 
 AC_CONFIG_SUBDIRS(rx)
-AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile)
+AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile)

@@ -3,17 +3,11 @@ rplay TODO - A random list of things that may (not) be fixed/changed/implemented
 * rplayd tends to peg the cpu when it is trying to connect to another rplayd.
   This needs to be fixed.
 
-* Fix regex.[ch] to compile with a C++ compiler.
-
 * Support more than one audio device in rplayd.  A client should be able to
   specify which device to use.  Should there be more than one audio spool?
 
 * Add RPLAY_VOLUME_LEFT and RPLAY_VOLUME_RIGHT attributes.  RPLAY_VOLUME should
   still apply to both left & right.
-
-* Use GNU rx instead of GNU regex.  Is rx faster?
-
-* Add GNU readline support to the rptp client.
 
 * rplayd needs to be updated to use the RPTP `set application=rplayd' command when 
   connecting to other rplay servers.
@@ -29,12 +23,8 @@ rplay TODO - A random list of things that may (not) be fixed/changed/implemented
   of course not play the directory, but it keeps the directory in its sound list.
   rplayd should remove the directories from its list.
 
-* Implement a C++ interface to the RPLAY and RPTP protocols.
-
 * Stereo G.72x files don't work and I don't know how to fix 'em.
 
 * Don't modify audio-port by default
 
-* Java support?
-
-$Id: TODO,v 1.2 1998/08/13 06:13:06 boyns Exp $
+$Id: TODO,v 1.3 1999/03/10 07:51:00 boyns Exp $
