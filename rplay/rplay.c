@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.3 1998/10/12 16:03:19 boyns Exp $ */
+/* $Id: rplay.c,v 1.4 1998/10/15 15:15:25 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -746,7 +746,7 @@ play_with_flow (rplay_fd, host, port, rp, index)
     }
     else
     {
-	fd = open (sound_name, O_RDONLY|O_NDELAY, 0);
+	fd = open (sound_name, O_RDONLY, 0);
 	if (fd < 0)
 	{
 	    fprintf (stderr, "rplay: sound `%s' not found\n", sound_name);
