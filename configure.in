@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.4 1999/03/10 07:51:00 boyns Exp $
+dnl $Id: configure.in,v 1.5 1999/06/09 06:26:28 boyns Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
@@ -58,7 +58,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_TIME
 dnl AC_PATH_XTRA
-AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h)
+AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h gsm.h gsm/gsm.h rxposix.h rx/rxposix.h)
 AC_HEADER_SYS_WAIT
 
 dnl Check for typedefs, structures, and compiler characteristics.
@@ -70,10 +70,34 @@ AC_FUNC_MMAP
 AC_FUNC_MEMCMP
 AC_FUNC_VPRINTF
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(getcwd gethostname mkdir re_comp regcomp select snprintf socket strdup strerror strstr fstat fchmod fchown utime utimes memmove sigset vsnprintf waitpid)
+AC_CHECK_FUNCS(getcwd gethostname mkdir re_comp regcomp select snprintf socket strdup strerror strstr fstat fchmod fchown utime utimes memmove sigset vsnprintf waitpid random srandom)
 AC_CHECK_LIB(socket, socket, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(nsl, t_accept, [LIBS="$LIBS -lnsl"])
-AC_CHECK_LIB(readline, readline)
+
+AC_CHECK_LIB(readline, readline, [RL_LIBS="-lreadline"])
+AC_SUBST(RL_LIBS)
+
+AC_CHECK_LIB(gsm, gsm_decode, [HAVE_GSM="yes"])
+if test "$HAVE_GSM" = "yes"; then
+    GSM_LIBS="-lgsm"
+    GSM_INCS=""
+else
+    GSM_LIBS="-L../gsm -lgsm"
+    GSM_INCS="-I\${srcdir}/../gsm"
+fi
+AC_SUBST(GSM_LIBS)
+AC_SUBST(GSM_INCS)
+
+AC_CHECK_LIB(rx, regncomp, [HAVE_RX="yes"])
+if test "$HAVE_RX" = "yes"; then
+    RX_LIBS="-lrx"
+    RX_INCS=""
+else
+    RX_LIBS="-L../rx -lrx"
+    RX_INCS="-I\${srcdir}/../rx"
+fi
+AC_SUBST(RX_LIBS)
+AC_SUBST(RX_INCS)
 
 RPLAY_TOP=`pwd`
 AC_SUBST(RPLAY_TOP)
@@ -226,11 +250,21 @@ if test $RPLAY_TARGET = "sgi"; then
 fi
 AC_SUBST(LIBS)
 
-BUILD_TARGETS="include lib rx adpcm gsm librplay rplayd rplay rptp doc"
-if test $RPLAY_TARGET = "oss"; then
-	BUILD_TARGETS="$BUILD_TARGETS devrplay"
+BUILD_TARGETS="include lib adpcm"
+if test "$HAVE_RX" != "yes"; then
+    BUILD_TARGETS="$BUILD_TARGETS rx"
+    AC_CONFIG_SUBDIRS(rx)
 fi
+if test "$HAVE_GSM" != "yes"; then
+    BUILD_TARGETS="$BUILD_TARGETS gsm"
+fi
+
+BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc"
+
+if test $RPLAY_TARGET = "oss"; then
+    BUILD_TARGETS="$BUILD_TARGETS devrplay"
+fi
+
 AC_SUBST(BUILD_TARGETS)
 
-AC_CONFIG_SUBDIRS(rx)
 AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile)

@@ -1506,7 +1506,7 @@ EOF
 
 fi
 
-for ac_hdr in fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h
+for ac_hdr in fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h gsm.h gsm/gsm.h rxposix.h rx/rxposix.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
@@ -2146,7 +2146,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 
-for ac_func in getcwd gethostname mkdir re_comp regcomp select snprintf socket strdup strerror strstr fstat fchmod fchown utime utimes memmove sigset vsnprintf waitpid
+for ac_func in getcwd gethostname mkdir re_comp regcomp select snprintf socket strdup strerror strstr fstat fchmod fchown utime utimes memmove sigset vsnprintf waitpid random srandom
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 echo "configure:2153: checking for $ac_func" >&5
@@ -2281,8 +2281,9 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
+
 echo $ac_n "checking for readline in -lreadline""... $ac_c" 1>&6
-echo "configure:2286: checking for readline in -lreadline" >&5
+echo "configure:2287: checking for readline in -lreadline" >&5
 ac_lib_var=`echo readline'_'readline | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2290,7 +2291,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lreadline  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2294 "configure"
+#line 2295 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2301,7 +2302,7 @@ int main() {
 readline()
 ; return 0; }
 EOF
-if { (eval echo configure:2305: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2306: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2316,17 +2317,111 @@ LIBS="$ac_save_LIBS"
 fi
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-    ac_tr_lib=HAVE_LIB`echo readline | sed -e 's/[^a-zA-Z0-9_]/_/g' \
-    -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
-  cat >> confdefs.h <<EOF
-#define $ac_tr_lib 1
-EOF
-
-  LIBS="-lreadline $LIBS"
-
+  RL_LIBS="-lreadline"
 else
   echo "$ac_t""no" 1>&6
 fi
+
+
+
+echo $ac_n "checking for gsm_decode in -lgsm""... $ac_c" 1>&6
+echo "configure:2329: checking for gsm_decode in -lgsm" >&5
+ac_lib_var=`echo gsm'_'gsm_decode | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lgsm  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 2337 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char gsm_decode();
+
+int main() {
+gsm_decode()
+; return 0; }
+EOF
+if { (eval echo configure:2348: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  HAVE_GSM="yes"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+if test "$HAVE_GSM" = "yes"; then
+    GSM_LIBS="-lgsm"
+    GSM_INCS=""
+else
+    GSM_LIBS="-L../gsm -lgsm"
+    GSM_INCS="-I\${srcdir}/../gsm"
+fi
+
+
+
+echo $ac_n "checking for regncomp in -lrx""... $ac_c" 1>&6
+echo "configure:2379: checking for regncomp in -lrx" >&5
+ac_lib_var=`echo rx'_'regncomp | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-lrx  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 2387 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char regncomp();
+
+int main() {
+regncomp()
+; return 0; }
+EOF
+if { (eval echo configure:2398: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  HAVE_RX="yes"
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+if test "$HAVE_RX" = "yes"; then
+    RX_LIBS="-lrx"
+    RX_INCS=""
+else
+    RX_LIBS="-L../rx -lrx"
+    RX_INCS="-I\${srcdir}/../rx"
+fi
+
 
 
 RPLAY_TOP=`pwd`
@@ -2339,9 +2434,9 @@ fi
 
 if test -z "$RPLAY_TARGET"; then
 echo $ac_n "checking for sun""... $ac_c" 1>&6
-echo "configure:2343: checking for sun" >&5
+echo "configure:2438: checking for sun" >&5
 cat > conftest.$ac_ext <<EOF
-#line 2345 "configure"
+#line 2440 "configure"
 #include "confdefs.h"
 
 #ifdef sun
@@ -2365,7 +2460,7 @@ if test $is_sun = "yes"; then
 fi
 if test "$RPLAY_TARGET"; then
 	echo $ac_n "checking for solaris""... $ac_c" 1>&6
-echo "configure:2369: checking for solaris" >&5
+echo "configure:2464: checking for solaris" >&5
 	if test ! -f /vmunix; then
 		is_solaris=yes
 		RPLAY_TARGET="solaris"
@@ -2378,9 +2473,9 @@ fi
 
 if test -z "$RPLAY_TARGET"; then
 echo $ac_n "checking for linux""... $ac_c" 1>&6
-echo "configure:2382: checking for linux" >&5
+echo "configure:2477: checking for linux" >&5
 cat > conftest.$ac_ext <<EOF
-#line 2384 "configure"
+#line 2479 "configure"
 #include "confdefs.h"
 
 #ifdef linux
@@ -2406,9 +2501,9 @@ fi
 
 if test -z "$RPLAY_TARGET"; then
 echo $ac_n "checking for hpux""... $ac_c" 1>&6
-echo "configure:2410: checking for hpux" >&5
+echo "configure:2505: checking for hpux" >&5
 cat > conftest.$ac_ext <<EOF
-#line 2412 "configure"
+#line 2507 "configure"
 #include "confdefs.h"
 
 #ifdef __hpux
@@ -2434,9 +2529,9 @@ fi
 
 if test -z "$RPLAY_TARGET"; then
 echo $ac_n "checking for sgi""... $ac_c" 1>&6
-echo "configure:2438: checking for sgi" >&5
+echo "configure:2533: checking for sgi" >&5
 cat > conftest.$ac_ext <<EOF
-#line 2440 "configure"
+#line 2535 "configure"
 #include "confdefs.h"
 
 #ifdef sgi
@@ -2458,22 +2553,22 @@ echo "$ac_t""$is_sgi" 1>&6
 if test $is_sgi = "yes"; then
 	RPLAY_TARGET="sgi"
 	echo $ac_n "checking for multimedia development kit""... $ac_c" 1>&6
-echo "configure:2462: checking for multimedia development kit" >&5
+echo "configure:2557: checking for multimedia development kit" >&5
 	for ac_hdr in audio.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2467: checking for $ac_hdr" >&5
+echo "configure:2562: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2472 "configure"
+#line 2567 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2477: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2572: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2509,9 +2604,9 @@ fi
 
 if test -z "$RPLAY_TARGET"; then
 echo $ac_n "checking for FreeBSD""... $ac_c" 1>&6
-echo "configure:2513: checking for FreeBSD" >&5
+echo "configure:2608: checking for FreeBSD" >&5
 cat > conftest.$ac_ext <<EOF
-#line 2515 "configure"
+#line 2610 "configure"
 #include "confdefs.h"
 
 #ifdef __FreeBSD__
@@ -2564,13 +2659,23 @@ if test $RPLAY_TARGET = "sgi"; then
 fi
 
 
-BUILD_TARGETS="include lib rx adpcm gsm librplay rplayd rplay rptp doc"
+BUILD_TARGETS="include lib adpcm"
+if test "$HAVE_RX" != "yes"; then
+    BUILD_TARGETS="$BUILD_TARGETS rx"
+    subdirs="rx"
+
+fi
+if test "$HAVE_GSM" != "yes"; then
+    BUILD_TARGETS="$BUILD_TARGETS gsm"
+fi
+
+BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc"
+
 if test $RPLAY_TARGET = "oss"; then
-	BUILD_TARGETS="$BUILD_TARGETS devrplay"
+    BUILD_TARGETS="$BUILD_TARGETS devrplay"
 fi
 
 
-subdirs="rx"
 
 trap '' 1 2 15
 cat > confcache <<\EOF
@@ -2720,10 +2825,15 @@ s%@TEXI2DVI@%$TEXI2DVI%g
 s%@TEXI2HTML@%$TEXI2HTML%g
 s%@DVIPS@%$DVIPS%g
 s%@LIBOBJS@%$LIBOBJS%g
+s%@RL_LIBS@%$RL_LIBS%g
+s%@GSM_LIBS@%$GSM_LIBS%g
+s%@GSM_INCS@%$GSM_INCS%g
+s%@RX_LIBS@%$RX_LIBS%g
+s%@RX_INCS@%$RX_INCS%g
 s%@RPLAY_TOP@%$RPLAY_TOP%g
 s%@RPLAY_TARGET@%$RPLAY_TARGET%g
-s%@BUILD_TARGETS@%$BUILD_TARGETS%g
 s%@subdirs@%$subdirs%g
+s%@BUILD_TARGETS@%$BUILD_TARGETS%g
 
 CEOF
 EOF
