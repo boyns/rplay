@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.9 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: sound.c,v 1.10 1999/06/09 06:27:44 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -57,7 +57,6 @@
 #include "connection.h"
 #include "misc.h"
 #include "strdup.h"
-#include "rxposix.h"
 #include "spool.h"
 #ifdef HAVE_CDROM
 #include "cdrom.h"
@@ -65,6 +64,15 @@
 #ifdef HAVE_HELPERS
 #include "helper.h"
 #endif /* HAVE_HELPERS */
+#ifdef HAVE_RX_RXPOSIX_H
+#include <rx/rxposix.h>
+#else
+#ifdef HAVE_RXPOSIX_H
+#include <rxposix.h>
+#else
+#include "rxposix.h"
+#endif
+#endif
 
 SOUND *sounds = NULL;
 int sound_count = 0;

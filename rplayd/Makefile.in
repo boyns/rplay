@@ -9,7 +9,10 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 MKINSTALLDIRS= @srcdir@/../mkinstalldirs
 
-CPPFLAGS = $(CC_OPTIONS) -I. -I../include -I@srcdir@ -I@srcdir@/../include -I@srcdir@/../lib -I@srcdir@/../adpcm -I@srcdir@/../gsm -I@srcdir@/../rx @DEFS@ \
+CPPFLAGS = $(CC_OPTIONS) -I. -I../include -I${srcdir} -I${srcdir}/../include \
+	-I${srcdir}/../lib -I${srcdir}/../adpcm \
+	@GSM_INCS@ \
+	@RX_INCS@ @DEFS@ \
 	-DRPLAY_CONF=\"${sysconfdir}/rplay.conf\" \
 	-DRPLAY_HOSTS=\"${sysconfdir}/rplay.hosts\" \
 	-DRPLAY_SERVERS=\"${sysconfdir}/rplay.servers\" \
@@ -22,7 +25,7 @@ CPPFLAGS = $(CC_OPTIONS) -I. -I../include -I@srcdir@ -I@srcdir@/../include -I@sr
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 LDFLAGS=	$(LD_OPTIONS) -L../librplay -lrplay -L../lib -lrp \
-		-L../adpcm -ladpcm -L../gsm -lgsm -L../rx -lrx @LDFLAGS@ @LIBS@ -lm
+		-L../adpcm -ladpcm @GSM_LIBS@ -L../rx -lrx @LDFLAGS@ @LIBS@ -lm
 
 TARGET=		rplayd
 
@@ -36,7 +39,7 @@ OBJS=		audio.o buffer.o cache.o cdrom.o command.o connection.o flange.o \
 
 all:		$(TARGET)
 
-$(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm.a ../rx/librx.a
+$(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm.a
 		$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 ../librplay/$(LIBRPLAY_NAME):
@@ -47,9 +50,6 @@ $(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm
 
 ../adpcm/libadpcm.a:
 		(cd ../adpcm; $(MAKE) $(MFLAGS))
-
-../rx/librx.a:
-		(cd ../rx; $(MAKE) $(MFLAGS))
 
 install:	all
 		$(MKINSTALLDIRS) $(sbindir)

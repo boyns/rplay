@@ -13,7 +13,7 @@ CPPFLAGS=	$(CC_OPTIONS) -I. -I../include -I@srcdir@/../include -I@srcdir@/../lib
 .c.o:
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
-LDFLAGS=	$(LD_OPTIONS) -L../librplay -lrplay -L../lib -lrp @LDFLAGS@ @LIBS@
+LDFLAGS=	$(LD_OPTIONS) -L../librplay -lrplay -L../lib -lrp @LDFLAGS@ @RL_LIBS@ @LIBS@
 
 TARGET=		rptp
 

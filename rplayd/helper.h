@@ -1,4 +1,4 @@
-/* $Id: helper.h,v 1.3 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: helper.h,v 1.4 1999/06/09 06:27:44 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -20,15 +20,21 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
 #ifndef _helper_h
 #define _helper_h
 
 #ifdef HAVE_HELPERS
 
+#ifdef HAVE_RX_RXPOSIX_H
+#include <rx/rxposix.h>
+#else
+#ifdef HAVE_RXPOSIX_H
+#include <rxposix.h>
+#else
 #include "rxposix.h"
+#endif
+#endif
 
 typedef struct _helper
 {

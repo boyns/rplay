@@ -1,4 +1,4 @@
-/* $Id: host.c,v 1.5 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: host.c,v 1.6 1999/06/09 06:27:44 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -31,9 +31,17 @@
 #include <string.h>
 #endif
 #include "host.h"
-#include "rxposix.h"
 #include "buffer.h"
 #include "misc.h"
+#ifdef HAVE_RX_RXPOSIX_H
+#include <rx/rxposix.h>
+#else
+#ifdef HAVE_RXPOSIX_H
+#include <rxposix.h>
+#else
+#include "rxposix.h"
+#endif
+#endif
 
 #ifdef AUTH
 

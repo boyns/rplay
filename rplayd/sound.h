@@ -1,4 +1,4 @@
-/* $Id: sound.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: sound.h,v 1.4 1999/06/09 06:27:44 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -38,7 +38,15 @@
 #include "g72x.h"    
 #endif /* HAVE_ADPCM */
 #ifdef HAVE_GSM
-#include "gsm.h"    
+#ifdef HAVE_GSM_GSM_H
+#include <gsm/gsm.h>
+#else
+#ifdef HAVE_GSM_H
+#include <gsm.h>
+#else
+#include "gsm.h"
+#endif
+#endif
 #endif /* HAVE_GSM */
 
 #undef NUMBER_OF_SAMPLES
