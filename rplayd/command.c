@@ -1,4 +1,4 @@
-/* command.c - RPTP command interface to rplayd.  */
+/* $Id: command.c,v 1.2 1998/08/13 06:13:46 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

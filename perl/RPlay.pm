@@ -1,4 +1,4 @@
-# -*-perl-*-
+# $Id: RPlay.pm,v 1.2 1998/08/13 06:18:06 boyns Exp $	-*-perl-*-
 #
 # Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>                               
 #

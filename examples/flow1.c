@@ -1,4 +1,4 @@
-/* flow1.c - Flow an audio file to rplayd. */
+/* $Id: flow1.c,v 1.2 1998/08/13 06:13:25 boyns Exp $ */
 
 /* usage: flow1 soundfile */
 

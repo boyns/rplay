@@ -1,4 +1,4 @@
-/* rptp.h */
+/* $Id: rptp.h,v 1.2 1998/08/13 06:13:22 boyns Exp $ */
 
 /* 
  * Copyright (C) 1995 Mark Boyns <boyns@sdsu.edu>

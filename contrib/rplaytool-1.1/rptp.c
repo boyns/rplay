@@ -1,4 +1,4 @@
-/* do_rptp.c */
+/* $Id: rptp.c,v 1.2 1998/08/13 06:13:21 boyns Exp $ */
 
 /* 
  * Copyright (C) 1995 Mark Boyns <boyns@sdsu.edu>

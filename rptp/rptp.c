@@ -1,4 +1,4 @@
-/* rptp.c - A sample RPTP client.  */
+/* $Id: rptp.c,v 1.2 1998/08/13 06:14:28 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

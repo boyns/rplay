@@ -36,10 +36,16 @@ public class RPlay
     final byte RPLAY_PAUSE = 3;
     final byte RPLAY_CONTINUE = 4;
     final byte RPLAY_SOUND = 5;
-//     final byte RPLAY_VOLUME = 6;
-//     final byte RPLAY_PRIORITY = 15;
-//     final byte RPLAY_RANDOM_SOUND = 16;
-//     final byte RPLAY_SAMPLE_RATE = 22;
+    final byte RPLAY_VOLUME = 6;
+    final byte RPLAY_PRIORITY = 15;
+    final byte RPLAY_RANDOM_SOUND = 16;
+    final byte RPLAY_SAMPLE_RATE = 22;
+    final byte RPLAY_PUT = 27;
+    final byte RPLAY_ID = 28;
+    final byte RPLAY_SEQUENCE = 29;
+    final byte RPLAY_DATA = 30;
+    final byte RPLAY_DATA_SIZE = 31;
+
     final int RPLAY_PORT = 5555;
 
     private DatagramSocket socket;
@@ -86,6 +92,15 @@ public class RPlay
 	doit ();
     }
 
+    public void put (int id, int sequence, byte data[])
+    {
+	command = RPLAY_PUT;
+	attrs.put ("id", new Byte (id));
+	attrs.put ("sequence", new Integer (sequence));
+	attrs.put ("data", new ByteArray (data));
+	doit ();
+    }
+
     void doit ()
     {
 	ByteArray pack = new ByteArray ();
@@ -101,6 +116,17 @@ public class RPlay
 		pack.append (RPLAY_SOUND);
 		pack.append ((String) attrs.get (key));
 		pack.append ((byte)0);
+	    }
+	    else if (key.equals ("id"))
+	    {
+		pack.append (RPLAY_ID);
+		pack.append (((Byte) attrs.get (key)).byteValue ());
+	    }
+	    else if (key.equals ("sequence"))
+	    {
+		pack.append (RPLAY_ID);
+		// need network byte order
+		-> pack.append (((Integer) attrs.get (key)).Value ());
 	    }
 	}
 	pack.append (RPLAY_NULL);

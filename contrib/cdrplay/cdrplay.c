@@ -1,4 +1,4 @@
-/* cdrplay.c */
+/* $Id: cdrplay.c,v 1.2 1998/08/13 06:13:18 boyns Exp $ */
 
 /* 
  * Copyright (C) 1996 Mark Boyns <boyns@sdsu.edu>

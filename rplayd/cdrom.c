@@ -1,4 +1,4 @@
-/* cdrom.c - rplay cdrom interface */
+/* $Id: cdrom.c,v 1.2 1998/08/13 06:13:44 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

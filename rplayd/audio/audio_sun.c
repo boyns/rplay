@@ -1,4 +1,4 @@
-/* audio_sun.c - SunOS 4.1.x audio stubs.  */
+/* $Id: audio_sun.c,v 1.2 1998/08/13 06:14:26 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

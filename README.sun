@@ -31,3 +31,4 @@ The device driver on these systems does not accept *any* audio port
 value in the audio_info_t structure when using AUDIO_SETINFO.
 To fix this, rplayd must be run with `--audio-port=none'.
 
+$Id: README.sun,v 1.2 1998/08/13 06:13:05 boyns Exp $

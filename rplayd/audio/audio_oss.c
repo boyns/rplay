@@ -1,4 +1,4 @@
-/* audio_oss.c - Open Sound System audio stubs.  */
+/* $Id: audio_oss.c,v 1.2 1998/08/13 06:14:19 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

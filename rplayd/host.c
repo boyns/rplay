@@ -1,4 +1,4 @@
-/* host.c - Host-based authentication.  */
+/* $Id: host.c,v 1.2 1998/08/13 06:13:54 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

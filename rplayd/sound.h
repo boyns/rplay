@@ -1,4 +1,4 @@
-/* sound.h - Definitions for sound.c.  */
+/* $Id: sound.h,v 1.2 1998/08/13 06:14:06 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

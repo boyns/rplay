@@ -1,4 +1,4 @@
-/* sound.c - Sound file reading, parsing, and caching.  */
+/* $Id: sound.c,v 1.4 1998/08/13 06:14:05 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

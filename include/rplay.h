@@ -1,4 +1,4 @@
-/* rplay.h - Definitions of structures and routines used by librplay.  */
+/* $Id: rplay.h,v 1.2 1998/08/13 06:13:26 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

@@ -1,4 +1,4 @@
-/* timer.h - Definitions for timer.c.  */
+/* $Id: timer.h,v 1.2 1998/08/13 06:14:10 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

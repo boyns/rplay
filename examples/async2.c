@@ -1,4 +1,4 @@
-/* async2.c - A *very* simple RPTP client using async. */
+/* $Id: async2.c,v 1.2 1998/08/13 06:13:24 boyns Exp $ */
 
 #include <rplay.h>
 #include <stdio.h>

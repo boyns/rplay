@@ -67,4 +67,4 @@ const char *hash_jam PARAMS ((struct hash_control *, const char *str,
 			      PTR val));
 #endif /* #ifdef hashH */
 
-/* end of hash.c */
+/* $Id: hash.h,v 1.2 1998/08/13 06:13:30 boyns Exp $ */

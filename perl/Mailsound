@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 #
+# $Id: Mailsound,v 1.2 1998/08/13 06:18:05 boyns Exp $
+#
 # Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
 #
 # This file is part of rplay.

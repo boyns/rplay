@@ -1,4 +1,4 @@
-/* audio_FreeBSD.h - Definitions for FreeBSD 2.0 / 2.0.5 / 2.1.0 audio stubs. */
+/* $Id: audio_FreeBSD.h,v 1.2 1998/08/13 06:14:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

@@ -1,4 +1,4 @@
-/* xhash.h - Definitions for the hash table interface.  */
+/* $Id: xhash.h,v 1.2 1998/08/13 06:14:14 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

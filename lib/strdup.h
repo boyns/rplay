@@ -1,4 +1,4 @@
-/* strdup.h - Definitions for strdup.  */
+/* $Id: strdup.h,v 1.2 1998/08/13 06:13:32 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

@@ -1,4 +1,4 @@
-/* ulaw.h - Definitions for ulaw encoding/decoding.  */
+/* $Id: ulaw.h,v 1.2 1998/08/13 06:14:12 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

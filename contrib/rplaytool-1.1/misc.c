@@ -1,4 +1,4 @@
-/* misc.c */
+/* $Id: misc.c,v 1.2 1998/08/13 06:13:19 boyns Exp $ */
 
 /* 
  * Copyright (C) 1995 Mark Boyns <boyns@sdsu.edu>

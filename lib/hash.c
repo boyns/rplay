@@ -966,4 +966,4 @@ whattable ()			/* determine number: what hash table to use */
 
 #endif /* #ifdef TEST */
 
-/* end of hash.c */
+/* $Id: hash.c,v 1.2 1998/08/13 06:13:29 boyns Exp $ */

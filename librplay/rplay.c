@@ -1,4 +1,4 @@
-/* rplay.c - RPLAY/UDP routines for librplay.  */
+/* $Id: rplay.c,v 1.3 1998/08/13 06:13:36 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

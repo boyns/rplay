@@ -39,3 +39,5 @@ available.  Tracks can be played using:
     $ rplay cdrom:1-3  # play tracks 1, 2, 3
 
 CDROM support only works on ATAPI CDROM devices, I think.
+
+$Id: README.linux,v 1.2 1998/08/13 06:13:03 boyns Exp $

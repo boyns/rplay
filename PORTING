@@ -128,3 +128,5 @@ Systems that don't have hardware volume control should enable software
 volume control by defining `FAKE_VOLUME'.  Look at rplay_get_volume
 and rplay_set_volume in audio_linux.c to see how FAKE_VOLUME should be
 used.
+
+$Id: PORTING,v 1.2 1998/08/13 06:13:01 boyns Exp $

@@ -1,4 +1,4 @@
-/* xmalloc.c - malloc with error checking.  */
+/* $Id: xmalloc.c,v 1.2 1998/08/13 06:13:34 boyns Exp $ */
 
 /* 
  * Copyright (C) 1994 Mark Boyns

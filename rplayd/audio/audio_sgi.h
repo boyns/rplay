@@ -1,4 +1,4 @@
-/* audio_sgi.h - Definitions for sgi audio stubs.  */
+/* $Id: audio_sgi.h,v 1.2 1998/08/13 06:14:22 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

@@ -1,4 +1,4 @@
-/* audio_generic.c - Generic audio stubs.  */
+/* $Id: audio_generic.c,v 1.2 1998/08/13 06:14:17 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>

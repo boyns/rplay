@@ -1,4 +1,4 @@
-/* rplayd.h - Definitions for rplayd.c and the audio stubs.  */
+/* $Id: rplayd.h,v 1.2 1998/08/13 06:14:02 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -46,7 +46,7 @@
 #define REPORT_MIN	0
 #define REPORT_MAX	4
 
-/* BIT macros borrowed from XPilot src/bit.h */
+/* $Id: rplayd.h,v 1.2 1998/08/13 06:14:02 boyns Exp $ */
 #define SET_BIT(w, bit)         ( (w) |= (bit) )
 #define CLR_BIT(w, bit)         ( (w) &= ~(bit) )
 #define BIT(w, bit)             ( (w) & (bit) )

@@ -1,4 +1,4 @@
-/* async.c - Asynchronous I/O buffer system  */
+/* $Id: async.c,v 1.2 1998/08/13 06:13:35 boyns Exp $ */
 
 /* 
  * Copyright (C) 1995 Andrew Scherpbier <andrew@sdsu.edu>

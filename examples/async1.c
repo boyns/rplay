@@ -1,4 +1,4 @@
-/* async1.c - Print messages for play, pause, continue, and done events. */
+/* $Id: async1.c,v 1.2 1998/08/13 06:13:23 boyns Exp $ */
 
 #include <rplay.h>
 
