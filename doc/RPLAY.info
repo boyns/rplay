@@ -1,0 +1,170 @@
+This is Info file RPLAY.info, produced by Makeinfo-1.63 from the input
+file RPLAY.texi.
+
+   This file documents RPLAY protocol.
+
+   Copyright (C) 1995 Mark Boyns
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the entire resulting derived work is distributed under the terms
+of a permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions.
+
+
+File: RPLAY.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
+
+RPLAY
+*****
+
+   This file documents the RPLAY protocol.
+
+* Menu:
+
+* Overview::                    Prelimary information
+* Commands::                    List of supported commands.
+* Attributes::                  List of supported command attributes.
+* Packet description::          What a RPLAY packet looks like.
+
+
+File: RPLAY.info,  Node: Overview,  Next: Commands,  Prev: Top,  Up: Top
+
+Overview
+********
+
+   The `RPLAY' protocol uses simple binary UDP packets to control the
+audio server.  Communication between the client and server is one-way -
+packets are sent to the server and the server *never* replies.
+
+
+File: RPLAY.info,  Node: Commands,  Next: Attributes,  Prev: Overview,  Up: Top
+
+Commands
+********
+
+   `RPLAY' is based on a small set of commands which are used to
+control the audio server.  These commands are:
+
+`RPLAY_PLAY'
+     Play a sound.
+
+`RPLAY_STOP'
+     Stop a sound.
+
+`RPLAY_PAUSE'
+     Pause a sound.
+
+`RPLAY_CONTINUE'
+     Continue a sound.
+
+`RPLAY_PING'
+     Wakeup the server.  This command was introduced to solve a problem
+     with TCP clients that are trying to connect to a server that's
+     started by inetd using a UDP port.
+
+`RPLAY_RESET'
+     Force the server to reset itself.  A reset normally involves
+     re-reading all database files, closing all connections, and stops
+     all playing sounds.
+
+`RPLAY_DONE'
+     Force a sound to be done.  In most cases this is the same as
+     `RPLAY_STOP'.
+
+
+File: RPLAY.info,  Node: Attributes,  Next: Packet description,  Prev: Commands,  Up: Top
+
+Attributes
+**********
+
+   Most `RPLAY' commands use attributes to modify their behaviour.
+These attributes are:
+
+`RPLAY_COUNT'
+     The number of times to play a sound.  The value should be between
+     0 and 255 inclusive.  A value of 0 will play the sound forever.
+     The default is RPLAY_DEFAULT_COUNT.
+
+`RPLAY_LIST_COUNT'
+     The number of times to play a sound list.  The value should be
+     between 0 and 255 inclusive.  A value of 0 will play the sound
+     forever.  The default is RPLAY_DEFAULT_LIST_COUNT.
+
+`RPLAY_PRIORITY'
+     The priority of a sound. The value should be between
+     RPLAY_MIN_PRIORITY (0) and RPLAY_MAX_PRIORITY (255). The default
+     is RPLAY_DEFAULT_PRIORITY (0).
+
+`RPLAY_RPTP_FROM_SENDER'
+     Tell the rplay server that it should try to contact the sender's
+     RPTP server to obtain RPLAY_SOUND. This is only used if the rplay
+     server does not already have the sound.
+
+`RPLAY_RPTP_SERVER'
+     Tell the rplay server which RPTP server should be used to try and
+     obtain RPLAY_SOUND. This is only used if the rplay server does not
+     already have the sound and RPLAY_RPTP_SEARCH is true.
+
+`RPLAY_RPTP_SEARCH'
+     Tell the rplay server whether or not it should search for
+     RPLAY_SOUND.
+
+`RPLAY_RPTP_SERVER_PORT'
+     Tell the rplay server which port should be used to contact the RPTP
+     server when using RPLAY_RPTP_SEARCH.
+
+`RPLAY_SAMPLE_RATE'
+     Play a sound at a specified sample rate.  A value of 0 will use the
+     sound's default sample rate.  The default value is
+     RPLAY_DEFAULT_SAMPLE_RATE (0).
+
+`RPLAY_SOUND'
+     The name of a sound.
+
+`RPLAY_VOLUME'
+     The volume of a sound.  The value should be between
+     RPLAY_MIN_VOLUME (0) and RPLAY_MAX_VOLUME (255).  The default is
+     RPLAY_DEFAULT_VOLUME (127).
+
+
+File: RPLAY.info,  Node: Packet description,  Prev: Attributes,  Up: Top
+
+Packet description
+******************
+
+   RPLAY packets always begin with a RPLAY_ID byte followed by a RPLAY
+command. (*note Commands::.)  The remaining contents is a list of
+attributes (*note Attributes::.) and their corresponding values.  The
+packet is terminated with the RPLAY_NULL attribute.
+
+   A packet will never contain an attribute that is set to a default
+value.  This feature allows new attributes to be added without breaking
+old servers and it also makes packets very small.
+
+Here's an example packet:
+
+     RPLAY_ID  RPLAY_PLAY  RPLAY_SOUND            RPLAY_NULL
+     30        1           5            bogus.au  0
+
+Note that numbers in RPLAY packets are stored in one byte and strings
+are always null-terminated.  The above example in hexadecimal would be:
+
+     1E 01 05 62 6f 67 75 73 2E 61 75 00 00
+
+
+
+Tag Table:
+Node: Top734
+Node: Overview1124
+Node: Commands1425
+Node: Attributes2252
+Node: Packet description4129
+
+End Tag Table

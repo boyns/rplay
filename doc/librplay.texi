@@ -1,0 +1,870 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename librplay.info
+@settitle The rplay Programmer's Manual
+@iftex
+@finalout
+@end iftex
+@setchapternewpage odd
+@c %**end of header
+
+@ifinfo
+
+This file documents librplay.
+
+Copyright (C) 1995 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through Tex and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+@end ifinfo
+
+@titlepage
+@title The rplay Programmer's Manual
+
+@author by Mark Boyns
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1995 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+
+@end titlepage
+@page
+
+@node Top, RPLAY Core Functions, (dir), (dir)
+@top librplay
+
+This file documents @samp{librplay}, the C library interface to the
+RPLAY and RPTP protocols.  Programs that wish to use @samp{librplay}
+must include @file{rplay.h} and link with @file{librplay}.
+
+rplay is based on two protocols and therefore this library has two
+distinct sets of routines.  The routines can be distinguished by either
+a @samp{rplay_} or @samp{rptp_} prefix.  To avoid conflicts, user
+programs are encouraged not to use variables or functions that
+begin with either of these prefixes.
+
+In most cases, each function description includes one or more examples
+to help illustrate how the function can be used.
+
+@menu
+* RPLAY Core Functions::             Low-level routines.
+* RPLAY Helper Functions::           
+* RPLAY Miscellaneous Functions::    Routines that may not be very useful.
+* RPLAY Error Reporting::            How to deal with RPLAY errors.
+* RPTP Core Functions::              Low-level routines.
+* RPTP Helper Functions::            
+* RPTP Error Reporting::             How to deal with RPTP errors.
+* Function Index::                   Function Index.
+@end menu
+
+@node RPLAY Core Functions, RPLAY Helper Functions, Top, Top
+@chapter RPLAY Core Functions
+
+@c
+@c rplay_open
+@c
+@deftypefun int rplay_open (char *@var{host})
+Open a UDP socket connection to send RPLAY packets to host.
+
+The @var{host} argument is the name or IP address of the host where
+packets will be sent.  The IP address can be a subnet mask which
+is used to broadcast packets to multiple hosts.
+
+The return value is a socket descriptor on success and @code{-1} on
+failure.
+@end deftypefun
+ 
+Example:
+@example
+int rplay_fd;
+
+rplay_fd = rplay_open ("130.191.255.255");
+if (rplay_fd < 0)
+@{
+    rplay_perror ("rplay_open");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_close
+@c
+@deftypefun int rplay_close (int @var{rplay_fd})
+This function closes a rplay connection.
+
+The @var{rplay_fd} argument should be a socket descriptor opened by
+@code{rplay_open}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+@c
+@c rplay_create
+@c
+@deftypefun {RPLAY *} rplay_create (int @var{command})
+Create a RPLAY object to perform a specific command.
+
+The @var{command} argument should be one of the following:
+@code{RPLAY_PLAY}, @code{RPLAY_STOP}, @code{RPLAY_PAUSE},
+@code{RPLAY_CONTINUE}, @code{RPLAY_PING}, or @code{RPLAY_RESET}.
+
+The return value is a pointer to a new RPLAY object on success
+and @code{NULL} on failure.
+@end deftypefun
+ 
+Example:
+@example
+RPLAY *rp;
+
+rp = rplay_create (RPLAY_PLAY);
+if (rp == NULL)
+@{
+    rplay_perror ("rplay_create");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_set
+@c
+@deftypefun int rplay_set (RPLAY *@var{rp}, ...)
+Modify attributes of a RPLAY object.
+
+The @var{rp} argument should be a pointer to a RPLAY object created
+by @code{rplay_create}.  The remaining arguments will be:
+
+@table @code
+@item RPLAY_APPEND
+Append a sound and its attributes.
+
+@item RPLAY_DELETE
+Delete a sound and its attributes.
+
+@item RPLAY_INSERT
+Insert a sound and its attributes.
+
+@item RPLAY_RANDOM_SOUND
+Choose a sound at random from the sound list.  Only the chosen
+sound will be played, not entire sound list.
+@end table
+
+The attribute list must be terminated with @code{NULL}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+Example:
+@example
+/* Add a sound named `bogus.au' with volume 200. */
+rplay_set (rp, RPLAY_APPEND,
+    RPLAY_SOUND,    "bogus.au",
+    RPLAY_VOLUME,    200,
+    NULL);
+
+/* Insert a sound named `bogus.au' with volume 200. */
+rplay_set (rp, RPLAY_INSERT, 0,
+    RPLAY_SOUND,    "bogus.au",
+    RPLAY_VOLUME,    200,
+    NULL);
+
+/* Prepare to stop a sound named `excellent.au'. */
+rp = rplay_create(RPLAY_STOP);
+rplay_set (rp, RPLAY_APPEND,
+    RPLAY_SOUND,    "excellent.au",
+    NULL);
+
+/* Delete the sound at position 1. */
+rplay_set (rp, RPLAY_DELETE, 1, NULL);
+
+/*
+ * count and list count example
+ *
+ * result = gong.au gong.au drip.au drip.au
+ *          gong.au gong.au drip.au drip.au
+ *
+ */
+rplay_set (rp, RPLAY_LIST_COUNT, 2, NULL);
+rplay_set (rp, RPLAY_APPEND,
+    RPLAY_SOUND,    "gong.au",
+    RPLAY_COUNT,    2,
+    NULL);
+rplay_set (rp, RPLAY_APPEND,
+    RPLAY_SOUND,    "drip.au",
+    RPLAY_COUNT,    2,
+    NULL);
+
+/*
+ * random example (assume there is already a sound list)
+ */
+rplay_set (rp, RPLAY_RANDOM_SOUND, NULL); /* pick a sound randomly */
+rplay_set (rp, RPLAY_RANDOM_SOUND, NULL); /* pick another sound */
+rplay (rplay_fd, rp);  /* play the random sound */
+@end example
+
+@c
+@c rplay_get
+@c
+@deftypefun int rplay_get (RPLAY *@var{rp}, ...)
+Retrieve attributes from a RPLAY object.
+
+The @var{rp} argument should be a pointer to a RPLAY object created by
+@code{rplay_create} and modified using @code{rplay_set}.  This argument
+is followed by a rplay attribute and its optional attribute argument.
+
+The return value will be either @code{int} or @code{char *} depending on
+the attribute.  The caller will need to cast the return value to
+@code{char *} when necessary.
+@end deftypefun
+
+Example:
+@example
+RPLAY *rp;
+int n;
+char *p;
+
+/* Get the number of sounds. */
+n = rplay_get (rp, RPLAY_NSOUNDS);
+
+/* Get the name of sound 0.  */
+p = (char *) rplay_get (rp, RPLAY_SOUND, 0);
+
+/* Get the volume of sound 1.  */
+n = rplay_get (rp, RPLAY_VOLUME, 1);
+
+/* Get the rplay command. */
+n = rplay_get (rp, RPLAY_COMMAND);
+@end example
+
+@c
+@c rplay
+@c
+@deftypefun int rplay (int @var{rplay_fd}, RPLAY *@var{rp})
+This function uses a RPLAY packet to send @var{rp} to the host
+connected to @var{rplay_fd}.
+
+The @var{rplay_fd} argument should be a socket descriptor opened by
+@code{rplay_open}.  @var{rp} should be a pointer to a @code{RPLAY}
+object created by @code{rplay_create} and modified using
+@code{rplay_set}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+Example:
+@example
+if (rplay (rplay_fd, rp) &lt; 0)
+@{
+    rplay_perror ("rplay");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_destroy
+@c
+@deftypefun void rplay_destroy (RPLAY *@var{rp})
+Release all memory used by a RPLAY object.
+
+The @var{rp} argument should be a pointer to a RPLAY object
+created by @code{rplay_create}.
+@end deftypefun
+
+
+@node RPLAY Helper Functions, RPLAY Miscellaneous Functions, RPLAY Core Functions, Top
+@chapter RPLAY Helper Functions
+
+@c
+@c rplay_default
+@c
+@deftypefun int rplay_default (char *@var{sound})
+Play @var{sound} on the default rplay host which is obtained
+using @code{rplay_default_host}.
+
+The @var{sound} argument is the name of the sound to play.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+Example:
+@example
+if (rplay_default ("bogus.au") < 0)
+@{
+    rplay_perror ("rplay_default");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_default_host
+@c
+@deftypefun {char *} rplay_default_host (void)
+Obtain the name of the default rplay host.  A default rplay host
+can be specified by the user with the @code{RPLAY_HOST} environment
+variable.  If this variable is not defined, @code{localhost} will
+be used instead.
+@end deftypefun
+ 
+Example:
+@example
+char *hostname;
+
+hostname = rplay_default_host ();
+@end example
+
+
+@c
+@c rplay_display
+@c
+@deftypefun int rplay_display (char *@var{sound})
+Play a sound on the host returned by rplay_open_display.
+
+The @var{sound} argument is the name of the sound to play.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rplay_display ("bogus.au") < 0)
+@{
+    rplay_perror ("rplay_display");
+    exit (1);
+@}
+@end example
+
+
+
+@c
+@c rplay_host
+@c
+@deftypefun int rplay_host (char *@var{host}, char *@var{sound})
+Play a sound on a host.
+
+The @var{host} is the name or IP address of the host where @var{sound}
+will be played.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rplay_host ("bozo.sdsu.edu", "bogus.au") < 0)
+@{
+    rplay_perror ("rplay_host");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_host_volume
+@c
+@deftypefun int rplay_host_volume (char *@var{host}, char *@var{sound}, int @var{volume})
+Play a sound at specific volume on a host.
+
+The @var{host} is the name or IP address of the host where @var{sound}
+will be played using @var{volume}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+Example:
+@example
+if (rplay_host_volume ("bozo.sdsu.edu", "bogus.au", 200) < 0)
+@{
+    rplay_perror ("rplay_host_volume");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_local
+@c
+@deftypefun int rplay_local (char *@var{sound})
+Play a sound on the localhost.
+
+The @var{sound} argument is the name of the sound to play.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rplay_local ("bogus.au") < 0)
+@{
+    rplay_perror ("rplay_local");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_open_default
+@c
+@deftypefun int rplay_open_default (void)
+Open a UDP socket connection to send RPLAY packets to the user's
+default rplay host.  The default rplay host is obtained using
+@code{rplay_default_host}.
+
+The return value is a socket descriptor on success and @code{-1} on
+failure.
+@end deftypefun
+ 
+Example:
+@example
+int rplay_fd;
+
+rplay_fd = rplay_open_default ();
+if (rplay_fd < 0)
+@{
+    rplay_perror ("rplay_open_default");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_open_display
+@c
+@deftypefun int rplay_open_display (void)
+Open a UDP socket connection to the host associated with the current X
+Windows display.  The @code{DISPLAY} environment variable is used obtain
+the name of the X Windows display host.  If this variable is not
+defined, @code{localhost} is used.
+
+The return value is a socket descriptor on success and @code{-1} on
+failure.
+@end deftypefun
+ 
+Example:
+@example
+int rplay_fd;
+
+rplay_fd = rplay_open_display ();
+if (rplay_fd < 0)
+@{
+    rplay_perror ("rplay_open_display");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_open_port
+@c
+@deftypefun int rplay_open_port (char *@var{host}, int @var{port})
+Open a UDP socket connection to send RPLAY packets to host at a
+specific port.
+
+The @var{host} argument is the same as @code{rplay_open} and the
+@var{port} argument should be the port number desired.  The default
+port is defined in rplay.h as @code{RPLAY_PORT}.
+
+The return value is a socket descriptor on success and @code{-1} on
+failure.
+@end deftypefun
+ 
+Example:
+@example
+int rplay_fd;
+
+rplay_fd = rplay_open_port ("130.191.224.3", 5555);
+if (rplay_fd < 0)
+@{
+    rplay_perror ("rplay_open_port");
+    exit (1);
+@}
+@end example
+
+
+@c
+@c rplay_open_sockaddr_in
+@c
+@deftypefun int rplay_open_sockaddr_in (struct sockaddr_in *@var{addr})
+Open a UDP socket connection to send RPLAY packets to the address
+specified in a @code{struct sockaddr_in}.
+
+The return value is a socket descriptor on success and @code{-1} on
+failure.
+@end deftypefun
+
+Example:
+@example
+struct sockaddr_in *saddr;
+int rplay_fd;
+
+rplay_fd = rplay_open_sockaddr_in (saddr);
+if (rplay_fd < 0)
+@{
+    rplay_perror ("rplay_open_sockaddr_in");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_ping
+@c
+@deftypefun int rplay_ping (char *@var{host})
+Send a @code{RPLAY_PING} package to a host.  This funcion is used to
+wake-up rplay servers that are started by inetd.
+
+The @var{host} argument is the name or IP address of the host that will
+receive the ping.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rplay_ping ("bozo.sdsu.edu") < 0)
+@{
+    rplay_perror ("rplay_ping");
+    exit (1);
+@}
+@end example
+
+@c
+@c rplay_ping_sockaddr_in
+@c
+@deftypefun int rplay_ping_sockaddr_in (struct sockaddr_in *@var{addr})
+The same as @code{rplay_ping} except the ping is sent to the host
+addressed by @var{addr}.
+@end deftypefun
+
+@c
+@c rplay_ping_sockfd
+@c
+@deftypefun int rplay_ping_sockfd (int @var{sockfd})
+The same as @code{rplay_ping} except the ping is sent to the host
+associated with UDP socket descriptor @var{sockfd}.
+@end deftypefun
+
+
+
+@c
+@c rplay_sound
+@c
+@deftypefun int rplay_sound (int @var{rplay_fd}, char *@var{sound})
+Play a sound on a host associated with a UDP socket descriptor.
+
+The @var{rplay_fd} argument is a UDP socket descriptor returned by any
+of the rplay_open routines and the @var{sound} argument is the name of
+the sound to be played.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+Example:
+@example
+rplay_sound (rplay_fd, "bogus.au");
+@end example
+
+
+@node RPLAY Miscellaneous Functions, RPLAY Error Reporting, RPLAY Helper Functions, Top
+@chapter RPLAY Miscellaneous Functions
+
+@c
+@c rplay_convert
+@c
+@deftypefun {char *} rplay_convert (char *@var{ptr})
+Convert a RPLAY 2.0 packet to a RPLAY 3.0 packet.
+
+The @var{ptr} argument should be a pointer to the data contained
+in a RPLAY 2.0.
+
+The return value is the data pointed to by @var{ptr} converted
+to a RPLAY 3.0 packet.
+@end deftypefun
+
+@c
+@c rplay_pack
+@c
+@deftypefun int rplay_pack (RPLAY *@var{rp})
+Pack-up the attributes of the RPLAY object into the packet buffer
+associated with the object.  This routine is called automatically
+by all routines that modify attributes.
+
+The @var{rp} argument should be a pointer to a RPLAY object
+created by @code{rplay_create}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+@c
+@c rplay_unpack
+@c
+@deftypefun {RPLAY *} rplay_unpack (char *@var{raw_ptr})
+Unpack a raw rplay 3.0 packet into a new RPLAY object.
+
+The @var{raw_ptr} argument should be a pointer to a rplay 3.0 packet
+sent by a rplay client.
+
+The return value is a pointer to a new RPLAY object that is created
+using @code{rplay_create}.
+@end deftypefun
+
+@node RPLAY Error Reporting, RPTP Core Functions, RPLAY Miscellaneous Functions, Top
+@chapter RPLAY Error Reporting
+
+@c
+@c rplay_perror
+@c
+@deftypefun void rplay_perror (char *@var{message})
+Report errors return by rplay library routines to standard error.
+Errors are obtained using @code{rplay_errno} and @code{rplay_errlist}.
+This should be called when routines return -1 or NULL.
+
+The @var{message} argument followed by @code{: } will prefix the rplay
+error message.
+@end deftypefun
+
+@node RPTP Core Functions, RPTP Helper Functions, RPLAY Error Reporting, Top
+@chapter RPTP Core Functions
+
+@c
+@c rptp_open
+@c
+@deftypefun int rptp_open (char *@var{host}, int @var{port}, char *@var{response}, int @var{response_size})
+Open a TCP socket connection for a RPTP session.
+
+The @var{host} argument is the name or IP address of a RPTP server,
+@var{port} is the TCP port at @var{host} to connect to, and up-to
+@var{response_size} bytes of the server's initial reponse are stored in
+@var{response}.
+
+The return value is a TCP socket descriptor and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+int rptp_fd;
+char buf[RPTP_MAX_LINE]; /* defined in rplay.h */
+
+rptp_fd = rptp_open ("bozo.sdsu.edu", RPTP_PORT, buf, sizeof(buf));
+if (rptp_fd < 0)
+@{
+    rptp_perror ("bozo.sdsu.edu");
+    exit(1);
+@}
+@end example
+
+@c
+@c rptp_close
+@c
+@deftypefun int rptp_close (int @var{rptp_fd})
+Close a TCP socket descriptor created by @code{rptp_open}.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+
+@c
+@c rptp_read
+@c
+@deftypefun int rptp_read (int @var{rptp_fd}, char *@var{buf}, int @var{nbytes})
+Read data from a RPTP server.
+
+The @var{rptp_fd} argument should be a TCP socket descriptor returned by
+@var{rptp_open}.  At most @var{nbytes} will be read into the @var{buf}.
+
+The return value is the number of bytes read and @code{-1} on failure.
+@end deftypefun 
+
+Example:
+@example
+if (rptp_read (rptp_fd, buf, sizeof(buf)) < 0)
+@{
+    rptp_perror ("rptp_read");
+    exit (1);
+@}
+@end example
+
+@c
+@c rptp_write
+@c
+@deftypefun int rptp_write (int @var{rptp_fd}, char *@var{buf}, int @var{nbytes})
+Write data to a RPTP server.
+
+The @var{rptp_fd} argument should be a TCP socket descriptor returned by
+@var{rptp_open}.  @var{nbytes} of data will be written from @var{buf}.
+
+The return value is the number of bytes written and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rptp_write (rptp_fd, buf, sizeof(buf)) != sizeof(buf))
+@{
+    rptp_perror ("rptp_write");
+    exit (1);
+@}
+@end example
+
+@node RPTP Helper Functions, RPTP Error Reporting, RPTP Core Functions, Top
+@chapter RPTP Helper Functions
+
+@c
+@c rptp_command
+@c
+@deftypefun int rptp_command (int @var{rptp_fd}, char *@var{command}, char *@var{response}, int @var{response_size})
+Send a RPTP command a RPTP server, storing the server's response in a
+buffer.
+
+The @var{rptp_fd} argument should be a TCP socket descriptor returned by
+@var{rptp_open}.  @var{command} is the command that will be sent and
+@var{response} is where up-to @var{response_size} bytes of the command
+response will be stored.
+
+The return value is @code{0} if the response begins with @code{RPTP_OK}
+or or @code{RPTP_NOTIFY}, @code{1} if the response beings with
+@code{RPTP_ERROR}, and @code{-1} if the response beings with
+@code{RPTP_TIMEOUT} or there's an error.
+@end deftypefun
+
+Example:
+@example
+char *error;
+
+switch (rptp_command (rptp_fd, command, response, sizeof(response)))
+@{
+case -1:
+    rptp_perror (command);
+    break;
+
+case 1:
+    error = rptp_parse (response, "error");
+    printf ("%s\n", error);
+    break;
+
+case 0:
+    /* Success!  Now do something useful. */
+    break;
+@}
+@end example
+
+@c
+@c rptp_getline
+@c
+@deftypefun int rptp_getline (int @var{rptp_fd}, char *@var{buf}, int @var{nbytes})
+Read a line from a RPTP connection.  @code{\r\n} will be removed from
+the line.
+
+The @var{rptp_fd} argument should be a TCP socket descriptor returned by
+@var{rptp_open}.  @var{buf} is the buffer where up-to @var{nbytes} of
+the line will be stored.
+
+The return value is the number of bytes read and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rptp_getline (rptp_fd, buf, sizeof(buf)) < 0)
+@{
+    rptp_perror ("rptp_getline");
+    exit (1);
+@}
+@end example
+
+
+@c
+@c rptp_parse
+@c
+@deftypefun {char *} rptp_parse (char *@var{response}, char *@var{name})
+Parse name-value pairs contained in RPTP responses.
+
+The @var{response} argument can be a list of name-value pairs or
+@code{NULL}.  The @var{name} can be the name of specific name-value pair
+or @code{NULL}.  The example below gives more details.  Note that any
+leading dashes in any name-value pair will be ignored.
+
+The return value can be name or value of a name-value pair depending on
+the arguments.
+@end deftypefun
+
+Example:
+@example
+/* Return the value of `name' where `name=value' is
+   in the response string. */
+value = rptp_parse (response, "name")
+
+/* Same as above but return the value of `name' in
+   the previously specified response. */
+value = rptp_parse (NULL, "name")
+
+/* Return the first `name' in the response `name=value' list. */
+name = rptp_parse (response, NULL)
+
+/* Same as above but return the next `name' is the
+   previously specified response.
+name = rptp_parse (NULL, NULL)
+@end example
+
+
+@c
+@c rptp_putline
+@c
+@deftypefun int rptp_putline (int @var{rptp_fd}, char *@var{fmt}, ...)
+Send a line to a RPTP server.  This routine will always append
+@samp{\r\n} to the line sent.
+
+The @var{rptp_fd} argument should be a TCP socket descriptor returned by
+@var{rptp_open}.  @var{fmt} is any @code{printf} format string and the
+rest of the arguments are the values for the format specified.
+
+The return value is @code{0} on success and @code{-1} on failure.
+@end deftypefun
+ 
+Example:
+@example
+if (rptp_putline (rptp_fd, "find sound=%s", "bogus.au") < 0)
+@{
+    rptp_perror ("rptp_putline");
+    exit (1);
+@}
+@end example
+
+@node RPTP Error Reporting, Function Index, RPTP Helper Functions, Top
+@chapter RPTP Error Reporting
+
+@c
+@c rptp_perror
+@c
+@deftypefun void rptp_perror (char *@var{message})
+Report errors return by rptp library routines to standard error.
+Errors are obtained using @code{rptp_errno} and @code{rptp_errlist}.
+This should be called when routines return -1 or NULL.
+
+The @var{message} argument followed by @code{: } will prefix the rptp
+error message.
+@end deftypefun
+
+@node Function Index,  , RPTP Error Reporting, Top
+@appendix Function Index
+@printindex fn
+
+@summarycontents
+@contents
+
+@bye

@@ -1,0 +1,300 @@
+/* config.h.in - Configuration options and settings for rplay.  -*- c -*- */
+
+/*
+ * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ *
+ * This file is part of rplay.
+ *
+ * rplay is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * rplay is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with rplay; see the file COPYING.  If not, write to the
+ * Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+
+#ifndef _config_h
+#define _config_h
+
+#undef SVR4
+
+/*
+ * rplayd user and group privs.  (default unset)
+ *
+ * Example:
+ *   #define RPLAYD_USER "nobody"
+ *   #define RPLAYD_GROUP "audio"
+ */
+#undef RPLAYD_USER
+#undef RPLAYD_GROUP
+
+/*
+ * Use host authentication.
+ */
+#define AUTH	
+
+/*
+ * Support rplay 2.0 packets.  If you define this then you
+ * should also define OLD_RPLAY_PORTS below.
+ */
+#define OLD_RPLAY
+
+/*
+ * Support older RPLAY port 55555 and RPTP port 55556.
+ * This option really enables support for 2 RPLAY ports and 2 RPTP ports
+ * which default to 5555/55555 for RPLAY and 5556/55556 for RPTP.
+ */
+#define OTHER_RPLAY_PORTS
+
+/*
+ * Maximum number of sounds that can be playing at once.
+ */
+#define SPOOL_SIZE	12
+
+/*
+ * The size of rplayd's internal sound hash table.
+ */
+#define MAX_SOUNDS	4001	/* yes that is a prime number */
+
+/*
+ * Should rplayd log by default?
+ */
+/* #define RPLAYD_ALWAYS_LOG */
+
+/*
+ * Define the default rplayd logging level:
+ *	1 - System and rplayd errors.
+ *	2 - + RPTP connections, get, put, find.
+ *	3 - + play, stop, pause, continue, etc.
+ *	4 - + Debug messages. 
+ *
+ * Note that the logging level can also be specified with
+ * rplayd command line options.  This is only used if
+ * RPLAYD_ALWAYS_LOG is defined above.
+ */
+#define RPLAYD_LOG_LEVEL	1
+
+/*
+ * By default, rplayd will never timeout.  If you would rather
+ * have rplayd exit after some period of idle time, change the zero
+ * below to the appropriate number of seconds.
+ *
+ * NOTE: This value used to be 360 instead of 0.
+ */
+#define RPLAYD_TIMEOUT		0 /* seconds */
+
+/*
+ * Maximum size of the rplay.cache directory.
+ *
+ * The size you choose should at least be big enough to hold the
+ * largest sound you plan on playing.  Note that this is the disk
+ * cache and not the memory cache which is mentioned below.
+ */
+#define RPLAY_CACHE_SIZE	(8*1024*1024)
+
+/*
+ * Memory cache.
+ *
+ * Sounds are cached using mmap (if available) or malloc (no mmap).
+ * Non-cached sounds are read piece by piece.
+ *
+ * MEMORY_CACHE_SOUND_SIZE - maximum size of a sound that can be cached in memory.
+ * MEMORY_CACHE_SIZE - maximum size of the entire memory cache.
+ *
+ * Setting MEMORY_CACHE_SIZE=0 will disable the memory cache.
+ */
+#define MEMORY_CACHE_SOUND_SIZE	(2*1024*1024)
+#define MEMORY_CACHE_SIZE	(4*1024*1024)
+
+/*
+ * Delay time between RPTP server pings.
+ */
+#define RPTP_PING_DELAY		5
+
+/*
+ * Number of times to try and connect to an RPTP server.
+ */
+#define RPTP_CONNECT_ATTEMPTS	3
+
+/*
+ * Close RPTP connections after 300 idle seconds (disabled with zero).
+ */
+#define RPTP_CONNECTION_TIMEOUT	300
+
+/*
+ * Maximum number of RPTP client connections (disabled with zero).
+ */
+#define RPTP_MAX_CONNECTIONS	16
+
+/*
+ * Enable simulated hardware volume control.
+ */
+/* #define FAKE_VOLUME */
+
+/*
+ * Enable the automatic re-reading of rplayd's configuration files when
+ * they are modified.
+ */
+#define AUTO_REREAD
+
+/*
+ * The maximum sample rate that rplayd will/can ever output.
+ */
+#define MAX_SAMPLE_RATE	48000 /* 48000 Hz */
+
+/*
+ * A list of directories that cannot be accessed to obtain sound files.
+ * This feature can be disabled using `#undef BAD_DIRS'.
+ */
+#define BAD_DIRS "/dev:/etc:/devices:/proc"
+
+#define HAVE_ADPCM
+#define HAVE_GSM
+#undef HAVE_CDROM
+#undef HAVE_CDDA
+
+#if defined (sun) && defined (SVR4) /* Solaris 2.x */
+#define HAVE_CDROM
+#define HAVE_CDDA
+#endif /* Solaris 2.x */
+
+#if defined (linux)
+#define HAVE_OSS
+#define HAVE_CDROM
+#endif
+
+#define HAVE_HELPERS
+
+/*************** EVERYTHING BELOW THIS LINE SHOULD BE OK *********************/
+
+#undef HAVE_STRDUP
+#undef HAVE_STRERROR
+#undef HAVE_MMAP
+#undef HAVE_FSTAT
+#undef HAVE_FCHMOD
+#undef HAVE_FCHOWN
+#undef HAVE_UTIME
+#undef HAVE_UTIMES
+#undef HAVE_MEMMOVE
+#undef HAVE_SIGSET
+#undef HAVE_WAITPID
+#undef HAVE_SNPRINTF
+#undef HAVE_VSNPRINTF
+
+#undef HAVE_STDC_HEADERS
+#undef HAVE_MEMORY_H
+#undef HAVE_STRING_H
+#undef HAVE_STDLIB_H
+#undef HAVE_LIMITS_H
+#undef HAVE_FCNTL_H
+#undef HAVE_STRING_H
+#undef HAVE_STRINGS_H
+#undef HAVE_UNISTD_H
+#undef HAVE_UTIME_H
+#undef HAVE_SYS_WAIT_H
+
+#undef HAVE_FORMS_H
+#undef HAVE_X11_FORMS_H
+
+/* Convert HAVE_ to HAS_ for gsm.  See gsm/include/config.h.gsm */
+#ifdef HAVE_STDLIB_H
+#define HAS_STDLIB_H
+#endif
+
+#ifdef HAVE_LIMITS_H
+#define HAS_LIMITS_H
+#endif
+
+#ifdef HAVE_FCNTL_H
+#define HAS_FCNTL_H
+#endif
+
+#ifdef HAVE_FSTAT
+#define HAS_FSTAT
+#endif
+
+#ifdef HAVE_FCHOWN
+#define HAS_FCHOWN
+#endif
+
+#ifdef HAVE_STRING_H
+#define HAS_STRING_H
+#endif
+
+#ifdef HAVE_STRINGS_H
+#define HAS_STRINGS_H
+#endif
+
+#ifdef HAVE_UNISTD_H
+#define HAS_UNISTD_H
+#endif
+
+#ifdef HAVE_UTIME
+#define HAS_UTIME
+#endif
+
+#ifdef HAVE_UTIMES
+#define HAS_UTIMES
+#endif
+
+#ifdef HAVE_UTIME_H
+#define HAS_UTIMES_H
+#endif
+
+/*
+ * Maximum UDP packet size.
+ */
+#define MAX_PACKET		8192
+
+/*
+ * Solaris 2.x using gcc or SunPro cc and HP-UX
+ */
+#if (defined(sun) && (defined(__svr4__) || defined(SVR4))) || defined(__hpux)
+#define random()	lrand48()
+#define srandom(x)	srand48(x)
+#endif
+
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
+#ifndef HAVE_MEMMOVE
+#define memmove(d, s, n) bcopy ((s), (d), (n))
+#endif
+
+#ifdef HAVE_SNPRINTF
+#define SNPRINTF snprintf
+#else
+#define SNPRINTF sprintf
+#endif
+
+#ifdef HAVE_VSNPRINTF
+#define VSNPRINTF vsnprintf
+#else
+#define VSNPRINTF vsprintf
+#endif
+
+#if defined(HAVE_SNPRINTF) || defined(HAVE_VSNPRINTF)
+#define SIZE(buf, n) buf,n
+#else
+#define SIZE(buf, n) buf
+#endif
+
+#ifndef RPLAY_VERSION
+#define RPLAY_VERSION	""
+#endif
+
+#endif /* _config_h */

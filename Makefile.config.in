@@ -1,0 +1,79 @@
+##
+## rplay Makefile configuration
+##
+
+SHELL=		/bin/sh
+srcdir=		@srcdir@
+VPATH=		@srcdir@
+prefix=		@prefix@
+exec_prefix=	@exec_prefix@
+bindir=		$(exec_prefix)/bin
+sbindir=	$(exec_prefix)/sbin
+libdir=		$(exec_prefix)/lib
+mandir=		$(prefix)/man
+etcdir=		$(prefix)/etc
+includedir=	$(prefix)/include
+infodir=	$(prefix)/info
+tmpdir=		/tmp
+debiandir=	@srcdir@/../debian
+
+##
+## C compiler
+##
+CC=		@CC@
+#CC=		gcc
+#CC=		acc
+#CC=		cc
+
+##
+## Default CFLAGS
+##
+CFLAGS=		@CFLAGS@
+
+##
+## Other compiler options.
+##
+#CC_OPTIONS=	-O4
+#CC_OPTIONS=	-O2 -fstrength-reduce -g
+#CC_OPTIONS=	-fast				# acc
+#CC_OPTIONS=	-O -DSVR4			# Solaris 2.x using SunPro C
+#CC_OPTIONS=	-Aa -D_HPUX_SOURCE +O3 -J +ESlit +Obb850 +FPD	# HP A.09.34 cc
+#CC_OPTIONS=	-Ae +O2 +Oall			# HP A.09.61 or greater cc
+#CC_OPTIONS=	-O -cckr			# SGI 
+#CC_OPTIONS=	-O				# generic
+#CC_OPTIONS=	-g				# debug 
+
+##
+## Extra linker options.
+##
+#LD_OPTIONS=		
+#LD_OPTIONS=	-s -L$(libdir)			# HP-UX
+
+##
+## Name of the rplay library to build.
+##
+LIBRPLAY_NAME=	librplay.a
+#LIBRPLAY_NAME=	librplay.sl			# HP-UX
+
+##
+## System utilities.
+##
+RM=			rm -f
+CHMOD=			chmod
+TAGS=			@ETAGS@
+MAKEDEPEND=		@MAKEDEPEND@
+LN_S=			@LN_S@
+AR=			ar
+RANLIB=			@RANLIB@
+MAKEINFO=		@MAKEINFO@
+MAKEINFO_FLAGS=
+TEXI2DVI=		@TEXI2DVI@
+TEXI2DVI_FLAGS=
+TEXI2HTML=		@TEXI2HTML@
+TEXI2HTML_FLAGS=	-menu -split_chapter
+DVIPS=			@DVIPS@
+
+##
+## rplay version - don't change this!
+##
+RPLAY_VERSION=	"@RPLAY_VERSION@"

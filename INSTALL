@@ -1,0 +1,168 @@
+rplay INSTALL - Installation instructions		-*-outline-*-
+
+* Overview
+
+This file contains a list of installation instructions for rplay.
+Please read this file very carefully and don't skip any steps unless
+you think you know what you are doing.  If you get confused at any
+time during the installation please read the documents in the `doc'
+directory.
+
+* Configuration
+
+** Execute `./configure'
+
+rplay is configured using GNU autoconf.  Execute `./configure' in the
+rplay source directory to create rplay configuration files for your
+system.  If you want to install rplay in a directory tree other than
+`/usr/local' use `./configure --prefix=/installation/path'.
+
+The file `INSTALL.generic' contains generic GNU autoconf installation
+instructions.  Please read this file if you're having problems
+using configure.
+
+If the configuration script cannot determine your system type it will
+try to use a generic configuration.  Note that the system type is used
+to enable system specific audio routines.  The generic configuration
+assumes an 8000 Hz audio device that accepts ulaw encoded audio data.
+System specific audio routines are located in the rplayd/audio
+directory.  See the PORTING file for more information on porting rplay
+to another system.
+
+** Edit `Makefile.config'
+
+You may need to edit `Makefile.config' to choose the correct C
+compiler, CC_OPTIONS, and LD_OPTIONS.  Note that configure will try to
+use the gcc compiler with the -O flag by default.  HP users should
+uncomment all the lines specified.
+
+** Edit `include/config.h'
+
+rplay configuration parameters can be changed in `include/config.h'.
+This is where you can change the location of rplay.conf, rplay.hosts,
+rplay.servers, rplay.cache, and rplay.log, if necessary.  (These file
+names are automatically modified by configure's --prefix option)
+There's several other parameters that you may want to enable or
+disable or change.
+
+** Special HP modifications
+
+HP users need to edit `librplay/Makefile' to comment/uncomment a few lines.
+See the directions in `librplay/Makefile' for more information.
+-- I've got to add this to the configure script.
+
+* Build Makefile dependencies (optional)
+
+Execute `make depend' to create dependencies in the Makefiles.  The
+`makedepend' program is used to create the dependencies (see
+`Makefile.config').
+
+* Compile rplay
+
+Execute `make' to compile rplay.  Compiler flags can be changed by
+specifying CFLAGS on the make command line.  (i.e. `make CFLAGS="-O4
+-g"') The C compiler can be changed in the same manner as CFLAGS by
+using the CC make parameter.
+
+If rplay does not compile successfully you might need to change either
+the `Makefile.config' or `include/config.h'.
+
+* Create configuration files
+
+Create your rplay.servers, rplay.hosts, and rplay.conf files.  Manual
+pages for each of these files are included in the `doc' directory.
+Note that the rplay.hosts file is only required if AUTH was defined in 
+include/config.h.  (AUTH is defined by default)
+
+* Install rplay
+
+When rplay successfully compiles, execute `make install'.  This will
+verify that rplay has been compiled successfully and install rplay.
+
+* rplayd installation options
+
+** Is rplayd secure enough to run as root?
+
+Well, that's entirely up to you.  The BAD_DIRS option in
+`include/config.h' restricts the directories that can be accessed by
+rplayd. (By default BAD_DIRS includes /etc, /dev, /devices, and
+/proc) Remember to read the NO WARRANTY section in the COPYING file.
+
+** Running rplayd from inetd
+
+Option --inetd *must* be used.
+
+Sample inetd.conf entry:
+
+    rplay dgram udp wait root /usr/sbin/rplayd rplayd --inetd
+
+Sample /etc/services entry:
+
+    rplay 5555/udp
+
+** Running rplayd as a standalone daemon
+
+When rplayd is not started by inetd it must be started manually by
+individual users or at system startup.  Users may wish to start rplayd
+whenever they use the system console.  See `rplayd --help' for option
+information.
+
+** Audio device permissions
+
+Check your systems audio device permissions.  SunOS 4.1.x can
+automatically set the permissions of /dev/audio using /etc/fbtab.
+(`man 5 fbtab') Solaris 2.X uses /etc/logindevperm.  When these device
+permission files include the audio device, only the person logged in
+on the system console will have access to the audio device.  Linux
+users should check /dev/dsp and /dev/mixer.
+
+* Now see if rplay works
+
+Start rplayd (using inetd or standalone) and execute `rplay sound',
+where `sound' is the name of a sound file in rplay.conf, a sound file
+in the current directory, or a complete pathname to a sound file.
+
+* It doesn't work!
+
+** Try debug mode
+
+If a `sound' is not played then I recommend you run rplayd in debug
+mode to see exactly what is wrong.  When using rplayd in debug mode
+all inetd.conf entries (if any) must be removed and inetd restarted.
+
+Try running `rplayd -d' and `rplay sound'.
+You should see output like:
+
+    rplayd: loading local file /home/mrb/sounds/bogus.au
+    rplayd: bogus.au input=file bits=8 sample-rate=8000 channels=1 samples=9542 format=ulaw byte-order=big-endian
+
+** Other possible problems
+
+*** Is the volume of the audio device very low or zero?
+
+Use xrplay, audiotool, xmix, xmixer, etc., to change the volume.
+
+*** Is another program using the audio device?
+
+There are several programs around that hog the audio device.  These
+programs include web browsers, soundtool, audiotool, play,
+x_soundtool, any many other sound players.  Note that rplay is audio
+device friendly and will close the audio device when it is not being
+used (see --audio-close).
+     
+*** Are you running another audio server like Aserver?
+
+rplay does not work with Aserver and probably won't work with other
+servers.  If you want to use rplay make sure other audio servers are
+not running.
+
+When you see errors like `/dev/audio open: Device busy', another
+program is using the audio device.  Read the audio device permissions
+section above.
+
+** Ask for help
+
+If you are still having problems send email to rplay@doit.org and I
+will do my best to help you out.  The rplay mailing list is discussed
+in the README file.
+

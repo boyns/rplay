@@ -1,0 +1,63 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS= @srcdir@/../mkinstalldirs
+
+CPPFLAGS=	$(CC_OPTIONS) -I. -I../include -I@srcdir@/../include @DEFS@
+
+.c.o:
+		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+TARGET=		$(LIBRPLAY_NAME)
+SRCS=		rplay.c rptp.c async.c
+OBJS=		rplay.o rptp.o async.o
+
+all:		$(TARGET)
+
+#
+# Use the following for SunOS 4.1.x, Solaris 2.x, Linux, NetBSD
+#
+$(TARGET):	$(OBJS)
+		$(AR) rcv $@ $?
+		$(RANLIB) $@
+
+#
+# For HP-UX comment above and uncomment below.
+#
+#CFLAGS=	+z
+#
+#$(TARGET):	$(OBJS)
+#		ld -b -s +FPD -o $@ $(OBJS)
+#		-$(MKINSTALLDIRS) $(libdir)
+#		-$(INSTALL) $@ $(libdir)
+#		-chmod a+rx $(libdir) $(libdir)/$@
+#
+
+install:	all
+		$(MKINSTALLDIRS) $(libdir)
+		$(INSTALL_DATA) $(TARGET) $(libdir)
+
+uninstall:
+		$(RM) $(libdir)/$(TARGET)
+
+clean:
+		$(RM) $(OBJS) $(TARGET) a.out core *~ *.bak *.orig TAGS
+
+distclean:	clean
+		$(RM) Makefile
+
+tags:
+		$(TAGS) *.[ch]
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SRCS)
+

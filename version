@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ "$srcdir" = "" ]
+then
+    srcdir="."
+fi
+
+VERSION=`awk ' \
+   BEGIN { major = ""; minor = ""; patchlevel = ""; status = ""; } \
+   /RPLAY_MAJOR_VERSION/ { major = $3 } \
+   /RPLAY_MINOR_VERSION/ { minor = $3 } \
+   /RPLAY_PATCHLEVEL/ { patchlevel = $3 } \
+   /RPLAY_STATUS/ { status = $3 } \
+   END { printf("%s.%s.%s%s", major, minor, patchlevel, status) } \
+' $srcdir/include/version.h`
+VERSION=`echo $VERSION | sed 's/"//g'`
+
+echo $VERSION
+

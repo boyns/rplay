@@ -1,0 +1,12 @@
+
+tkrplay is a Tcl/Tk sound directory browser.  Sounds are played, paused,
+stopped, and continued using the rplay command.  Host volume setting is
+done using the rptp command.  Both the rplay and rptp programs must be
+installed somewhere in your PATH.
+
+The RotateLeft button in the bottom left corner of the window will move
+back to the previous directory.  The ! button in the botton right corner
+will stop all sounds that are currently playing.
+
+Tcl and Tk are available at ftp.x.org in the /contrib directory.
+

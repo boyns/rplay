@@ -1,0 +1,16 @@
+! If you want to use this file, insert this in your ~/.Xdefaults file:
+!
+! #ifdef COLOR
+! XJukebox.customization: -color
+! #endif
+!
+
+#include "XJukebox"
+
+*background:				Grey
+*Command.background:			RoyalBlue4
+*Command.foreground:			Gold
+*MenuButton.background:			RoyalBlue4
+*MenuButton.foreground:			Gold
+*List.background:			Azure
+

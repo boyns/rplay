@@ -1,0 +1,1845 @@
+1998-06-29  Mark R. Boyns  <boyns@doit.org>
+
+	* Version 3.3.0 released.
+
+1998-06-18  Mark R. Boyns  <boyns@doit.org>
+
+	* etc: include sample config files.
+
+	* configure.in: add --enable-rplayd-user=USER and
+ 	--enable-rplayd-group=GROUP.
+
+1998-06-17  Mark R. Boyns  <boyns@doit.org>
+
+	* removed xrplay.
+
+	* include/config.h.in: define AUTO_REREAD by default.
+
+	* use rx.
+
+1998-06-16  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/rplayd.c: added --user and --group options and
+	RPLAYD_USER and RPLAYD_GROUP config.h options.
+
+1998-06-11  Mark R. Boyns  <boyns@doit.org>
+
+	* doc/rplay.helpers.5: new man page.
+
+	* rplay/rplay.c: handle broken pipe better.
+
+	* rplayd/command.c: added helper support.
+
+	* rplayd/spool.c: added helper support.
+
+	* rplayd/rplayd.c: added helper support.
+
+	* rplayd/sound.c: added helper support.
+
+	* rplayd/helper.c: new file to maintain helper application
+ 	information.  New config file rplay.helpers.
+
+1998-06-03  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/rplayd.c (doit): make sure the timer starts.
+	(doit): keep trying to open the audio device.
+
+	* rplayd/timer.c (timer_update): approximate getospace to keep
+ 	things going.
+
+1998-03-08  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_read): allow directories in rplay.conf.
+  	When found, all files in a directory are made available to rplayd.
+
+1997-12-24  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_open): ditto
+
+	* rplayd/cache.c (cache_create): ditto
+
+	* rplayd/rplayd.c (doit): ditto
+
+	* rplayd/connection.c: use EAGAIN with EINTR.
+
+1997-12-23  Mark Boyns  <boyns@sdsu.edu>
+
+	* contrib/xjukebox-0.9/rptpstuff.c: fixed enough to work with
+ 	recent versions of rplay.
+
+	* doc/xrplay.1.in: updated
+
+	* doc/rptp.1.in: updated
+
+	* doc/rplayd.8.in: updated
+
+	* doc/rplay.1.in: updated
+
+	* doc/rplay.texi: updated
+
+1997-12-22  Mark Boyns  <boyns@sdsu.edu>
+
+	* adpcm: build encode and decode as g72xencode and g72xdecode.
+	Also include simple man pages.
+
+	* perl/Mailsound.1: new file
+
+	* Applied 64-bit Linux/Alpha patches from Martin Ostermann.
+
+1997-12-21  Mark Boyns  <boyns@sdsu.edu>
+
+	* doc/Makefile.in (man): use rplayd.8 instead of rplayd.1.
+
+	* rplayd/command.c (command_quit): close later
+
+1997-12-16  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c (usage): added --inetd option which must be
+ 	specified when rplayd is run via inetd.
+
+1997-12-13  Mark Boyns  <boyns@sdsu.edu>
+
+	* include/config.h.in (SNPRINTF): use snprintf and vsnprintf in
+ 	rplayd if available.
+
+	* rplayd/Makefile.in (install): install rplayd in $prefix/sbin.
+
+	* rplayd/rplayd.c (usage): --fork and --no-fork options.  When not
+ 	in debug or inetd mode, rplayd will fork to put itself in the
+ 	background.
+
+1997-12-07  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c: tilde expand RPLAY_* config files from
+ 	config.h.
+
+1997-12-06  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c (usage): New --audio-fragsize option.
+
+	* rplayd/timer.c (timer_update): Linux/OSS fixes.
+
+	* rplayd/cdrom.c: Linux cdrom support.
+
+	* rplayd/audio/audio_oss.c: New driver for Linux/OSS.
+
+Thu Nov  7 17:29:12 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta6 released.
+
+	* rplayd/audio/audio_linux.c: Applied Linux audio patches from
+ 	sinster@scintilla.darkwater.com (Darren Senn).  He says this patch
+ 	greatly improves audio under Linux.
+
+	* xrplay: Updated for XForms 0.81.
+
+	* include/config.h.in (RPLAY_CACHE): Change from
+ 	"/tmp/rplay.cache" to "/tmp/.rplay-cache".
+
+Tue Nov  5 14:51:44 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_map): Fixed .wav file parsing from
+	Mark Rawling <Mark.Rawling@mel.dit.csiro.au>.
+
+Mon Jun  3 16:08:35 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_map): Support 16-bit .voc files, I think.
+
+Mon Apr 22 09:53:32 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/native.c (x_to_native): Added oversampling patches from
+ 	Andrew Scherpbier.
+
+Sun Apr 21 09:35:18 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplay/rplay.c (doit): Pretend rplayd can get unknown sounds
+	from another rplayd.
+
+	* rplayd/sound.c (sound_fill): don't uncompress/decode sounds when
+ 	sending to another rplayd or RPTP client.
+
+Thu Feb 29 13:54:09 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/spool.c (spool_remove): use spool_done to report RPTP
+ 	events.
+
+Thu Feb  8 14:53:04 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_map): Didn't play the first few samples of
+ 	flows.
+
+Thu Feb  1 15:38:48 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta5 released.
+	
+	* rplayd/rplayd.c (handle_sigchld): Use waitpid instead of wait3.
+	Use wait if waitpid doesn't exist.
+
+	* rplayd/sound.c (sound_map): Fixed problem with wav files that
+	have weird sound_chunk_sizes.
+
+Tue Jan 30 14:31:36 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta4 released.
+
+	* doc: Updated some of the man pages with new options.
+
+	* contrib/Mailsound: New "mailsound" program called `Mailsound'
+	which uses the new RPlay.pm perl 5 module.  See the 
+	contrib/Mailsound directory for more information.
+
+Mon Jan 29 14:50:22 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c (usage): New options --cdrom0=DEVICE,
+ 	--cdrom1=DEVICE, --cdrom2=DEVICE, and --cdrom3=DEVICE.  These
+ 	change the default cdrom devices specified in rplayd/cdrom.c.
+  	Currently `/vol/dev/aliases/cdrom0' is used for cdrom0, etc.
+
+	* rplayd/cdrom.c: The new CDROM support requires no modifications
+ 	to RPLAY/RPTP clients.  CD tracks can be played using the special
+ 	`cdrom:' prefix followed by a range of tracks or none for all
+ 	tracks.  `rplay cdrom:1-5' will play tracks 1 through 5,
+	`rplay cdrom:4' will play track 4, and `rplay cdrom:' will play
+	the entire CD.  Other CDROM devices will be known as `cdrom1:',
+	`cdrom2:', etc.  `cdrom:' is the same as `cdrom0:'.
+
+Tue Jan 23 15:42:24 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/cdrom.c: rplayd can now read audio directly from a CDROM
+ 	using the Solaris 2.x CDDA interface.  This work was inspired by
+ 	the read_cdda program written by Jim Mintha (mintha@geog.ubc.ca).
+  	rplayd uses a child process to read from the CDROM and uses a pipe
+ 	to read the data (similar to a flow).  Support for other CDROM
+ 	devices only requires modifications to the file `cdrom.c'.  If
+ 	you've got Solaris 2.x, put your favorite CD in the CDROM and
+ 	execute `rplay cdrom:'.  Don't forget to crank up the volume.
+
+Fri Jan 19 11:45:32 1996  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c: Use `sigset' instead of `signal'. (Solaris fix)
+
+Fri Dec 22 17:58:07 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_cleanup): Don't free memory used by sounds
+	that are (paused) in the spool.
+
+	* rplay/rplay.c: `rplay' now always uses single-put flows to send
+ 	audio data.  Removed asynchronous code.
+
+Thu Aug 31 15:09:50 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* xrplay/xrplay_main.c (main): Ignore SIGPIPE.
+
+	* xrplay: Added headphone, speaker, and lineout buttons to XRPlay.
+
+Wed Aug 30 14:50:23 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/command.c (command_set): `audio-port' can now be
+ 	specified with the RPTP set command.  This allows applications to
+ 	easily change between speaker, headphone, etc., ports.
+  	(command_set): `audio-info' can now be set with the RPTP set
+ 	command.  This allows applications to change the audio parameters
+ 	of the audio device.
+
+	* Removed the `site' and `samples' directories.
+
+	* rplayd/sound.c (sound_map): Fixed clicks at the end of .wav
+ 	files and possibly .aiff files.
+
+Thu Aug 10 15:36:48 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* The rplay source tree has been modified to support compiling for
+ 	multiple architectures.  See the INSTALL.generic file for more
+ 	details.
+
+	* gsm: The GSM source tree has been transformed into something
+ 	that easier for rplay to use.  See gsm/README.rplay for more
+ 	details.
+
+	* librplay/rplay.c: RPLAY packets can now send audio data to
+ 	rplayd.  Here's an example:
+
+	    rp = rplay_create (RPLAY_PUT);
+	    rplay_set (rp, RPLAY_ID, id);
+	    rplay_set (rp, RPLAY_SEQUENCE, sequence++);
+	    rplay_set (rp, RPLAY_DATA, buffer, nbytes);
+	    rplay (rplay_fd, rp);
+
+    	This example assumes that a single-put flow has been started using
+ 	the RPTP play and put commands with the spool id saved in id.
+
+	* include/rplay.h: New RPLAY command RPLAY_PUT.  New attributes
+ 	for this command are RPLAY_ID, RPLAY_SEQUENCE, RPLAY_DATA,
+ 	RPLAY_DATA_SIZE.
+
+Tue Jul 25 15:38:16 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* xrplay/gui.c (set_object_gray_state): Updated xrplay to work
+ 	with the latest version of XForms.
+
+Sun Jul 23 23:35:33 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* INSTALL: Support Emacs' outline-mode.
+
+Sat Jul 22 12:18:02 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c: New --audio-info (--info, -i) option to specify
+ 	the audio configuration easily.  Also available is
+ 	--audio-info-ulaw (--info-ulaw).
+
+Thu Jul 13 16:14:46 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c: New `~/.rplaydrc' which can contain a default
+ 	set of rplayd command line options.  rplayd reads this file before
+ 	parsing any command line options.  The file can contain any
+	option specified in `rplayd --help'.  For example:
+
+	    ##
+	    ## Sample .rplaydrc
+	    ##
+	    --audio-match
+	    --audio-close=0
+	    --options-file=/tmp/rplayd.options
+	    --servers=/usr/local/etc/rplay.servers
+	    --hosts=/usr/local/etc/rplay.hosts
+	    --conf=/usr/local/etc/rplay.conf
+
+	The default rc file can be changed in include/config.h.
+
+Sun Jul  9 23:07:23 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* xrplay/io.c (read_proc): Fixed bug which caused xrplay to abort
+ 	when the server connection was lost.
+
+Sat Jul  8 11:01:58 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/host.c (host_read): Automatically add access for the
+ 	local host when AUTH is defined in config.h and a rplay.hosts file
+ 	doesn't exist.
+
+	* rplayd/rplayd.c (handle_sigint): rplayd now catches SIGINT and
+ 	exits normally when it's received.
+
+Thu Jul  6 10:05:15 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplay/rplay.c: New RPTP flow code which is completely
+ 	asynchronous and improves stdin performance.  `rplay' will use the
+ 	new single-put flow method when using stdin.
+
+	* rplayd: RPTP flows now support a single-put protocol to avoid
+ 	extra network traffic.  A single-put flow is started by using
+ 	`size=0' with the RPTP put command.  After a receiving a
+ 	successful put response, the RPTP client can then send a
+ 	continuous stream of audio data which is terminated by closing the
+ 	RPTP connection.
+
+	* rplay/rplay.c: Changed the --info format from
+ 	8000,ulaw,8,1,big-endian,offset to
+ 	ulaw,8000,8,1,big-endian,offset.  Now the format is listed first
+ 	instead of sample-rate.  GSM --info should be specified as
+ 	`--info=gsm,8000'; the remaining arguments are not required and
+ 	really don't make much sense for GSM.
+
+Thu Jun 29 09:13:33 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* adpcm: Also build `encode' and `decode' to help users create
+ 	their own G.72x files.
+
+	* gsm: New directory containing the sources for GSM version 1.0.7.
+  	Support for GSM compressed audio files has been added to rplay.
+  	GSM is a lossy sound compression algorithm that effectively
+ 	compresses 16 bit audio to 1.65 bit -- very impressive.  GSM is
+ 	ideal for low bandwidth links since it only needs 1650 bytes/sec
+ 	for 8000hz audio, and half that for 4000hz.  Use the `toast'
+ 	program in gsm/bin to create your own .gsm files.  Thanks to
+	    Jutta Degener (jutta@cs.tu-berlin.de) and
+	    Carsten Bormann (cabo@cs.tu-berlin.de) 
+	for GSM and to Germano Caronni <caronni@tik.ethz.ch> for telling
+	me about GSM.
+	
+	* rplayd/audio/audio_FreeBSD.c: New FreeBSD audio code contributed
+ 	by Andreas S. Wetzel <mickey@deadline.snafu.de>.
+
+Mon Jun 26 15:08:03 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplay/rplay.c: Removed option `--no-flows'.  Changed the way
+ 	`rplay' determines which protocol to use.  The default protocol to
+ 	be used is determined by checking whether or not the server has
+ 	local access to the specified sounds.  RPLAY is used when sounds
+ 	are accessible, otherwise RPTP and possibly flows are used.  RPLAY
+ 	will also be used when sound accessibility cannot be determined.
+  	New options `--rplay' and `--rptp' can be used to force the use of
+ 	a specific protocol.
+
+	* rplayd/rplayd.c (do_option): New option `--remove-cache' which
+ 	forces rplayd to remove the rplay.cache and its contents when it
+ 	exits.  The rplay.cache directory will always be removed if it's
+ 	empty.
+
+	* rplayd/cache.c (cache_init): Changed default rplay.cache
+ 	directory permissions from 0755 to 0777.
+	(cache_cleanup): New function to remove the cache directory
+	and all its contents. Suggested by Johan Ramestam (pt93jr@pt.hk-r.se).
+	(cache_create): Changed default rplay.cache file permissions from
+	0644 to 0666.
+
+Wed May 31 16:27:52 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* xrplay/xrplay.c: Added a position slider which uses the RPTP
+	position notify event.  Also changed some colors.
+
+	* rplay/rplay.c: Removed --flow.  `rplay' now uses the RPTP find
+	command to determine whether or not a flow is really necessary.
+
+Thu May 25 10:15:44 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta3 released.
+
+	* examples/vu.c: New example program that uses XForms and the new
+	level notification event.  Compile this example with vu.Makefile.
+
+	* examples/pos.c: New example program that uses XForms and the new
+        position notification event.  Compile this example with
+        pos.Makefile.
+
+	* xrplay: Added a new version of XRPlay written by Andrew
+        Scherpbier <Andrew@sdsu.edu> using XForms.
+
+Sun May  7 12:51:48 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_notify): Added audio file/flow
+	position notification.  This new `position' event can be used to
+	monitor/display the current sample position of a sound that's
+	being played.
+
+Sat May  6 12:14:29 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/native.c (level): Added left and right output level
+        notification.  The new `level' notification event is used to
+        obtain the values of the left and right speakers using the `left'
+        and `right' attributes.  Levels range from 0 to 255, with 255
+        being the highest/loudest level.
+
+Fri Apr 28 11:42:46 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/native.c: Fixed bug with unsigned 16-bit audio.
+
+Tue Apr 25 10:45:13 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* include/config.h.in: Changed RPLAYD_TIMEOUT to 0 which means
+        that rplayd will no longer timeout by default.  inetd users will
+        probably want to add `-t 360' if the old behavior is desired.
+
+	* rplayd/sound.c (sound_clean): New function which is used to
+        fixes problems with flows been deleted at the wrong time.
+
+Thu Apr 13 11:02:32 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_notify): Added
+        priority-threshold to state notification events.
+
+	* xrplay: New `--priority' option which tells xrplay to display
+	priority-threshold information and allow the user to modify it.
+
+	* rplayd/command.c (command_set): Added the `priority-threshold'
+	attribute to the RPTP set command.  The value of
+	priority-threshold is the minimum priority of a sound that will be
+	played by rplayd.  Sounds with priorities below the threshold are
+	ignored.  The default value is 0.
+
+	* rplay/rplay.c (usage): Added the --no-flow option to `rplay'.
+
+Wed Apr 12 15:25:52 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplay/rplay.c: Added the --buffer-size (-b) option to `rplay' so
+	the audio buffer size that's flowed to the server can be easily
+	configured.  Sometimes this is necessary when the default of 8k
+	isn't enough or may even be too much.
+
+	* librplay/rptp.c (rptp): Removed this new routine since I decided
+	that RPLAY and RPTP should not be inter-mixed.
+	(rptp_parse): Fixed bug which freed internal list objects at an
+	inconvenient time.  Now the current/previous list of name-value
+        pairs is always kept in memory.
+
+	* Now `rplay' can be used to talk to your friends on the internet.
+	For example, if you and a friend are running rplayd on a Sun with
+	an amd audio device and a microphone, you can use the following:
+	    hostA$ rplay --host=hostB --info-amd - < /dev/audio
+	    hostB$ rplay --host=hostA --info-amd - < /dev/audio
+        (see `rplay --help' for more information)
+
+	* rplay/rplay.c: Added RPTP flow support to `rplay'.  Flows are
+	now used whenever `rplay' can access any of the specified sounds.
+	This means that `rplay' can _finally_ do `rplay sound.au' where
+	sound.au is some sound in the current directory.  Previously
+	`rplay ./sound.au' was required and a flow was not used.  If a
+	sound named `-' is used, `rplay' will read audio data from
+	standard input and flow it to rplayd.  New options --info,
+	--info-dbri, and --info-cs4231 can be used to describe the audio
+	data.
+	
+Fri Mar 24 11:05:57 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_notify): Added
+        `priority-threshold' to `state' notify events and added it to the
+        server status attributes.
+
+	* rplayd/command.c (command_set): Changed the new `priority'
+	attribute to `priority-threshold' since that makes more sense.
+
+Tue Mar 21 17:44:00 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/command.c (command_set): Added `set priority=value' RPTP
+	command.  This priority value is used to set the sound priorities
+	that will be accepted by rplayd.  Sounds with priorities less than
+	VALUE will be ignore.  The default priority is 0.
+
+Mon Mar 13 09:54:04 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* SGI patches from Rob Kooper which fix errno problems in
+        rplayd/audio/audio_sgi.c and change configure.in to fail if the
+        multimedia development kit isn't installed.
+
+Thu Mar  9 09:52:07 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_update): Fixed bug reported by
+	stevejg@wni.com (Steve J. Green).
+
+Thu Mar  2 22:51:29 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* librplay/rptp.c (rptp_parse): Skip leading dashes so name-value
+        parse can look like:  name=value, -name=value, or even --name=value.
+
+Tue Feb 21 21:44:32 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added RPLAY_LIST_NAME / `--list-name' attribute.  The value of
+	this attribute is used to append sounds with the same `list-name'
+	into the same sound list.  For example:
+
+	    $ rplay --list-name=test raiders
+	    $ rplay --list-name=test jedi
+	    $ rplay --list-name=test Debbie
+	    
+	rplayd will first play `raiders', append `jedi', and then append
+	`Debbie'.  This is the same as:
+
+	    $ rplay raiders jedi Debbie
+
+	* rplay/rplay.c: Added `--rptp' which sends commands using RPTP
+	instead of RPLAY.
+
+	* librplay/rptp.c (rptp): New RPTP library routine
+	`int rptp (int rptp_fd, RPLAY *rp)' which converts
+	a RPLAY object into a RPTP command and then sends the
+	command to the rptp_fd using `rptp_command'.  This routine gives
+	RPTP clients the flexibility of `rplay_get' and `rplay_set'.
+
+Sun Feb 19 10:06:03 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_delete): Fixed a nasty bug.
+
+Sat Feb 18 10:56:47 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c (rplayd_play): Added spool_destroy to fix a
+	"spool full" problem and a possible memory leak.
+
+Thu Feb 16 09:51:59 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* xrplay/connect.c: Ultrix <sys/socket.h> fix.
+
+	* rplayd/audio/audio_generic.c: Utlrix <fcntl.h> fix.
+
+	* site/Makefile.in (install): Fixed `make install' problem for
+        Ultrix.  Thanks nissen@montefiore.ulg.ac.be (Alain Nissen).
+
+	* Define MAXHOSTNAMELEN in librplay/rplay.c and rplayd/rplayd.c
+	if it's not defined in system headers.
+
+Wed Feb 15 17:14:32 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_sun.c (rplay_audio_init): Allow audio port
+	to really be set to `none'.  This fixes problems with 4/4xx and
+	4/6xx systems running SunOS 4.1.x.
+	Thanks nissen@montefiore.ulg.ac.be (Alain Nissen).
+
+Fri Feb 10 14:00:02 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_sun.c (rplay_audio_init): Fixed typo where
+	`rplayd_audio_port' was used instead of `rplay_audio_port'.
+	Reported by nissen@montefiore.ulg.ac.be (Alain Nissen).
+
+Tue Feb  7 17:27:17 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* contrib/tkrplay: Fixed `Configure' problem with tkrplay.
+	Reported by stevejg@wni.com (Steve J. Green).
+
+Mon Feb  6 16:34:43 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta2 released.
+
+	* xrplay: Added a newer version of xrplay.  This version has
+        several bug fixes and it can use flows to play sounds specified on
+        its command line.  There's still a few known bugs in xrplay that
+        will be fixed later. Thanks Andrew Scherpbier <Andrew@sdsu.edu>.
+
+Sun Feb  5 10:09:32 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* librplay/async.c: Added the RPTP asynchronous I/O system written
+	by Andrew Scherpbier <Andrew@sdsu.edu>.  These library routines
+	make adding rplay support to asynchronous programs *much* easier.
+	xrplay and rplaytool have been updated to use these routines.
+	The examples directory has some async examples.
+
+	* examples: Created the `examples' directory.  This directory
+        contains example source code to help demonstrate how to do various
+        things using librplay.
+
+Fri Feb  3 15:49:58 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/command.c (do_events): RPTP event masks can now be
+        manipulated using + and - binary operators.  For example:
+	    set notify="play,pause,done"
+	    set notify="+continue"
+	notify would then be "play,pause,done,continue".
+	    set notify="-pause"
+	notify would then be "play,done,continue".
+
+	The default binary operator is `+' which means that events are
+	always added to the mask.  The mask can be reset using:
+	    set notify="none,play,done"
+	This sets notify to "none" and then assigns "play,done".
+
+	* rplayd/audio/audio_solaris.c (dbri_table): New match table.
+
+	* rplayd/audio/audio_sun.c (dbri_table): New match table.
+
+	* Added `rplaytool' to the contrib directory.  See
+        contrib/rplaytool/README for more information.
+
+Tue Jan 31 15:39:24 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/native.c: Fixed yet another byte-order problem.  The
+	adpcm_decode routines already generate 16-bit audio in the native
+	format so no byte swapping is necessary.
+
+Fri Jan 27 16:07:26 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* librplay/rplay.[ch]: Added the RPLAY_CLIENT_DATA attribute.
+	This attribute can be used to associate a null-terminated string
+	with a sound.  The RPTP `client-data' attribute will also be added
+	so clients can associate data with RPTP commands and the command
+	responses.
+
+Tue Jan 24 21:38:57 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_hpux.c (rplay_audio_init): a few minor
+        modifications and changed the default output port to the speaker
+        and headphone.  (The original default of headphone was confusing
+        some people since they couldn't hear anything :)
+
+	* Finished adding support for real-time audio flows.  The `play'
+        and `put' RPTP commands have been extended to send audio data to
+        rplayd.
+
+	`play' now accepts the following attributes: input, input-offset,
+        input-format, input-byte-order, input-sample-rate, input-bits,
+        input-channels, and input-storage.  (Thanks to Hendrik
+        <J.C.Harrison@ncl.ac.uk> for input-storage).  input=flow begins a
+        flow and the rest of the attributes default to what's contained in
+        the audio header.  input-storage defaults to "none" which tells
+        rplayd to discard flow data.  Setting input-storage to "disk"
+        tells rplayd to eventually save the flow data to `rplay.cache'.
+        Flows saved to disk may have unique file names generated by
+        rplayd.
+
+	`put' now accepts the id attribute which tells rplayd where to
+	store/play the audio data.  Note that multiple clients can "put"
+	data into the same spool entry.  (spool sharing?)
+
+	The new `done' command is used to terminate a flow.  `done' is the
+        same as `stop' for local audio files.
+
+Tue Jan 17 22:43:14 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c: `+' responses for RPTP commands are now
+	guaranteed to *always* come before any `@' responses (events) that
+	the commands may generate.  This helps clients to reliably keep
+	track of events.
+
+Mon Jan 16 13:22:34 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_notify): New RPTP `modify'
+	event.  This event provides notification when spool entries are
+	modified with the `modify' command.
+
+	* rplayd/command.c (command_modify): New RPTP `modify' command
+        which can be used to modify spool attributes.  Currently count,
+        list-count, priority, sample-rate, and volume can be modified.
+        Sample rate modification was suggested by Richard Stallman
+        <rms@gnu.ai.mit.edu>.
+
+	* rplayd/native.c (native_table): Fixed byte-order problems.
+	(check_buffers): Fixed a memory leak.
+
+Sun Jan 15 11:02:47 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c: Added support for G.721 4-bit, G.723 3-bit, and
+	G.723 5-bit compressed audio files.  Public domain G.72x encoding
+	and decoding routines written by Sun Microsystems are located in
+	the new adpcm directory.
+	Suggested by Germano Caronni <caronni@tik.ethz.ch>
+
+Tue Jan 10 13:29:17 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_sun.c (rplay_audio_init): Now recognize the
+        SS5 CS4231 audio chip correctly on SunOS 4.1.X.
+	Thanks John Denune <denune@coyote.lowell.edu>.
+
+Sun Jan  8 22:47:04 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplay/rplay.c: Disabled GNU getopt permutation of arguments
+	since order is important.
+
+Sat Jan  7 10:41:30 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/{rplayd.c,spool.c}: Fixed audio matching bug reported
+	by Germano Caronni <caronni@tik.ethz.ch>.
+
+Tue Jan  3 10:54:35 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_open): now does a lot of what sound_map
+	used to do.
+
+	* rplayd/audio/audio_solaris.c (rplay_audio_init): Added support
+	for the SUNW,CS4231 device.
+	(rplay_audio_init): Use AUDIO_INITINFO instead of AUDIO_GETINFO.
+	Thanks jhempe@broadvision.com (John Hempe).
+
+	* rplayd/audio/{audio_sun.c,audio_solaris.c}: Updated `dbri_table'
+	with more supported audio configurations.  Optional settings are
+	checked in a more consistent manner.
+
+	* rplayd/audio/audio_sun.c (rplay_audio_init): Use AUDIO_INITINFO
+	to initialize audio_info_t instead of AUDIO_GETINFO.
+
+	* include/config.h.in: Added `/devices' to BAD_DIRS.
+	Suggested by Germano Caronni <caronni@tik.ethz.ch>.
+
+Mon Dec 26 11:06:51 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* GNU indent'ed rplay, rptp, librplay, and rplayd.
+
+	* rplayd/rplayd.c (audio_test): Test supported audio configurations.
+	Enabled with the new `--audio-test' option.
+
+Sat Dec 24 09:02:34 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/spool.c (spool_update): Fixed event `done' bug.
+
+	* Added new version of xrplay from Andrew Scherpbier
+        <Andrew@sdsu.edu>.  This version fixes the refresh problems
+	and adds lots of new options.  See `xrplay --help' for
+	more details.
+
+Tue Dec 13 17:04:59 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/connection.c (connection_notify): Fixed non-ANSI C bug
+	reported by kooper@cc.gatech.edu (Rob Kooper).
+
+Mon Dec  5 14:09:28 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 beta released.
+
+	* rplayd/rplayd.c: Added `--options-file=FILE' option
+	to rplayd.  This option allows rplayd options to be
+	read from the specified filename.
+
+Sun Dec  4 01:25:55 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Merged several typos and grammar errors reported
+	by Andrew Scherpbier <Andrew@sdsu.edu>.
+
+	* doc: Updated RPLAY.html, RPTP.html, and librplay.html.
+	Automatically create index.html which is a HTML index
+	of all the HTML documentation.  HTML browsers should
+	startup with index.html.
+
+	* include/config.in: Changed the following defaults:
+	RPLAY_CACHE_SIZE - 8MB
+	MEMORY_CACHE_SOUND_SIZE - 2MB
+	MEMORY_CACHE_SIZE - 4MB
+
+	* rplayd/audio: Added audio tables to audio_sun.c
+	audio_solaris.c, and audio_generic.c.
+
+	* rplayd/spool.c (spool_play): Improved --audio-match to use
+	an audio table of supported audio device configurations.
+	This table is used to choose the closest supported match.
+
+Sat Dec  3 14:57:02 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* doc: created the librplay.html document which is a
+	replacement for README.LIBRPLAY.
+
+	* doc: created the RPLAY.html document which describes
+	the RPLAY protocol and finally explains what's in those
+	mysterious RPLAY packets.
+
+	* doc: man pages and HTML documents are now created automatically
+	for rplayd, rplay, rptp, and xrplay.  These new man pages do not
+	contain as much information as the previous versions, but they
+	are now up-to date.
+
+	* configure.in: `configure' now accepts the --target
+	option.  This option can be used to force a specific
+	configuration to be used.
+	Example: `configure --target=sun'
+
+Fri Dec  2 09:50:07 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* configure.in: Add `-laudio' automatically for SGI
+	systems.
+
+Sun Nov 27 00:09:37 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Started to re-organize the contrib directory.
+	xvolume and volume have been removed since they have
+	been replaced by xrplay and `rptp volume'.  There's
+	now a contrib/patches directory which contains all
+	the window manager patches.
+
+	* Hopefully fixed the `install' bug.
+
+	* rplayd/sound.c (sound_map): Added MAP_FILE to the mmap flags.
+	Suggested by Ben Jackson <bj@staff.cc.purdue.edu>.
+
+	* rplayd/spool.c (spool_ready): Fixed bug reported by
+	Germano Caronni <caronni@tik.ethz.ch>.  The symptoms were
+	"Play a long song. While it is playing, load two short samples from
+	somewhere else. Crash for free."
+
+	* rptp/rptp.c: Changed `rptp' to support the new RPTP protocol.
+
+	* Changed the initial RPTP connection line to contain
+	name-value pairs.
+
+	* Changed the RPTP status command to return one line
+	name-value pairs.
+
+	* librplay/rptp.c (rptp_parse): New rplay library function
+	which is used to parse the RPTP name-value pairs.  This
+	function is used as follows:
+
+	    /* Return the value of `name' where `name=value' is
+	       in the response string. */
+	    value = rptp_parse (response, "name")
+
+	    /* Same as above but return the value of `name' in
+	       the previously specified response. */
+	    value = rptp_parse (NULL, "name")
+
+	    /* Return the first `name' in the response `name=value' list. */
+	    name = rptp_parse (response, NULL)
+
+	    /* Same as above but return the next `name' is the
+	       previously specified response.
+	    name = rptp_parse (NULL, NULL)
+	    
+	* Changed all RPTP commands to support name-value pairs.
+	Some commands still support the old-style RPTP so
+	older rplayds can still communicate.
+
+	* Added xrplay to the top level rplay source tree.
+	xrplay was written by Andrew Scherpbier <Andrew@sdsu.edu>
+	and is a new and improved version xvolume.  New features
+	include bitmap buttons for previous sound, play/pause,
+	stop, and next sound.  xrplay takes full advantage of the
+	new event notification and the `set' and `skip' commands.
+	Thanks Andrew!
+
+	* Added the RPTP skip command which is used to skip
+	to sounds in a sound list.
+
+	* Added the RPTP set command which is used to set server
+	attributes.  The current attributes that can be set are
+	application, notify, and volume.  The application and volume
+	commands are now implemented using set.  Please avoid using these
+	commands since they are considered obsolete and may be removed.
+	
+	* Added RPTP event notification.  All events are reported
+	using a line beginning with `@', followed by name-value pairs.
+	Event notification can be enabled and disabled using the
+	RPTP set command.  See doc/RPTP.html for more details.
+
+	* Changed the RPTP protocol to use name-value pairs for command
+	arguments and command results.  This new and improved RPTP
+	is documented in doc/RPTP.html and the old README.RPTP
+	is now obsolete.
+
+Wed Nov 16 11:20:15 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_*.c (rplay_audio_set_volume):  Always
+	set `rplay_audio_volume' to the volume of the audio device.
+
+Tue Nov 15 20:57:17 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added BAD_DIRS option to config.h.  The value of BAD_DIRS
+	is a colon separated list of directories that cannot be
+	accessed by rplayd.  The default is "/dev:/etc".
+
+Thu Nov 10 10:35:31 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added more SGI patches from Rob Kooper.  These patches include
+	fixes for 16-bit audio and an SGI select/timer bug.
+
+Wed Nov  9 17:20:51 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* librplay/rplay.c (rplay_ping): Now ping both the port listed in
+	/etc/services and either RPLAY_PORT or OLD_RPLAY_PORT depending on
+	which one isn't in /etc/services.  This should fix some problems
+	with inetd that people have been experiencing.
+
+
+
+Tue Nov  8 14:15:15 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Version 3.2.0 alpha7 released.
+
+	* rplayd/rplayd.c: New option `--audio-match' which
+        attempts to match the sample rate of the audio device with
+        the sample rate of the current sound when no other sounds
+        are playing.  If the match fails, --audio-sample-rate is used.
+        This option overrides --audio-bufsize.  This option is currently
+	not enabled by default, but it may be in the future.
+	Suggested by Germano Caronni <caronni@tik.ethz.ch> and
+	Raphael Quinet <quinet@montefiore.ulg.ac.be>.
+
+	* rplayd/rplayd.c (rplayd_audio_init): New function used to
+	(re)initialize the audio device.
+
+Mon Nov  7 11:32:22 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/sound.c (sound_map): added support for .ub files
+	which are Macintosh unsigned byte files.  .ub files may
+	also be incorrectly named with a .snd extension.
+
+	* rplayd/sound.c (sound_map): added support for .voc files
+	which is really simple so far.  All the .voc files that I've
+	found seem to work.
+
+	* rplayd/command.c (command_status): display audio-port info.
+
+	* Added real --audio-port support to audio_sun and audio_solaris.
+	audio_linux, audio_generic, and audio_sgi simply set
+	the port to `speaker'.  audio_hp already has port support.
+
+	* rplayd/rplayd.c: New --audio-port option which can be used
+	to specify rplayd audio output ports.  Valid ports are
+	`speaker', `headphone', and `lineout'.  Suggested by
+	Hendrik (J.C.Harrison@ncl.ac.uk)
+
+	* rplayd/audio/audio_hpux.c: Added new version of audio_hpux.[ch]
+	from Hendrik (J.C.Harrison@ncl.ac.uk).
+
+Fri Nov  4 15:47:00 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added audio_sgi.[ch] to the rplayd/audio directory.
+	These files contain the new SGI audio support written
+	by kooper@dcs.qmw.ac.uk (Rob Kooper).  Rob's patches
+	also included bug fixes for the .wav and .aiff parsing.
+
+	* Removed the [-PNnv] entries from the help messages for
+	the connection, pause and stop RPTP commands.  Those options
+	are ignored by rplayd.  Suggested by Germano Caronni <caronni@tik.ethz.ch>
+	
+Sun Oct 30 21:55:32 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* configure.in: Updated to use autoconf 2.0 features.
+
+
+
+Wed Oct 12 23:28:56 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/audio/audio_solaris.c (rplay_audio_init): Added check for dbri device
+	on Solaris 2.x systems.
+
+Tue Oct 11 10:14:26 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* include/config.h.in: Changed OLD_RPLAY_PORTS to
+	OTHER_RPLAY_PORTS since `OTHER' makes more sense.
+
+Sun Oct  9 00:22:33 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/rplayd.c (main): Audio click detection/prevention.
+
+	* Added RPLAY_RESET packet and RPTP reset command which
+	tell the server to reset itself.  Support has been added to
+	librplay, rplay, rptp, and rplayd.  Suggested by Raphael Quinet.
+
+	* librplay/rplay.c (rplay_open_port):  Create an RPLAY/UDP
+	socket with a specific port.
+	(rplay_open): Use rplay_open_port with the port in /etc/services
+	or RPLAY_PORT.
+
+	* rplayd/rplayd.c (usage): Added --rplay-port (--port),
+	--rptp-port, --other-rplay-port, and --other-rptp-port
+	options to rplayd.
+
+Sat Oct  8 23:57:14 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/native.c: Created native.c and native.h which
+	implement a new audio processing scheme.
+	(fake_volume): Fake volume support is now handled by this
+	routine.
+
+Sat Sep 24 10:24:29 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplayd/spool.c: A critical section now blocks the timer
+	to hopefully prevent a race condition.
+
+	* rplayd/timer.c: Added timer_block () and timer_unblock ()
+	which block and unblock SIGALRM.
+
+Sun Sep 18 22:46:25 1994  Mark Boyns  <boyns@sdsu.edu>
+
+	* Makefiles now allow CFLAGS to be changed on the
+	`make' command line.  (i.e. `make CFLAGS="-O2 -g"')
+
+	* rplayd/spool.c: Changed the spool from an array to
+	an linked list.
+
+	* Fixed all known memory leaks except for the leaks in
+	GNU GAS' hash.[ch].
+
+	* audio.c & rplayd.c: Added fake hardware volume support
+	which is enabled when `FAKE_VOLUME' is #defined.
+
+Wed Aug 31 22:39:21 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* Changed all of rplayd's hash_ routines to xhash_.
+	This change makes it very simple to move from one hashing
+	library to another.
+
+	* rplayd now uses hash.[ch] from GAS, the GNU Assembler.
+	hash.[ch] are now included in the lib directory.
+	
+	* rptp/rptp.c: Added --raw (-r) option to the rptp client.
+	This option forces the client to display all of the RPTP
+	data received from the server.
+
+Sun Aug 28 00:48:07 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplay/rplay.c (usage): Added GNU getopt support to
+	the RPLAY client.
+
+	* rptp/rptp.c (usage): Added GNU getopt support to the
+	RPTP client.
+
+	* Replaced support with the lib directory which now contains
+	a library that includes getopt, regex, strdup, etc.
+
+Wed Aug 24 09:38:59 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* rplayd/audio/audio_hpux.c:  Added audio_hpux module provided
+	by J.C.Harrison@newcastle.ac.uk.  This code was developed on
+	a HP9000/710.
+
+Tue Aug 23 20:36:37 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/rplayd.c (usage):  Replaced the --sound-cache-size option
+	with --memory-cache-size and --memory-cache-sound-size.
+
+Thu Aug 18 15:55:47 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* librplay/rplay.c (rplay_unpack): changed ntohs to ntohl
+	for the unpacking of the sample rate.
+
+	* Finally got console access to a Linux system!
+
+Wed Aug 17 10:36:36 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* Fixed lots of autoconf files/parameters to fix problems with
+	Solaris and possibly other systems.
+
+	* rplayd/server.c (server_read):  unknown hosts in rplay.servers
+	no longer cause rplayd to exit.
+
+
+
+Tue Aug  9 17:14:44 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* Version 3.2.0 alpha4 released.
+
+Mon Aug  8 23:39:55 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/rplayd.c (usage): Added the --sound-cache-size option
+	to rplayd.  The default value is RPLAY_SOUND_CACHE_SIZE.
+
+	* include/config.h.in: Added RPLAY_SOUND_CACHE_SIZE configuration
+	option.
+
+	* rplayd: Finished implementing sound caching scheme.
+	Sounds <= sound_max_cache_size are cached in memory using
+	mmap or malloc.  All of the sound io routines have been changed
+	to use SINDEX (sound index).  A SINDEX can be used to reference
+	a cached or a non-cached sound.
+
+	* Added HAVE_MMAP check.
+
+Sat Aug  6 10:32:20 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/rplayd.c:  Changed the default buffer-scheme
+	from "load" to "none".
+
+	* Added checks for HAVE_CONFIG_H, HAVE_STRING_H, and
+	HAVE_MEMORY_H.
+
+	* rplayd/cache.c (cache_create):  changed "return NULL"
+	to "return -1".  (oops)
+
+Tue Jul 12 16:12:44 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* Added FreeBSD patches from Brian Childs (brian@claremont.com).
+	Thanks Brian!
+
+
+
+Fri Jun 24 22:58:25 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* Version 3.2.0 alpha3 released.
+
+Wed Jun 22 20:45:39 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* Added HP patches that Richard Lloyd sent me about
+	a month ago.  Thanks.
+
+Tue Jun 21 23:32:28 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/rplayd.c (rplayd_write): Fixed problems with
+	new audio buffer code.  BTW, the new code will make fast-
+	forwarding and rewinding possible someday.
+
+Sun Jun 19 21:25:52 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/rplayd.c (rplayd_write): Re-wrote audio buffer
+	management routines.
+
+Wed Jun 15 14:09:15 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* rplayd: added optional_format to all the system audio	stubs.
+
+	* rplayd: added --audio-format, --buffer-scheme,
+	and --help options.
+
+Tue Jun 14 23:23:39 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* doc/man1/rplayd.1: updated the man page with all of
+	the new long-named options.
+
+	* rplayd: added --auth and --no-auth options which
+	enable and disable host access authentication when
+	rplayd is compiled with AUTH defined.
+
+	* rplayd: use GNU getopt to parse rplayd's options.
+	All previous options now have long-named options.
+	getopt.[ch] and getopt1.c have been added to the rplayd
+	directory.
+
+Tue Jun 14 08:39:03 1994  Mark Boyns  (boyns@hercules.sdsu.edu)
+
+	* rplayd/audio/audio_linux.c (rplay_audio_flush):
+	use rplay_audio_fd instead of audio_fd.
+
+Mon Jun 13 22:37:33 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* rplayd/misc.c: Added the sys_err_str routine which is used to obtain
+	system error messages.  This routine replaces the need for using
+	sys_errlist all over the place.  All occurrances of sys_errlist have
+	been replaced with a call to sys_err_str.  This routine tries to
+	use strerror if autoconf can find it.  Otherwise, sys_errlist[errno]
+	is used.
+
+	* rplayd/host.c: rplayd doesn't exit anymore when a hostname cannot be
+	resolved.  The invalid rplay.hosts entry is ingored.
+
+Sun Jun 12 21:39:33 1994  Mark Boyns  (boyns@mojo.sdsu.edu)
+
+	* Added rplay_audio_flush_timeout to rplayd.  The timeout value is used to
+	determine when the audio device should flushed.  Valid values are:
+	  n > 0   : flush after n idle seconds
+	  n == 0  : never flush
+          n == -1 : flush when the spool is empty (this is the default)
+	  n == -2 : flush after each audio write
+	rplayd has a new -F option which used to specify the flush timeout value.
+
+	* Added RPLAY_AUDIO_FLUSH_TIMEOUT to all the rplayd/audio/audio_*.h files
+	with a default value of -1.
+
+	* Use AC_HAVE_FUNCS instead of AC_REPLACE_FUNCS in configure.in.
+
+	* Created the rplay mailing list - rplay@sdsu.edu.  This is a Majordomo list
+	so send a message that contains "subscribe your_username@your.hostname"
+	to rplay-request@sdsu.edu to be added to the list.  (the subject of the
+	message will be ignored)  See README for more details.
+
+	* Renamed the CHANGES file to ChangeLog.
+
+	* Started using Emacs' add-change-log-entry to document changes.
+
+
+
+Previous ChangeLog entries in the old CHANGES format:
+
+* Version 3.2.0 alpha2 released.
+
+* New version of XVolume that has pause, continue, and stop buttons.
+  Thanks Andrew.
+
+* Added references to XSession and XMailbox++ to the README file.
+
+* rplayd timeout works again.
+
+* Fixed bug in rplayd/timer.c - sa_flags was never initialized.  oops  :)
+  Thanks Rob Mallory.
+
+* Added automatic detection of changes made to the rplay.conf, rplay.servers, 
+  and rplay.hosts files.  Changed files are only automatically re-read when
+  rplayd is ready to do so.  SIGHUP still forces rplayd to re-read all files.
+
+* Fixed audio_sun.c so it will compile on pre-SunOS 4.1.3 systems.
+
+* Added tkrplay to the contrib directory.  This is my first Tcl/Tk program. :)
+
+* Sound lists no longer have one second delays between sounds.
+
+* Changed the default log level to 0 - no logging.
+
+* Added support for a few new features of GNU autoconf 1.8 and higher.
+
+* I'm going to phase out the use of ports 55555 and 55556 since they don't
+  work on HP's.  The new ports will be 5555 and 5556 respectively.  rplayd
+  has been modified to support both pairs of RPLAY/RPTP ports.  This support
+  is enabled with the OLD_RPLAY_PORTS #define in config.h.
+
+* Added the wait RPTP command which can be used to have clients block until
+  the desired event has occurred.  For example:
+
+  wait play petergun.au - client will block until petergun is done playing
+  wait volume           - client will block until the volume has changed
+  wait #34              - client will block until spool id #34 is done playing
+
+  wait can prefix any RPTP command but it is only effective with the play and
+  volume commands.  Generic wait events may be added later.
+
+* Added RPTP wait support to xvolume.  Now the xvolume slider is automagically
+  updated when any client changes the volume with the RPTP volume command.
+
+* Added RPTP wait support to the rptp client.
+
+* Added RPTP status command which is used to obtain RPTP server statistics.
+
+* Added RPTP status support to the rptp client.
+
+* Added RPTP application command which is used to notify rplayd what
+  application is talking to it.  Now "list connections" can display things
+  like this:
+
+  list connections
+  +connections
+  HOST            TYPE    IDLE APPLICATION      WHAT
+  130.191.225.64  client     1 rptp             (idle)
+  127.0.0.1       client   .47 XVolume 1.3      wait volume
+  127.0.0.1       client     2                  wait volume
+  .
+
+  The idea of using a command like application was suggested by Raphael Quinet
+  a long time ago.
+
+  I recommend that all RPTP applications use the application command to
+  tell rplay who they are.  Older rplayds will not understand this command
+  so applications can ignore any '-' error received.
+
+* Added RPTP application support to the rptp client and XVolume.
+
+* Created the support directory which contains library routines that configure
+  couldn't find.  Now rplay.h doesn't have a prototype for strdup since
+  rplay sources include support.h now.
+
+* Fixed a memory leak in the re-reading of rplay.conf.
+
+* Added linux patches from Mark Skouson (skouson@gecko.ee.byu.edu).
+  The patches include fixes for audio flushing.
+
+* Created the patches directory and put HP patches and Linux audio module
+  that contains GUS support.
+
+* rplayd used to read sounds in one second chunks.  The second that was read
+  was one second of data according to the sample rate of the file, not the
+  sample rate that rplayd was writing. Now rplayd reads curr_bufsize * curr_rate
+  bytes at a time.  This helps a lot.
+
+--------------------------------------------------------------------------------
+
+rplay 3.2.0alpha major improvements and changes from rplay 3.1.1beta
+
+(there never was a non-beta release of 3.1.1)
+
+* GNU Autoconf is now used to configure rplay.
+
+* Added tvtwm, twm, and ctwm patches to the contrib directory.
+  Thanks J.E. Sacco (jsacco@ssl.com).
+
+* rplayd can now be reset by sending it a SIGHUP.  When the signal is received,
+  all playing sounds are stopped, connections are closed, and the sounds, hosts
+  and servers files are reread.
+
+* Added XJukebox 0.9 to the contrib directory.
+
+* Added a new version of XVolume to the contrib directory.
+
+* Added mailnoise to the contrib directory.
+
+* RPTP volume now supports +value and -value.
+
+* Added info and load RPTP commands.
+
+* Support for 8-bit and 16-bit audio input and output.
+
+* Support for Sun's speaker box. 
+
+* Support for all sample rates.
+
+* Added -R <sample rate> option to rplay.  This is LOTS of fun!
+
+* Support for .aiff and lots of .au files.
+
+* rplay now accepts relative pathnames.  Thanks Raphael.
+
+* rplay can now do things like this: rplay -n3 -v30 bogus -n2 -v200 excellent
+
+* The rptp client now accepts RPTP commands on the command line.
+  Example: rptp -h sounds.sdsu.edu list sounds
+
+  This feature makes the contrib/volume program unnecessary since the same
+  thing can be accomplished with "rptp volume <value>".
+
+* Fixed a serious bug for systems that have an IP address of 127.0.0.1.
+
+* Added the FvwmSound module to the contrib directory.
+
+* Re-designed rplayd's audio writing scheme.  This has no user-visible changes
+  but it was a lot of work.  The -r and -b options are still valid.
+
+* Added byte info to the "list connections" RPTP command.  It now looks like 
+  this:
+
+  HOST            TYPE    IDLE WHAT
+  127.0.0.1       client       (idle)
+  130.191.224.8   server       get 2lust.au (2017372/2195456)
+
+* Added the version RPTP command.
+
+* Support for .wav files.
+
+* Support for stereo input and output.
+
+* Removed the remote-install Makefile target.
+
+* Fixed problems with previous rplay command line options and added the
+  following:
+
+  rplay -s, rplay -p, and rplay -c will stop, pause, and continue ALL sounds
+  when no sounds are specified.  This is easier than having to type
+  rplay -s #0.
+
+* Added the -N option to rplayd.  This disables audio and is only useful
+  for RPTP servers without an audio device.  rplayd will also disable audio
+  if it cannot open the audio device when it starts.
+
+* Fixed the audio close timeout code.
+
+* Removed the load RPTP command.
+
+* The RPTP volume command now supports +<value> and -<value> which are used
+  as volume offsets.
+
+* Re-designed rplayd's audio reading & writing scheme.  Now audio files are
+  read piece by piece.  Normally only one second of audio data is used at a
+  time so rplayd does not have to use lots of memory when playing large audio
+  files.  As a result, all the mmap code has been removed from rplayd.
+
+* Added fingergoodies to the contrib directory.  Thanks Raphael. 
+
+* Fixed rplayd's idle mode.
+
+* Disabled the sound_cleanup_timeout in rplayd since it's not necessary anymore.
+
+* Fixed serious bug in spool_init/spool_clear.
+
+--------------------------------------------------------------------------------
+
+rplay 3.1.1beta major improvements and changes from rplay 3.1.1 (BETA):
+
+* Added the RPTP volume command.  (Only works on Suns so far)
+
+* Added XVolume to the contrib directory.  Thanks for all the Xlib code Andrew.
+
+* Added volume to the contrib directory.
+
+* Added the remote-install Makefile target.
+
+* Added the samples and site directory to simplify installation.
+
+* Added the -A option to rplayd which specifies an alternate audio device.
+
+* Added more checks for interrupted systems calls in rplayd.
+
+* Added RPLAY packet forwarding to rplayd.  When the -f <host> option is used,
+  all RPLAY packets will be forwarded to <host>.  Note that RPTP traffic is not 
+  forwarded.
+
+* Added support for hosts with multiple IP addresses.
+
+* Now localhost (127.0.0.1) is automatically added to the host access list if 
+  the local host's address is found.
+
+* rplayd now has a better "idle mode".
+
+* Changed the range of spool ids from 1..SPOOL_SIZE to 1..999.
+
+* Changed the RPTP play protocol to return the spool id.  For example:
+
+  play bogus.au
+
+  when successful will return:
+
+  +218
+
+  where 218 is the spool id associated with the sound.  Thanks for the 
+  suggestion Raphael.
+
+* Added some xpilot sound configuration files to the contrib/xpilot directory.
+
+* Added XJukebox 0.8 to the contrib directory.  This program is still under
+  development so there might still be a few bugs.  Thanks Raphael.
+
+* Added olvwm rplay 3 patches to the contrib directory.  
+  Thanks Joseph E. Sacco <jsacco@ssl.com>.
+
+* Released 11/4/93.
+
+--------------------------------------------------------------------------------
+
+rplay 3.1.1 (BETA) major improvements and changes from rplay 3.1.0:
+
+* Added audio timer code.  Now audio data is written at a configurable rate
+  to the audio device.  The default audio write rate is 20 times per second.
+  The size of the audio data written is also configurable, with the default
+  size being the sample rate of the audio device divided by the audio write
+  rate.  For Sun's, which have a sample rate of 8000, 400 bytes of audio
+  data is written to the audio device 20 times per second.
+
+  The end result of all this is that sounds are now played/paused/continued/
+  stopped immediately, when before there were delays. 
+
+* Added the -r option to rplayd to control the audio write rate.
+
+* Added the -b option to rplayd to control the size of the audio buffer size.
+  
+* Changed rplayd to accept RPLAY_COUNT and RPLAY_LIST_COUNT with values of zero.
+  Now when the values are zero the sound or sound list will be repeated forever.
+
+* Removed the use of usleep().
+
+* Added the RPLAY_RPTP_SEARCH attribute which specifies whether or not rplayd
+  should search for the given sound.
+
+* Added the RPLAY_RPTP_SERVER and RPLAY_RPTP_PORT attributes which specify
+  the RPTP server to use if the given sound is not found.  This server
+  overrides the default servers listed in the rplay.servers file.
+  
+* Added Raphael's jukebox 1.3 to the contrib directory.
+
+* Added the RPLAY_RPTP_FROM_SENDER attribute which tells rplayd to try and
+  obtain sounds from the sender when they are not found locally.
+
+* Added "COUNT" to the "list spool" output.
+
+* Added rplayd logging facilities which were inspired by Raphael Quinet's
+  logging patches.  Default logging parameters are specified in include/conf.h
+  and can be specified using -l and -L rplayd options.
+
+* Implemented spool ids.  Each spool entry is assigned a unique spool id when
+  it is inserted in the spool.  Valid spool ids range from 1 to the maximum
+  spool size (defined in include/conf.h).  Spool id 0 can be used to reference
+  all sounds in the spool.  Now all sounds can be stopped using:
+
+  rplay -s #0
+  
+  or 
+
+  rptp> stop #0
+
+  Specific spool entries can be stopped/paused/continued using the following:
+
+  rplay -p #1 #5 #6	/* pause spool entries #1 #5 & #6 */
+
+  rplay -c #1		/* continue spool entry #1 */
+
+  Note that the spool id extension assumes that no sounds begin with the '#'
+  character.
+
+  The "list spool" output now looks like:
+
+  SID HOST            STATE  VOL PRI COUNT SECONDS REMAIN SOUND
+    1 127.0.0.1       play    10   0     0       6      2 spacemusic.au
+
+* Made spool matching less specific.  Now only sound names are compared where
+  before all the attributes were compared.  When a sound is played with:
+
+  rplay -v200 -P255 petergun
+
+  it can be stopped using only:
+
+  rplay -s petergun
+
+* All spool entries are now checked for a match.  For example, if there are 10 
+  spool entries playing "petergun", all of them can be stopped using a single
+  "rplay -s petergun".
+
+--------------------------------------------------------------------------------
+
+rplay 3.1.0 major improvements and changes from rplay 3.1 (BETA3):
+
+* Added SGI Indigo patches from Mike.Hoffmann@mch.sni.de.
+
+* Added a newer version of Raphael's jukebox 1.2 which includes a man page.
+
+* Added patches from Raphael to support DEC 3100's running Ultrix 4.2,
+  with cc or gcc-2.4.5.
+  These patches do not include audio support, however, a DEC can be used as
+  a sound server.
+
+* Added more idle information to the "list connections" display. 
+
+* Released 9/1/93.
+
+--------------------------------------------------------------------------------
+
+rplay 3.1 (BETA3) major improvements and changes from rplay 3.1 (BETA2):
+
+* RPTP commands "play", "pause", "continue", and "stop" now accept the following
+  options (similar to the rplay client):
+     -P <int>  Sound priority.
+     -N <int>  Number of times to play the sound list.
+     -n <int>  Number of times to play each sound.
+     -v <int>  Volume.
+
+* Fixed bug which caused sounds to get stuck in the spool when the first RPTP
+  server was unavailable. (mgyger@itr.ch)
+
+* Fixed bug which caused sounds to get stuck in the spool when the TCP
+  connection was lost during a sound transfer.  (quinet@montefiore.ulg.ac.be)
+
+* The volume of low priority sounds is lowered when higher priority sounds
+  are in the sound spool.  Each sound's volume is lowered depending on it's
+  priority relative to the highest priority.
+
+* sound_delete now deletes sound files.
+
+* Sounds that are transferred by rplayd are stored in the cache using the name
+  that the remote rplayd sends.  (quinet@montefiore.ulg.ac.be)
+
+* Sound cleanup will no longer cleanup sounds that have events associated
+  with them.  It took a long time to find this one!  Thanks for your slow
+  network connection Raphael.
+
+* Added SOUND_CLEANUP_TIMEOUT to include/conf.h so the cleanup timeout can be
+  configured.
+
+* Added a newer version of mailsound to the contrib directory.  The new version
+  has a lot of new options.  Thanks Andrew.
+
+* Changed PORTABLE_LONG macro to use (unsigned char *).  (mrh@io.nosc.mil)
+
+* Added more Solaris 2.x suggestions from Kjetil Wiekhorst J{\o}rgensen
+  <jorgens@pvv.unit.no>.
+
+* Added 386bsd patches to audio.c from Mike Halderman (mrh@io.nosc.mil).
+  The 386bsd patches require the soundblaster driver version 1.5 written by
+  Steve Haehnichen (shaehnic@ucsd.edu).
+
+--------------------------------------------------------------------------------
+
+rplay 3.1 (BETA2) major improvements and changes from rplay 3.1 (BETA):
+
+* Fixed bug in rplayd's "put" implementation. (quinet@montefiore.ulg.ac.be)
+
+* Fixed segmentation violation when rplayd had no rplay.servers.
+  (quinet@montefiore.ulg.ac.be)
+
+* The rptp client now handles IP addresses correctly and deals with
+  connections being closed and timed out much better.
+
+* Corrected many mistakes in the documentation.
+  (quinet@montefiore.ulg.ac.be) (mgyger@itr.ch)
+
+* Added '!' (RPTP_TIMEOUT) as an RPTP response type.  
+
+* Added RPTP_ERROR_TIMEOUT to the possible rptp_errno values.
+
+* Fixed server timeout handling in rplayd.
+
+* Fixed a nasty bug in rptp_getline.
+
+* Added the use of the RPLAY_HOST environment variable.  The host defined by
+  RPLAY_HOST specifies a default rplay host.  When RPLAY_HOST is not defined
+  localhost will be used.  The new rplay library routine
+  char *rplay_default_host(void) can be used to obtain the default rplay host.
+
+* Changed the -h option in the rplay client.  -h is now used to specify an
+  rplay host.  Now a hostname does not have to be specified.  For example:
+
+     "rplay bogus.au" uses RPLAY_HOST or localhost.
+
+     "rplay -h bozo bogus.au" uses bozo.
+
+* Changed the -h option in the rptp client.  -h is now used to specify an
+  rptp host.  Now a hostname does not have to be specified.  For example:
+
+     "rptp" uses RPLAY_HOST or localhost port 55556.
+
+     "rptp -h bozo" uses bozo port 55556.
+
+* Removed the -h option from rplayd to be consistent with the other programs.
+  -h will still display the usage information in all the programs since
+  either an option is required or the option is not valid.
+
+* Added int rplay_default(char *sound) to the rplay library.
+
+* Cleaned up rplayd's memory usage.  Sounds are now unmapped when the audio
+  device is closed.
+
+* Fixed a bug in rplayd's event handling routines.  Now sounds that are
+  being transferred don't get stuck in the spool.
+
+* Comments were moved in Makefile.config to avoid bugs in some versions of
+  make.  (sinster@scintilla.santa-clara.ca.us)
+
+* The mail command used by "make mail" is now defined in Makefile.conf.
+
+* Added more fixes for HP-UX. (mgyger@itr.ch)
+
+* Added int rplay_open_default(void) to the rplay library.
+
+* Added jukebox version 1.2 to the contrib directory.  Thanks again Raphael.
+
+--------------------------------------------------------------------------------
+
+rplay 3.1 (BETA) major improvements and changes from rplay 3.0 PL2:
+
+(This release has many changes so I probably have forgotten some of them.)
+
+* Completely re-organized the rplay source tree.
+
+* Designed and implemented RPTP.  This includes writing the RPTP client and
+  adding RPTP support to rplayd.  Please read doc/README.RPTP if you want
+  to learn more about RPTP.
+
+* Added the following routines to librplay:
+
+  int rplay_host_volume(char *host, char *sound, int volume)
+  int rplay_open_sockaddr_in(struct sockaddr_in *saddr)
+  int rplay_ping(char *host)
+  int rplay_ping_sockfd(int rplay_fd)
+  int rplay_ping_sockaddr_in(struct sockaddr_in *saddr)
+  int rptp_open(char *host, int port, char *response, int response_size)
+  int rptp_read(int rptp_fd, char *ptr, int nbytes)
+  int rptp_write(int rptp_fd, char *ptr, int nbytes)
+  int rptp_putline(int rptp_fd, char *fmt, ...)
+  int rptp_getline(int rptp_fd, char *buf, int nbytes)
+  int rptp_command(int rptp_fd, char *command, char *response,int response_size)
+  int rptp_close(int rptp_fd)
+  void rptp_perror(char *message)
+
+* Added the RPLAY_PING attribute to the RPLAY protocol.  This attribute is used
+  by RPTP to wakeup rplayd since inetd can't invoke one program using two ports.
+
+* Now using the GNU General Public License Version 2.
+
+* Add the rplay.servers file which lists the rplay servers that rplayd should
+  contact to obtain sound files.
+
+* Implemented the sound cache where rplayd will store sound files it obtains.
+
+* Changed the format of the rplay.hosts file to accept wildcards and access
+  permissions.
+
+* Fixed a bug that caused some rplay packets to incorrectly have permission
+  denied.
+
+* Changed rplayd to accept sounds which are not in the rplay.conf and are
+  available locally.  For example, is /tmp/foo.au is not in the rplay.conf
+  it can still be played using 'rplay hostname /tmp/foo.au".
+
+* Changed include/conf.h to '#define AUTH' by default.
+
+* Switched to Darren Senn's hsearch implementation.
+
+* Included Darren Senn's PORTABLE_LONG macro which is useful when examining
+  ulaw file headers on multiple architectures.
+
+* Wrote some manual pages which are in the doc directory.
+
+* Updated doc/README.LIBRPLAY to included the new RPTP extensions.
+
+* Added a NEW version of mailsound to the contrib directory.  The new version
+  has a lot of new options.  Thanks Andrew.
+
+* Added crossfire to the contrib directory.
+
+* Added HP-UX patches from rkl@csc.liv.ac.uk (Richard Lloyd) and
+  Markus Gyger <mgyger@itr.ch>.
+
+* Conversion tables are now used for both ulaw->linear and linear->ulaw.
+  The tables were contributed by Markus Gyger <mgyger@itr.ch>.
+
+* Headerless ulaw files can still be played if their filename extension is
+  either .au, .u, or .ul as suggested by Markus Gyger <mgyger@itr.ch>.
+
+* Added Solaris 2.x patches from Kjetil Wiekhorst J{\o}rgensen
+  <jorgens@pvv.unit.no>.
+
+--------------------------------------------------------------------------------
+
+rplay 3.0 PL2 major improvements and changes from rplay 3.0 PL1:
+
+* Use strchr and strrchr instead of index and rindex.
+
+* Added -r (random pick) option to the rplay client.
+
+* Added RPLAY_RANDOM_SOUND attribute which will pick a sound randomly from
+  a sound list.  See README.LIBRPLAY for an example.
+
+* Added jukebox to the contrib directory.  See contrib/jukebox1.1/README for
+  more details.  (Thanks quinet@montefiore.ulg.ac.be)
+
+* Changed rplayd to handle filenames with spaces correctly.
+
+* Fixed librplay.c and rplayd.c prototypes to support non ANSI C compilers.
+  (Thanks infmx!cheetah!dranney@uunet.UU.NET)
+
+* Added the following to the rplay library to make playing sounds even easier:
+  (See README.LIBRPLAY for more information)
+
+  int rplay_open_display(void);
+  int rplay_display(char *sound);
+  int rplay_local(char *sound);
+  int rplay_host(char *host, char *sound);
+  int rplay_sound(int rplay_fd, char *sound);
+
+--------------------------------------------------------------------------------
+
+rplay 3.0 PL1 major improvements and changes from rplay 3.0:
+
+* Changed conf.h to '#undef AUTH' (host authentication).
+
+* Changed rplay_set to strdup() sound filenames.
+
+* Added -n (count), -N (list count), and -P (priority) options to the rplay
+  client.
+
+* Added RPLAY_PRIORITY attribute.  Priorities range from 0 to 255 (0 being
+  the lowest priority).  Sounds with higher priorities will replace lower
+  priority sounds when the sound spool is full.
+
+* Sounds can be referenced using complete pathnames.  This helps to avoid
+  problems when different sound files have the same name.
+
+* Sound filename extensions are now optional.  If extensions are used they
+  are enforced.
+
+* Added RPLAY_LIST_COUNT attribute.  The sound list will be played count
+  number of times.
+
+* Added RPLAY_COUNT attribute.  Each sound in a sound list will be played
+  count number of times.
+
+* Fixed select's usage of timeval struct.  (sinster@scintilla.santa-clara.ca.us)
+
+* Cleaned up the code a little.  Added better ANSI C support and put in
+  a little more documentation.
+
+* Fixed some spelling mistakes.
+
+* Removed -V option from the rplay client.
+
+--------------------------------------------------------------------------------
+
+rplay 3.0 major improvements and changes from rplay 2.0:
+
+* rplayd is no longer based on Sun's lwp library.  This will make rplay
+  portable to machines other than SPARCstations.  Hopefully soon rplay will
+  work with BSDI, Linux, and maybe 386bsd.  Only 8 bit ulaw audio files are 
+  currently supported.
+
+* The rplay library has been rewritten and is now much more flexible for rplay
+  additions.  This new library is not compatible with the rplay2.0 library,
+  what I mean is that old rplay programs will not compile.
+  See WARNING and README.LIBRPLAY for conversion help.  
+
+* A more flexible rplay protocol is used.  The rplay2.0 protocol can still 
+  be supported.  See conf.h.
+
+* Host authentication can be used to allow only certain machines access to
+  play sounds.  See conf.h and INSTALL.
+
+* Compile time option to use mmap or malloc and read to load sound files.
+  See conf.h.
+
+* inetd support can be disabled with a command line option
+
+* rplayd timeouts can be changed or disabled with command line options
+
+* rplayd has many other options, run rplay -h to see them.
+
+* rplayd speed enhancements
+
+--------------------------------------------------------------------------------
+
+rplay 2.0 major improvements and changes from rplay 1.2:
+
+* Sounds are no longer indexed by id, the sound names are now used.
+
+* Sounds can be played, paused, continued, and stopped.
+
+* Each sound can have a volume associated with it.  A volume is
+  a number between 0 and 255 and it is relative to the actual volume
+  of the audio device.
+
+* Sequences of sounds are supported.  This is useful for playing
+  sentences or sounds that need to be played sequentially.
+
+* mmap is now used to read sounds.  This increases performance
+  and saves a lot of memory.  Thanks to stripes@pix.com for this
+  suggestion.
+
+* Broadcasting sounds.  To use this just use a broadcast address
+  instead of a hostname.  For example, I use:
+  rplay 130.191.255.255 burp.au
+  to play burp.au on all our machines running rplayd on our subnet.
+
+* The Sun audio stuff is no longer used.  Thanks to libst.c and 
+  libst.h from Sound Tools.  See these files for more information.
+
+* Released 11/12/92.
+
+--------------------------------------------------------------------------------
+
+* rplay 1.2 released 7/20/92
+
+* rplay 1.1 released 7/13/92
+
+* Original rplay released sometime in May or June of 92, I have forgotten.
+

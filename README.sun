@@ -1,0 +1,33 @@
+rplay README.sun - Notes for SunOS 4.1.x and Solaris 2.x users.
+
+* audioamd
+
+SPARCstation 1, 2, IPC, IPX, SLC, ELC, LC (classic), and SPARCserver 6xx
+systems have a "audioamd - telephone quality audio device".  This
+device supports 8-bit u-law encoded audio data sampled at 8000Hz.
+See `man audioamd' for more details.
+
+* dbri
+
+SPARCstation 10, 10SX, 20, LX have a "dbri - Dual Basic Rate ISDN Interface
+and audio interface".  This device supports configrations which range
+from 8-bit u-law 8000Hz to stereo 16-bit linear 48000Hz.
+See `man dbri' for more details.
+
+* clicks
+
+The dbri audio device may "click" when it's opened using the open
+system call.  These clicks can be avoided by forcing rplayd to always
+keep the audio device open.   Use either `-c0' or `--audio-close=0'.
+
+* SS5
+
+The SPARCstation 5 running SunOS 4.1.x requires the `ms2' patch to get
+audio working properly.
+
+* SPARCserver 4/6xx and probably 4/4xx using SunOS 4.1.x.
+
+The device driver on these systems does not accept *any* audio port
+value in the audio_info_t structure when using AUDIO_SETINFO.
+To fix this, rplayd must be run with `--audio-port=none'.
+

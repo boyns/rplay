@@ -1,0 +1,17 @@
+.SH NAME
+rplay \- play, pause, continue, and stop sounds
+.SH SYNOPSIS
+.B rplay [options] [sound ...]
+.SH DESCRIPTION
+rplay is client that communicates with rplayd to play, pause,
+continue, and stop sounds using both the RPLAY and RPTP protocols.
+Sound files can be played by rplayd directly if available on the local
+system or sounds can be sent over the network using UDP or TCP/IP.
+rplay will attempt to determine whether or not the server has the
+sound before using the network.
+.SH OPTIONS
+.SH SEE ALSO
+.IR rplayd (8),
+.IR rptp (1)
+
+

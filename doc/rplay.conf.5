@@ -1,0 +1,27 @@
+.TH RPLAY.CONF 5 12/21/97
+.SH NAME
+rplay.conf \- rplay sound database
+.SH SYNOPSIS
+.B /usr/local/etc/rplay.conf
+.SH DESCRIPTION
+The
+.I rplay.conf
+file contains a list of sound files that are available locally to
+.I rplayd. 
+Each line must contain the complete pathname of one sound file.
+rplayd can be forced to re-read this file using the
+.I "rplay --reset"
+command.
+.SH EXAMPLE
+/usr/local/lib/sounds/bark.au
+.br
+/usr/local/lib/sounds/bogus.au
+.br
+/usr/local/lib/sounds/Puke.au
+.SH FILES
+.B /usr/local/etc/rplay.conf
+.SH "SEE ALSO"
+.BR rplayd (8)
+.BR rplay (1)
+.SH BUGS
+The name of this file should really be rplay.sounds, but it's not.

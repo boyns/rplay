@@ -1,0 +1,68 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+SASR = -DSASR
+MULHACK = -DUSE_FLOAT_MUL
+FAST = -DFAST
+#LTP_CUT = -DLTP_CUT
+LTP_CUT =
+
+CPPFLAGS=	$(CC_OPTIONS) -I. -I../include -I@srcdir@ -I@srcdir@/../include -I@srcdir@/../lib @DEFS@
+
+.c.o:
+		$(CC) -c $(CPPFLAGS) $(SASR) $(DEBUG) $(MULHACK) $(FAST) $(LTP_CUT) $(CFLAGS) $<
+
+LDFLAGS=	$(LD_OPTIONS) -L. -lgsm @LDFLAGS@
+
+TARGET=		libgsm.a
+
+SRCS=		add.c code.c debug.c decode.c gsm_create.c gsm_decode.c \
+		gsm_destroy.c gsm_encode.c gsm_explode.c gsm_implode.c gsm_option.c \
+		gsm_print.c long_term.c lpc.c preprocess.c rpe.c short_term.c table.c
+
+OBJS=		add.o code.o debug.o decode.o gsm_create.o gsm_decode.o \
+		gsm_destroy.o gsm_encode.o gsm_explode.o gsm_implode.o gsm_option.o \
+		gsm_print.o long_term.o lpc.o preprocess.o rpe.o short_term.o table.o
+
+TOAST=		toast
+TOAST_SRCS=	toast.c toast_alaw.c toast_audio.c toast_lin.c toast_ulaw.c
+
+TOAST_OBJS=	toast.o toast_alaw.o toast_audio.o toast_lin.o toast_ulaw.o
+
+
+all:		$(TARGET) $(TOAST)
+
+$(TARGET):	$(OBJS)
+		$(AR) rcv $@ $?
+		$(RANLIB) $@
+
+$(TOAST):	$(TARGET) $(TOAST_OBJS)
+		$(CC) -o $@ $(TOAST_OBJS) $(LDFLAGS)
+
+install:
+
+uninstall:
+
+clean:
+		$(RM) $(OBJS) $(TARGET) $(TOAST_OBJS) $(TOAST) a.out core *~ *.bak *.orig TAGS
+
+distclean:	clean
+		$(RM) Makefile
+
+tags:
+		$(TAGS) *.[ch]
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SRCS)
+
+

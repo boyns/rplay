@@ -1,0 +1,219 @@
+.TH RPLAYD 8 6/29/98
+.SH NAME
+rplayd \- rplay sound server
+.SH SYNOPSIS
+.B rplayd [options]
+.SH DESCRIPTION
+.B rplayd
+is the sound server for the rplay audio system.  The server listens
+for requests to play, pause, continue, and stop sounds using both the
+RPLAY and RPTP protocols.  Normally RPLAY requests are received on
+port 5555/udp and RPTP on 5556/tcp.  (Older ports 55555/udp and
+55556/tcp are also supported)  Access to the server is restricted using
+the
+.I rplay.hosts
+file.
+.P
+rplayd can be started during the system boot process, via inetd, or by
+individual users.  root access may be required depending on audio
+device permissions.
+.P
+In most causes rplayd will play sounds that are available on the local
+disk.  However, rplayd can be sent sounds via the network and rplayd
+can also contact other rplayds to share sound files.  The index of
+all the local sound files is stored in
+.I rplay.conf
+and remote rplayds are specified in
+.I rplay.servers.
+Sounds received from other rplayds will be stored in a cache directory
+normally located in
+.I /tmp/.rplay-cache.
+Cache entries are expired on an LRU basis.
+.P
+Many sound file formats are supported by rplayd.  These include:
+.nf
+
+    AU AIFF WAV VOC UB UL
+    G.721 4-bit, G.723 3-bit, G.723 5-bit
+    GSM
+
+.fi
+.P
+Other formats can be played using external helper applications
+which convert unknown file formats to CD quality data which
+can then be played by rplayd.  See rplay.helpers(5)
+.P
+Several sounds can be played at once and sounds can be played at any
+sample rate.  rplayd can be configured to output many different
+formats using the various \-\-audio options.
+.P
+On some systems, namely Solaris and Linux, rplayd can read sounds
+directly from CDROM using CDDA.  The special sound name
+.I cdrom:
+will play the entire CDROM.
+.I cdrom:3-5
+will play tracks 3 through 5.
+.SH OPTIONS
+.TP
+.I "\-A DEVICE, \-\-audio\-device=DEVICE"
+Use DEVICE for the audio device (/dev/dsp).
+.TP
+.I "\-B N, \-\-audio\-bits=N"
+Audio device bits per sample, 8 or 16.
+.TP
+.I "\-\-audio\-channels=N"
+Number of audio channels to use, 1 == mono, 2 == stereo.
+.TP
+.I "\-c N, \-\-audio\-close=N"
+Close /dev/dsp after N idle seconds, disabled with 0 (5).
+.TP
+.I "\-F N, \-\-audio_flush=N"
+Flush /dev/dsp after N idle seconds, disabled with 0 (-1).
+N = -1 : flush when spool is empty.
+N = -2 : flush after each audio write. (not recommended)
+N should be <= to the audio close timeout.
+.TP
+.I "\-\-audio\-format=FORMAT"
+Tell rplayd to write audio data using FORMAT, where FORMAT
+can be ulaw, linear-8, ulinear-8, linear-16, or ulinear-16.
+(linear = signed, ulinear = unsigned)
+.TP
+.I "\-\-audio\-fragsize=N"
+Audio fragment size (0).  The default size is zero which lets
+the audio driver pick the "best" size.  The size specified must
+be a power of 2 greater than 16.  Example:  256, 1024, 4096.
+.TP
+.I "\-\-audio\-info=INFO, \-\-info=INFO, \-i INFO"
+Specify complete audio device information with one option.
+INFO is of the form: format,sample-rate,bits,channels
+Examples: `ulaw,8000,8,1' and `linear-16,44100,16,2'
+Also provided are:
+    --audio-info-ulaw, --info-ulaw -> ulaw,8000,8,1
+.TP
+.I "\-\-audio\-match"
+Attempt to match the sample rate of the audio device with
+the sample rate of the current sound when no other sounds
+are playing.  If the match fails, --audio-sample-rate is used.
+This option overrides --audio-bufsize.
+.TP
+.I "\-\-audio\-port=PORT[,PORT...]"
+Output audio to the specified audio port(s).
+Valid ports are `speaker', `headphone', and `lineout'.
+Multiple ports can be specified using `speaker,headphone,lineout'
+.TP
+.I "\-r N, \-\-audio\-rate=N"
+Write the audio buffer N times per second (0).
+.TP
+.I "\-R N, \-\-audio\-sample\-rate=N"
+Sample rate of the audio device.
+.TP
+.I "\-\-auth"
+Enable host access authentication.
+.TP
+.I "\-D DIR, \-\-cache\-directory=DIR"
+Use DIR for rplay.cache (/tmp/.rplay-cache).
+.TP
+.I "\-\-cache\-remove"
+Remove the cache directory and all its contents when rplayd exists.
+.TP
+.I "\-s N, \-\-cache\-size=N"
+Maximum size in bytes of the rplay cache, disabled with 0 (8388608).
+.TP
+.I "\-\-cdrom0=DEVICE, \-\-cdrom1=DEVICE, \-\-cdrom2=DEVICE, \-\-cdrom3=DEVICE"
+Specify the cdrom[0-3] to DEVICE mapping.  For Solaris 2.x the default
+mapping is cdrom[0-3] -> /vol/dev/aliases/cdrom[0-3].
+Linux uses cdrom[0-3] -> /dev/cdrom[0-3].
+.TP
+.I "\-C FILE, \-\-conf=FILE"
+Use FILE for rplay.conf (/etc/rplay/rplay.conf).
+.TP
+.I "\-T N, \-\-connection\-timeout=N"
+Close idle RPTP connections after N seconds, disabled with 0 (300).
+.TP
+.I "\-d, \-\-debug"
+Enable debug mode.
+.TP
+.I "\-f HOST, \-\-forward=HOST"
+Forward all RPLAY packets to HOST.
+.TP
+.I "\-\-fork"
+Enable backgrounding rplayd at startup. (enabled)
+.TP
+.I "\-\-group=GROUP"
+Run with GROUP privs. (audio)
+.TP
+.I "\-\-help"
+Display helpful information.
+.TP
+.I "\-\-helpers=FILE"
+Use FILE for rplay.helpers (/etc/rplay/rplay.helpers).
+.TP
+.I "\-H FILE, \-\-hosts=FILE"
+Use FILE for rplay.hosts (/etc/rplay/rplay.hosts).
+.TP
+.I "\-\-inetd"
+Enable inetd mode. (disabled)
+.TP
+.I "\-L FILE, \-\-log\-file=FILE"
+Use file for rplay.log (/tmp/rplay.log).
+.TP
+.I "\-l N, \-\-log\-level=N"
+Use logging level N where 0 <= n <= 4.
+.TP
+.I "\-\-memory\-cache\-size=N"
+Maximum size in bytes of the memory cache, disable caching with 0 (4194304).
+.TP
+.I "\-\-memory\-cache\-sound\-size=N"
+Maximum size in bytes of a sound that can be cached in memory.
+A value of 0 means to try and cache all sounds. (2097152)
+.TP
+.I "\-N, \-\-no\-audio"
+Disable audio, RPTP file server mode.
+.TP
+.I "\-\-no\-auth"
+Disable host access authentication.
+.TP
+.I "\-n, \-\-no\-inetd"
+Disable inetd mode. (disabled)
+.TP
+.I "\-\-no\-fork"
+Disable backgrounding rplayd at startup. (enabled)
+.TP
+.I "\-\-options\-file=FILE"
+Read rplayd options from FILE.
+.TP
+.I "\-\-port=PORT, \-\-rplay\-port=PORT"
+Use PORT as the RPLAY/UDP port. (5555)
+(--other-rplay-port may also be available)
+.TP
+.I "\-\-rptp\-port=PORT"
+Use PORT as the RPTP/TCP port. (5556)
+(--other-rptp-port may also be available)
+.TP
+.I "\-S FILE, \-\-servers=FILE"
+Use FILE for rplay.servers (/etc/rplay/rplay.servers).
+.TP
+.I "\-t N, \-\-timeout=N"
+Exit after N idle seconds, disabled with 0 (0).
+.TP
+.I "\-\-user=USER"
+Run with USER privs. (nobody)
+.TP
+.I "\-v, \-\-version"
+Print the rplay version and exit.
+.SH FILES
+.nf
+~/.rplaydrc
+/tmp/.rplay-cache
+/usr/local/etc/rplay.conf
+/usr/local/etc/rplay.helpers
+/usr/local/etc/rplay.hosts
+/usr/local/etc/rplay.servers
+.fi
+.SH SEE ALSO
+.IR rplay.conf (5),
+.IR rplay.helpers (5),
+.IR rplay.hosts (5),
+.IR rplay.servers (5),
+.IR rplay (1),
+.IR rptp (1)

@@ -1,0 +1,431 @@
+
+These routines were extracted from the sound hack for olvwm3.3 by 
+Andrew "Ender" Scherpbier (turtle@sciences.sdsu.edu) and modified 
+by J.E. Sacco (jsacco@ssl.com) for twm.
+
+Sound events are stored the .twm-sounds file located in your home
+directory.  Here a list of all the supported sound events: 
+
+<EventZero>
+<EventOne>
+KeyPress
+KeyRelease
+ButtonPress
+ButtonRelease
+MotionNotify
+EnterNotify
+LeaveNotify
+FocusIn
+FocusOut
+KeymapNotify
+Expose
+GraphicsExpose
+NoExpose
+VisibilityNotify
+CreateNotify
+DestroyNotify
+UnmapNotify
+MapNotify
+MapRequest
+ReparentNotify
+ConfigureNotify
+ConfigureRequest
+GravityNotify
+ResizeRequest
+CirculateNotify
+CirculateRequest
+PropertyNotify
+SelectionClear
+SelectionRequest
+SelectionNotify
+ColormapNotify
+ClientMessage
+MappingNotify
+
+And here is a sample sounds file:
+
+KeyPress:	Cork.au
+MapNotify:	turbbeep.au
+ResizeRequest:	failure.au
+Startup:	2lust.au
+Shutdown:	1sadeness.au
+
+
+----------------------twm patches -----------------------------------------
+
+found the following files to diff
+./events.c.dist ./parse.h.dist ./sound.c.dist ./parse.c.dist ./menus.c.dist ./twm.c.dist ./Imakefile.dist
+*** ./events.c.dist	Tue Nov  9 22:36:17 1993
+--- ./events.c	Tue Nov  9 22:37:59 1993
+***************
+*** 50,55 ****
+--- 50,59 ----
+  #include "iconmgr.h"
+  #include "version.h"
+  
++ #ifdef SOUNDS
++ extern play_sounds();
++ #endif
++ 
+  extern int iconifybox_width, iconifybox_height;
+  extern unsigned int mods_used;
+  extern int menuFromFrameOrWindowOrTitlebar;
+***************
+*** 277,282 ****
+--- 281,290 ----
+  
+      if (!Scr) return False;
+  
++ #ifdef SOUNDS
++     play_sound(Event.type);
++ #endif
++ 
+      if (menuFromFrameOrWindowOrTitlebar && Event.type == Expose)
+        HandleExpose();
+  
+***************
+*** 309,314 ****
+--- 317,325 ----
+      if (!Scr) return False;
+  
+      if (Event.type>= 0 && Event.type < MAX_X_EVENT) {
++ #ifdef SOUNDS
++ 	play_sound(Event.type);
++ #endif
+  	(*EventHandler[Event.type])();
+      }
+  
+*** ./parse.h.dist	Tue Nov  9 22:38:04 1993
+--- ./parse.h	Tue Nov  9 22:38:49 1993
+***************
+*** 90,95 ****
+--- 90,100 ----
+  #define F_CUTFILE		43
+  #define F_SHOWLIST		44
+  #define F_HIDELIST		45
++ #ifdef SOUNDS
++ #define F_TOGGLESOUND           46
++ #define F_REREADSOUNDS          47
++ #endif
++ 
+  
+  #define F_MENU			101	/* string */
+  #define F_WARPTO		102	/* string */
+*** ./sound.c.dist	Wed Nov 10 10:07:02 1993
+--- ./sound.c	Wed Nov 10 09:31:52 1993
+***************
+*** 0 ****
+--- 1,164 ----
++ /*
++  * These routines were extracted from the sound hack for olvwm3.3 by 
++  * Andrew "Ender" Scherpbier (turtle@sciences.sdsu.edu)
++  * and modified by J.E. Sacco (jsacco @ssl.com)
++  */
++ 
++ #include <rplay.h>
++ #include <string.h>
++ #include <stdio.h>
++ 
++ char *eventNames[] =
++ {
++     "<EventZero>",
++     "<EventOne>",
++     "KeyPress",
++     "KeyRelease",
++     "ButtonPress",
++     "ButtonRelease",
++     "MotionNotify",
++     "EnterNotify",
++     "LeaveNotify",
++     "FocusIn",
++     "FocusOut",
++     "KeymapNotify",
++     "Expose",
++     "GraphicsExpose",
++     "NoExpose",
++     "VisibilityNotify",
++     "CreateNotify",
++     "DestroyNotify",
++     "UnmapNotify",
++     "MapNotify",
++     "MapRequest",
++     "ReparentNotify",
++     "ConfigureNotify",
++     "ConfigureRequest",
++     "GravityNotify",
++     "ResizeRequest",
++     "CirculateNotify",
++     "CirculateRequest",
++     "PropertyNotify",
++     "SelectionClear",
++     "SelectionRequest",
++     "SelectionNotify",
++     "ColormapNotify",
++     "ClientMessage",
++     "MappingNotify",
++     "Startup",
++     "Shutdown"
++ };
++ 
++ #define NEVENTS         (sizeof(eventNames) / sizeof(char *))
++ 
++ RPLAY *rp[NEVENTS];
++ 
++ static int need_sound_init = 1;
++ static int sound_fd = 0;
++ static int sound_state = 1;
++ static int startup_sound = NEVENTS -2;
++ static int exit_sound = NEVENTS -1;
++ 
++ /*
++  * initialize
++  */
++ static
++ sound_init ()
++ {
++     int i;
++     FILE *fl;
++     char buffer[100];
++     char *token;
++     char hostname[200];
++ 
++     need_sound_init = 0;
++     if (sound_fd == 0) {
++         gethostname (hostname, 200);
++ 
++     if ((sound_fd = rplay_open (hostname)) < 0)
++        rplay_perror ("create");
++     }
++ 
++     /*
++      * Destroy any old sounds
++      */
++     for (i = 0; i < NEVENTS; i++) {
++         if (rp[i] != NULL)
++ 	    rplay_destroy (rp[i]);
++ 	rp[i] = NULL;
++     }
++ 
++     /*
++      * Now read the file which contains the sounds
++      */
++     fl = fopen (".twm-sounds", "r");
++     if (fl == NULL)
++ 	return;
++     while (fgets (buffer, 100, fl) != NULL) {
++ 	token = strtok (buffer, ": \t");
++ 	if (token == NULL)
++ 	    continue;
++         for (i = 0; i < NEVENTS; i++) {
++ 	    if (strcmp (token, eventNames[i]) == 0) {
++ 	        token = strtok (NULL, " \t\r\n");
++ 	        if (token == NULL || *token == '#' || isspace (*token))
++ 		    continue;
++ 	        rp[i] = rplay_create (RPLAY_PLAY);
++ 	        if (rp[i] == NULL) {
++ 		    rplay_perror ("create");
++ 		    continue;
++ 		}
++ 	        if (rplay_set(rp[i], RPLAY_INSERT, 0, RPLAY_SOUND, token, NULL)
++ 		    < 0)
++ 		    rplay_perror ("rplay");
++ 	    }
++ 	}
++     }
++     fclose (fl);
++ }
++ 
++ 
++ /*
++  * Play sound
++  */
++ play_sound (snd)
++ int snd;
++ {
++     if (sound_state == 0)
++ 	return;
++ 
++     if (need_sound_init)
++ 	sound_init ();
++ 
++     if (rp[snd] == NULL)
++ 	return;
++     if (rplay (sound_fd, rp[snd]) < 0)
++ 	rplay_perror ("create");
++ }
++ 
++ play_startup_sound()
++ {
++     play_sound(startup_sound);
++ }
++ 
++ play_exit_sound()
++ {
++     play_sound(exit_sound);
++ }
++ 
++ /*
++  * Toggle the sound on/off
++  */
++ toggle_sound ()
++ {
++     sound_state ^= 1;
++ }
++ 
++ 
++ /*
++  * Re-read the sounds mapping file
++  */
++ reread_sounds ()
++ {
++     sound_init ();
++ }
+*** ./parse.c.dist	Tue Nov  9 22:38:58 1993
+--- ./parse.c	Wed Nov 10 10:00:55 1993
+***************
+*** 424,429 ****
+--- 424,432 ----
+      { "f.raise",		FKEYWORD, F_RAISE },
+      { "f.raiselower",		FKEYWORD, F_RAISELOWER },
+      { "f.refresh",		FKEYWORD, F_REFRESH },
++ #ifdef SOUNDS
++     { "f.rereadsounds",         FKEYWORD, F_REREADSOUNDS },
++ #endif
+      { "f.resize",		FKEYWORD, F_RESIZE },
+      { "f.restart",		FKEYWORD, F_RESTART },
+      { "f.righticonmgr",		FKEYWORD, F_RIGHTICONMGR },
+***************
+*** 433,438 ****
+--- 436,444 ----
+      { "f.sorticonmgr",		FKEYWORD, F_SORTICONMGR },
+      { "f.source",		FSKEYWORD, F_BEEP },  /* XXX - don't work */
+      { "f.title",		FKEYWORD, F_TITLE },
++ #ifdef SOUNDS
++     { "f.togglesound",          FKEYWORD, F_TOGGLESOUND },
++ #endif
+      { "f.topzoom",		FKEYWORD, F_TOPZOOM },
+      { "f.twmrc",		FKEYWORD, F_RESTART },
+      { "f.unfocus",		FKEYWORD, F_UNFOCUS },
+*** ./menus.c.dist	Tue Nov  9 22:40:32 1993
+--- ./menus.c	Wed Nov 10 09:43:29 1993
+***************
+*** 52,57 ****
+--- 52,62 ----
+  #include <X11/bitmaps/menu12>
+  #include "version.h"
+  
++ #ifdef SOUNDS
++ extern int toggle_sound();
++ extern int reread_sounds();
++ #endif
++ 
+  extern XEvent Event;
+  
+  int RootFunction = NULL;
+***************
+*** 1347,1352 ****
+--- 1352,1365 ----
+  
+      switch (func)
+      {
++ #ifdef SOUNDS
++     case F_TOGGLESOUND:
++         toggle_sound();
++         break;
++     case F_REREADSOUNDS:
++         reread_sounds();
++         break;
++ #endif
+      case F_UPICONMGR:
+      case F_LEFTICONMGR:
+      case F_RIGHTICONMGR:
+*** ./twm.c.dist	Tue Nov  9 22:42:59 1993
+--- ./twm.c	Tue Nov  9 22:46:34 1993
+***************
+*** 110,115 ****
+--- 110,120 ----
+  
+  extern void assign_var_savecolor();
+  
++ #ifdef SOUNDS
++ extern int play_startup_sound();
++ extern int play_exit_sound();
++ #endif
++ 
+  /***********************************************************************
+   *
+   *  Procedure:
+***************
+*** 511,516 ****
+--- 516,524 ----
+  
+      RestartPreviousState = False;
+      HandlingEvents = TRUE;
++ #ifdef SOUNDS
++     play_startup_sound();
++ #endif
+      InitEvents();
+      HandleEvents();
+  }
+***************
+*** 766,771 ****
+--- 774,782 ----
+  
+  SIGNAL_T Done()
+  {
++ #ifdef SOUNDS
++     play_exit_sound();
++ #endif
+      Reborder (CurrentTime);
+      XCloseDisplay(dpy);
+      exit(0);
+*** ./Imakefile.dist	Tue Nov  9 22:46:46 1993
+--- ./Imakefile	Wed Nov 10 09:48:40 1993
+***************
+*** 6,24 ****
+  XCOMM distribute this one.
+  XCOMM
+  
+           YFLAGS = -d
+          DEPLIBS = $(DEPXMULIB) $(DEPEXTENSIONLIB) $(DEPXLIB)
+! LOCAL_LIBRARIES = $(XMULIB) $(EXTENSIONLIB) $(XLIB)
+         LINTLIBS = $(LINTXMU) $(LINTEXTENSIONLIB) $(LINTXLIB)
+!         DEFINES = $(SIGNAL_DEFINES)
+  
+             SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c twm.c \
+  		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
+! 		cursor.c icons.c
+  
+             OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o twm.o \
+  		parse.o menus.o events.o resize.o util.o version.o iconmgr.o \
+! 		cursor.o icons.o
+  
+  AllTarget(twm)
+  
+--- 6,30 ----
+  XCOMM distribute this one.
+  XCOMM
+  
++ XCOMM Specify rplay library
++ 	RPLAY   = -lrplay
++     RPLAY_INC   = -I/usr/local/include
++ EXTRA_INCLUDES  = $(RPLAY_INC)
++ LOCAL_DEFINES   = -DSOUNDS
++ 
+           YFLAGS = -d
+          DEPLIBS = $(DEPXMULIB) $(DEPEXTENSIONLIB) $(DEPXLIB)
+! LOCAL_LIBRARIES = $(XMULIB) $(EXTENSIONLIB) $(XLIB) $(RPLAY)
+         LINTLIBS = $(LINTXMU) $(LINTEXTENSIONLIB) $(LINTXLIB)
+!         DEFINES = $(SIGNAL_DEFINES) $(LOCAL_DEFINES)
+  
+             SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c twm.c \
+  		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
+! 		cursor.c icons.c sound.c
+  
+             OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o twm.o \
+  		parse.o menus.o events.o resize.o util.o version.o iconmgr.o \
+! 		cursor.o icons.o sound.o
+  
+  AllTarget(twm)
+  
+

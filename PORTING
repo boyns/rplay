@@ -1,0 +1,130 @@
+rplay PORTING - How to port rplay to other systems.
+
+Last updated: Mon Nov  7 13:13:50 PST 1994
+
+0.  PORTING OVERVIEW
+--------------------
+This file describes the following rplay porting topics:
+
+    AUTO CONFIGURATION(1), AUDIO CONFIGURATION(2)
+
+Please email new audio configurations to boyns@sdsu.edu.
+
+
+1. AUTO CONFIGURATION
+---------------------
+Starting with 3.2.0, all system audio specific code is located in
+separate files in the rplayd/audio directory.  GNU autoconf is used to
+determine what type of system you have and therefore what audio code
+to use.  Currently the following systems are automatically determined:
+
+   sun, solaris, hpux, sgi, linux, 386bsd, Free_BSD
+
+New systems should be added to configure.in using the following linux example:
+
+dnl
+dnl Check for Linux
+dnl
+if test -z "$RPLAY_TARGET"; then
+AC_MSG_CHECKING(for linux)
+AC_EGREP_CPP(yes,
+[
+#ifdef linux
+  yes
+#endif
+], is_linux=yes, is_linux=no)
+AC_MSG_RESULT($is_linux)
+if test $is_linux = "yes"; then
+        RPLAY_TARGET="linux"
+fi
+fi
+
+You will see the above in configure.in.  The important line is "#ifdef
+linux" which references a unique preprocessor symbol for the system.
+You will have to find a unique symbol that your preprocessor defines
+so your system type can be automatically determined.  If you have gcc
+you can probably find your system's preprocessor defines in the specs
+file.
+
+Assume you have a foobar system and it defines __foobar__.  You would
+then have to add the following to configure.in:
+
+dnl
+dnl Check for foobar
+dnl
+if test -z "$RPLAY_TARGET"; then
+AC_MSG_CHECKING(for foobar)
+AC_EGREP_CPP(yes,
+[
+#ifdef __foobar__
+  yes
+#endif
+], is_foobar=yes, is_foobar=no)
+AC_MSG_RESULT($is_foobar)
+if test $is_foobar = "yes"; then
+        RPLAY_TARGET="foobar"
+fi
+fi
+
+This assumes that the foobar audio files will be called audio_foobar.c
+and audio_foobar.h in the rplayd/audio directory.  Now that you have a
+new configure.in, you will have to create a new configure script.  For
+this, you will need to get the GNU autoconf package from your favorite
+GNU archive site (prep.ai.mit.edu:/pub/gnu).  After installing
+autoconf, execute `autoconf' and a new `configure' script will be
+created.
+
+If you do not want to deal with installing autoconf, email me the
+unique preprocessor symbol for your system and I'll create a configure
+script for you.  You can also experiment with the generic audio
+configuration files.
+
+
+2.  AUDIO CONFIGURATION
+-----------------------
+The audio configuration files are located in the rplayd/audio
+directory.  Each system should have its own audio configuration.  The
+system type is determined using GNU autoconf (see section 1).
+audio_generic.c and audio_generic.h should be used as a template.
+
+audio_<system>.h must define the following:
+
+RPLAY_AUDIO_DEVICE <string>     - the name of the audio device.
+RPLAY_AUDIO_TIMEOUT <int>       - close the audio device when it hasn't been
+			          used for <int> seconds.
+RPLAY_AUDIO_RATE <int>          - number of times per second that the audio
+			          data should be written to the audio device.
+RPLAY_AUDIO_BYTE_ORDER <val>    - <val> should be RPLAY_BIG_ENDIAN or
+                                  RPLAY_LITTLE_ENDIAN.
+RPLAY_AUDIO_FLUSH_TIMEOUT <int> - flush audio device when it hasn't been
+                                  used for <int> seconds.  There are the
+                                  following exceptions:
+                                  <int> == 0  : flushing is disabled
+                                  <int> == -1 : flush when spool is empty
+                                                (this should be the default)
+                                  <int> == -2 : flush after each audio write
+
+audio_<system>.c has the following routines:
+
+int rplay_audio_init()
+int rplay_audio_open()
+int rplay_audio_isopen()
+int rplay_audio_flush()
+int rplay_audio_write(char *buf, int nbytes)
+int rplay_audio_close()
+int rplay_audio_get_volume()
+int rplay_audio_set_volume(int volume)
+
+One of the most important routines is rplay_audio_init().  This
+routine sets the sample rate, precision, channels, audio port(s), and
+the format of the audio device.  Generic defaults are 8000, 8, 1,
+speaker, and RPLAY_FORMAT_ULAW (see rplay.h) respectively.
+
+The audio_sun rplay_audio_init detects an external speakerbox which
+supports 16-bit audio and high sample rates so it could be a good
+example for other configurations.
+
+Systems that don't have hardware volume control should enable software
+volume control by defining `FAKE_VOLUME'.  Look at rplay_get_volume
+and rplay_set_volume in audio_linux.c to see how FAKE_VOLUME should be
+used.

@@ -1,0 +1,36 @@
+.TH RPLAY.SERVERS 5 12/21/97
+.SH NAME
+rplay.servers \- rplay servers database
+.SH SYNOPSIS
+.B /usr/local/etc/rplay.servers
+.SH DESCRIPTION
+The
+.I rplay.servers
+file contains a list of hosts that
+.I rplayd
+will contact to obtain sound files that are not available locally.
+Servers are contacted sequentially; best servers should be
+listed first.  Each line is of the form:
+.IP
+hostname[:port]
+.LP
+where
+.TP 15
+.B hostname
+is the name of a remote host or a host's IP address.
+.TP 15
+.B port
+is an optional field containing the port to connect to.
+Port 5556 is used when the port is not specified.
+.SH EXAMPLE
+bozo.sdsu.edu
+.br
+130.191.224.88
+.br
+bozo.nowhere.com
+.br
+soundhost.foo.com:9999
+.SH FILES
+.B /usr/local/etc/rplay.servers
+.SH "SEE ALSO"
+.BR rplayd (8)

@@ -1,0 +1,71 @@
+.SH NAME
+rplayd \- rplay sound server
+.SH SYNOPSIS
+.B rplayd [options]
+.SH DESCRIPTION
+.B rplayd
+is the sound server for the rplay audio system.  The server listens
+for requests to play, pause, continue, and stop sounds using both the
+RPLAY and RPTP protocols.  Normally RPLAY requests are received on
+port 5555/udp and RPTP on 5556/tcp.  (Older ports 55555/udp and
+55556/tcp are also supported)  Access to the server is restricted using
+the
+.I rplay.hosts
+file.
+.P
+rplayd can be started during the system boot process, via inetd, or by
+individual users.  root access may be required depending on audio
+device permissions.
+.P
+In most causes rplayd will play sounds that are available on the local
+disk.  However, rplayd can be sent sounds via the network and rplayd
+can also contact other rplayds to share sound files.  The index of
+all the local sound files is stored in
+.I rplay.conf
+and remote rplayds are specified in
+.I rplay.servers.
+Sounds received from other rplayds will be stored in a cache directory
+normally located in
+.I /tmp/.rplay-cache.
+Cache entries are expired on an LRU basis.
+.P
+Many sound file formats are supported by rplayd.  These include:
+.nf
+
+    AU AIFF WAV VOC UB UL
+    G.721 4-bit, G.723 3-bit, G.723 5-bit
+    GSM
+
+.fi
+.P
+Other formats can be played using external helper applications
+which convert unknown file formats to CD quality data which
+can then be played by rplayd.  See rplay.helpers(5)
+.P
+Several sounds can be played at once and sounds can be played at any
+sample rate.  rplayd can be configured to output many different
+formats using the various \-\-audio options.
+.P
+On some systems, namely Solaris and Linux, rplayd can read sounds
+directly from CDROM using CDDA.  The special sound name
+.I cdrom:
+will play the entire CDROM.
+.I cdrom:3-5
+will play tracks 3 through 5.
+.SH OPTIONS
+.SH FILES
+.nf
+~/.rplaydrc
+/tmp/.rplay-cache
+/usr/local/etc/rplay.conf
+/usr/local/etc/rplay.helpers
+/usr/local/etc/rplay.hosts
+/usr/local/etc/rplay.servers
+.fi
+.SH SEE ALSO
+.IR rplay.conf (5),
+.IR rplay.helpers (5),
+.IR rplay.hosts (5),
+.IR rplay.servers (5),
+.IR rplay (1),
+.IR rptp (1)

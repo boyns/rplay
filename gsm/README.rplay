@@ -1,0 +1,17 @@
+
+WARNING: This directory contains a *partial* GSM 1.0.7 distribution.
+Several files and directories have been (re)moved to save space and
+make compilation easier.  The Makefile has been re-written to suit the
+needs of RPlay.  The original config.h as been replaced by
+../include/config.h.
+
+GSM is Copyright 1992, 1993, 1994 by Jutta Degener and Carsten Bormann,
+Technische Universitaet Berlin.  Please see the COPYRIGHT file
+for more details.
+
+The complete GSM distribution is available at:
+
+    host ftp.cs.tu-berlin.de
+    directory /pub/local/kbs/tubmik/gsm/
+    file gsm-1.0.7.tar.gz
+

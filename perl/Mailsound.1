@@ -1,0 +1,57 @@
+.TH MAILSOUND 1 12/22/97
+.SH NAME
+Mailsound \- Play sounds when mail arrives
+.SH SYNOPSIS
+.B Mailsound [options]
+.SH DESCRIPTION
+Mailsound is an rplay utility used to play sounds when mail arrives.
+Different sounds can be played depending on the contents of mail
+message headers.  Mailsound configuration is stored in the file
+.B ~/.Mailsounds.
+Each line in this file contains a perl5 regular followed by rplay
+attributes.  See the EXAMPLE section below.
+.P
+Mailsound needs to be invoked upon mail arrival.  This can be done in
+many ways, but most users will probably use either a
+.I .forward
+or
+.I .procmailrc
+file.  With a
+.I .forward
+file, use something like:
+.nf
+
+    \\yourusername, |"/usr/local/bin/Mailsound -h soundhostname"
+
+.fi
+For
+.I .procmailrc
+use:
+.nf
+
+    :0 ic
+    | /usr/local/bin/Mailsound -h doctor:doit
+
+.fi
+.SH OPTIONS
+.TP
+.I \-\-host=hostname[:hostname ...]
+Play sounds on the specifed host(s).
+.TP
+.I \-\-file=filename
+Specify an alternate configuration file.
+.SH EXAMPLE
+.nf
+ ## Mailing lists
+ ^(To|Cc):.*ding.*               sound=ding.au
+ ^(To|Cc):.*xpilot.*             sound=wheres_the_kaboom.au
+ ^(To|Cc):.*gopher.*             sound=monkey-3.au
+ ^(To|Cc):.*fvwm.*               sound=ploop.au
+
+ ^From root@?.*                  sound=bogus.au
+ ^From news@?.*                  sound=beep.au
+
+ ## Everything else...
+ .*                              sound=Thank_you_very_much.au
+.SH FILES
+.B ~/.Mailsounds

@@ -1,0 +1,5 @@
+beep.au      --sample-rate=4000 --volume=200
+excellent.au --delay=4
+jedi.au      --delay=3
+oh_my_god.au --delay=3
+duck.au      --name="A Duck" --delay=10

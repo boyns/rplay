@@ -1,0 +1,123 @@
+.TH MAILSOUND 1 "11 August 1993"
+.SH NAME
+mailsound \- play sounds when mail is received
+.SH SYNOPSIS
+.B mailsound
+[-hszZvrd] soundname \.\.\.
+.SH DESCRIPTION
+mailsound allows a user to play sounds when new mail arrives.
+It reads a mail message from stdin and uses Mark Boyns'
+.B rplay
+library to play sounds.
+The sound that is played is determined by a configuration file in the user's home directory
+called
+.B .mailsounds.
+Each line in this file has two parts.  The first part is a regular expression which will be used to match
+the from address from a mail message.  The second part describes what to do when a match is found.
+The options in the second part are identical to the options on the command line.
+The command line options will set defaults which will be used if they are not specified in the
+configuration file.
+.br
+If not specified, the
+.B mailsound
+program will use the following defaults:
+.IP
+default sound:	youvegotmail.au
+.br
+default volume:	127 (50%)
+
+.RE
+If the mail address does not match any of the regular expressions in the
+.B .mailsounds
+file, no sound will be played.
+.SH OPTIONS
+.TP
+.B \-h hostname:[hostname\.\.\.]
+Play sounds on all of these hosts.
+.TP
+.B \-z <minsize>:<minvolume>,<maxsize>:<maxvolume>
+The volume the sound will be played at will be determined by the size of the mail message.
+The sound for a message with a size smaller than
+.B <minsize>
+will be played at volume
+.B <minvolume>.
+The sound for a message with a size larger than
+.B <maxsize>
+will be played at volume
+.B <maxvolume>.
+The sound for a message with a size between
+.B <minsize>
+and
+.B <maxsize>
+will be played at a volume
+which is a linear interpolation between
+.B <minvolume>
+and
+.B <maxvolume>.
+.TP
+.B \-Z <minsize>,<maxsize>
+The sound to be played is determined by the size of the mail message.
+If the message is smaller than
+.B <minsize>,
+the first listed sound is played.
+If the message is larger than
+.B <maxsize>,
+the last listed sound is played.
+If the message size is between those two values, the appropriate sound from the list is played.
+.TP
+.B \-s <subject re>
+The regular expression supplied will have to match the subject of the message.
+If this option is not there, the subject of the message is completely ignored.
+Be careful that the regular expression does not contain spaces.  Due to laziness of the
+author of this program, this will hopelessly confuse the program.
+.TP
+.B \-v <int>
+Set the volume at which the sound should be played.  The range is 0-255.
+.TP
+.B \-r
+Pick a sound at random from the list of sounds provided.
+.TP
+.B \-d
+Turn on debugging.  This will produce diagnostic output to stdout.
+.SH EXAMPLE
+.LP
+The following could appear in the .forward file in your home directory:
+(This assumes that your username is pickard)
+.IP
+\\pickard, |"/usr/local/bin/mailsound"
+.LP
+Here is a sample $HOME/.mailsounds file:
+.IP
+.nf
+Andrew.*	-r Passing_Train riot arrp flinstones
+root.*		out!
+daemon.*	-v 220 sci_fi_fun
+MAILER.*	-S 1000,10000 cuckoo pig  Oomph
+*.		pigs
+.fi
+.SH FILES
+$HOME/.mailsounds
+.SH "SEE ALSO"
+.BR rplay.conf (5),
+.BR rplayd (1)
+.SH AUTHOR
+This program was written by Andrew Scherpbier at San Diego State University.
+He can be reached by E-mail as follows:
+.RS
+
+.B Andrew@SDSU.Edu
+
+.RE
+The
+.B mailsound
+program makes use of Mark Boyns'
+.B rplay
+package which can play multiple sounds on remote machines.
+.br
+He can be reached by E-mail as follows:
+.RS
+
+.B boyns@sdsu.edu
+.RE
+.SH BUGS
+The code does very little error checking.  No range checking on any of the values is done.

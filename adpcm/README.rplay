@@ -1,0 +1,8 @@
+
+This directory contains Sun's original ANSI C source code converted
+to K&R C using `ansi2knr'.  `g72x.h' was also modified for K&R C
+compilers.
+
+No other modifications have been made.
+
+Mark Boyns

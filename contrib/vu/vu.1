@@ -1,0 +1,25 @@
+.TH VU 1 12/21/97
+.SH NAME
+vu \- rplay vu meter
+.SH SYNOPSIS
+.B vu [options]
+.SH DESCRIPTION
+Simple vu meter for rplay.  While sounds are playing this meter will
+display the volume of the left and right channels using three colors:
+green, yellow, and red.
+.SH OPTIONS
+.TP
+.I "\-bw WIDTH"
+Change the border width.  The default is 3.
+.TP
+.I "\-display HOST:DPY"
+X Windows display.  The default is $DISPLAY.
+.TP
+.I "\-visual CLASS, \-depth DEPTH, \-private, \-shared, \-stdcmap,"
+.TP
+.I "\-double, \-sync, \-name, etc."
+.SH SEE ALSO
+.IR rplay (1),
+.IR rplayd (8),
+.IR rptp (1),
+.IR xrplay (1)

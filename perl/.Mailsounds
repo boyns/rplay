@@ -1,0 +1,25 @@
+## Mailing lists
+^(To|Cc):.*ding.*		sound=ding.au
+^(To|Cc):.*xpilot.*		sound=wheres_the_kaboom.au
+^(To|Cc):.*gopher.*		sound=monkey-3.au
+^(To|Cc):.*fvwm.*		sound=ploop.au
+
+## People
+^From garrett@?.*		sound=Doh-echo.au
+^From boyns@?.*			sound=excellent.au
+^From turtle@?.*		sound=LookDone.au
+^From Andrew@?.*		sound=LookDone.au
+^From andrew@?.*		sound=LookDone.au
+^From root@?.*			sound=bogus.au
+^From news@?.*			sound=beep.au
+
+## Things
+^From [P|p]ostmaster@?.*	sound=boooing.au
+^From uucp@?.*			sound=SynthHornsC3.au
+^From MAILER@?.*		sound=boooing.au
+^From daemon@?.*		sound=boooing.au
+^From mailer@?.*		sound=boooing.au
+^From license@?.*		sound=hallelujah.au
+
+## Everything else...
+.*				sound=Thank_you_very_much.au

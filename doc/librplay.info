@@ -1,0 +1,709 @@
+This is Info file librplay.info, produced by Makeinfo-1.63 from the
+input file librplay.texi.
+
+   This file documents librplay.
+
+   Copyright (C) 1995 Mark Boyns
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+   Permission is granted to copy and distribute modified versions of
+this manual under the conditions for verbatim copying, provided also
+that the entire resulting derived work is distributed under the terms
+of a permission notice identical to this one.
+
+   Permission is granted to copy and distribute translations of this
+manual into another language, under the above conditions for modified
+versions.
+
+
+File: librplay.info,  Node: Top,  Next: RPLAY Core Functions,  Prev: (dir),  Up: (dir)
+
+librplay
+********
+
+   This file documents `librplay', the C library interface to the RPLAY
+and RPTP protocols.  Programs that wish to use `librplay' must include
+`rplay.h' and link with `librplay'.
+
+   rplay is based on two protocols and therefore this library has two
+distinct sets of routines.  The routines can be distinguished by either
+a `rplay_' or `rptp_' prefix.  To avoid conflicts, user programs are
+encouraged not to use variables or functions that begin with either of
+these prefixes.
+
+   In most cases, each function description includes one or more
+examples to help illustrate how the function can be used.
+
+* Menu:
+
+* RPLAY Core Functions::             Low-level routines.
+* RPLAY Helper Functions::
+* RPLAY Miscellaneous Functions::    Routines that may not be very useful.
+* RPLAY Error Reporting::            How to deal with RPLAY errors.
+* RPTP Core Functions::              Low-level routines.
+* RPTP Helper Functions::
+* RPTP Error Reporting::             How to deal with RPTP errors.
+* Function Index::                   Function Index.
+
+
+File: librplay.info,  Node: RPLAY Core Functions,  Next: RPLAY Helper Functions,  Prev: Top,  Up: Top
+
+RPLAY Core Functions
+********************
+
+ - Function: int rplay_open (char *HOST)
+     Open a UDP socket connection to send RPLAY packets to host.
+
+     The HOST argument is the name or IP address of the host where
+     packets will be sent.  The IP address can be a subnet mask which
+     is used to broadcast packets to multiple hosts.
+
+     The return value is a socket descriptor on success and `-1' on
+     failure.
+
+   Example:
+     int rplay_fd;
+     
+     rplay_fd = rplay_open ("130.191.255.255");
+     if (rplay_fd < 0)
+     {
+         rplay_perror ("rplay_open");
+         exit (1);
+     }
+
+ - Function: int rplay_close (int RPLAY_FD)
+     This function closes a rplay connection.
+
+     The RPLAY_FD argument should be a socket descriptor opened by
+     `rplay_open'.
+
+     The return value is `0' on success and `-1' on failure.
+
+ - Function: RPLAY * rplay_create (int COMMAND)
+     Create a RPLAY object to perform a specific command.
+
+     The COMMAND argument should be one of the following: `RPLAY_PLAY',
+     `RPLAY_STOP', `RPLAY_PAUSE', `RPLAY_CONTINUE', `RPLAY_PING', or
+     `RPLAY_RESET'.
+
+     The return value is a pointer to a new RPLAY object on success and
+     `NULL' on failure.
+
+   Example:
+     RPLAY *rp;
+     
+     rp = rplay_create (RPLAY_PLAY);
+     if (rp == NULL)
+     {
+         rplay_perror ("rplay_create");
+         exit (1);
+     }
+
+ - Function: int rplay_set (RPLAY *RP, ...)
+     Modify attributes of a RPLAY object.
+
+     The RP argument should be a pointer to a RPLAY object created by
+     `rplay_create'.  The remaining arguments will be:
+
+    `RPLAY_APPEND'
+          Append a sound and its attributes.
+
+    `RPLAY_DELETE'
+          Delete a sound and its attributes.
+
+    `RPLAY_INSERT'
+          Insert a sound and its attributes.
+
+    `RPLAY_RANDOM_SOUND'
+          Choose a sound at random from the sound list.  Only the chosen
+          sound will be played, not entire sound list.
+
+     The attribute list must be terminated with `NULL'.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     /* Add a sound named `bogus.au' with volume 200. */
+     rplay_set (rp, RPLAY_APPEND,
+         RPLAY_SOUND,    "bogus.au",
+         RPLAY_VOLUME,    200,
+         NULL);
+     
+     /* Insert a sound named `bogus.au' with volume 200. */
+     rplay_set (rp, RPLAY_INSERT, 0,
+         RPLAY_SOUND,    "bogus.au",
+         RPLAY_VOLUME,    200,
+         NULL);
+     
+     /* Prepare to stop a sound named `excellent.au'. */
+     rp = rplay_create(RPLAY_STOP);
+     rplay_set (rp, RPLAY_APPEND,
+         RPLAY_SOUND,    "excellent.au",
+         NULL);
+     
+     /* Delete the sound at position 1. */
+     rplay_set (rp, RPLAY_DELETE, 1, NULL);
+     
+     /*
+      * count and list count example
+      *
+      * result = gong.au gong.au drip.au drip.au
+      *          gong.au gong.au drip.au drip.au
+      *
+      */
+     rplay_set (rp, RPLAY_LIST_COUNT, 2, NULL);
+     rplay_set (rp, RPLAY_APPEND,
+         RPLAY_SOUND,    "gong.au",
+         RPLAY_COUNT,    2,
+         NULL);
+     rplay_set (rp, RPLAY_APPEND,
+         RPLAY_SOUND,    "drip.au",
+         RPLAY_COUNT,    2,
+         NULL);
+     
+     /*
+      * random example (assume there is already a sound list)
+      */
+     rplay_set (rp, RPLAY_RANDOM_SOUND, NULL); /* pick a sound randomly */
+     rplay_set (rp, RPLAY_RANDOM_SOUND, NULL); /* pick another sound */
+     rplay (rplay_fd, rp);  /* play the random sound */
+
+ - Function: int rplay_get (RPLAY *RP, ...)
+     Retrieve attributes from a RPLAY object.
+
+     The RP argument should be a pointer to a RPLAY object created by
+     `rplay_create' and modified using `rplay_set'.  This argument is
+     followed by a rplay attribute and its optional attribute argument.
+
+     The return value will be either `int' or `char *' depending on the
+     attribute.  The caller will need to cast the return value to `char
+     *' when necessary.
+
+   Example:
+     RPLAY *rp;
+     int n;
+     char *p;
+     
+     /* Get the number of sounds. */
+     n = rplay_get (rp, RPLAY_NSOUNDS);
+     
+     /* Get the name of sound 0.  */
+     p = (char *) rplay_get (rp, RPLAY_SOUND, 0);
+     
+     /* Get the volume of sound 1.  */
+     n = rplay_get (rp, RPLAY_VOLUME, 1);
+     
+     /* Get the rplay command. */
+     n = rplay_get (rp, RPLAY_COMMAND);
+
+ - Function: int rplay (int RPLAY_FD, RPLAY *RP)
+     This function uses a RPLAY packet to send RP to the host connected
+     to RPLAY_FD.
+
+     The RPLAY_FD argument should be a socket descriptor opened by
+     `rplay_open'.  RP should be a pointer to a `RPLAY' object created
+     by `rplay_create' and modified using `rplay_set'.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay (rplay_fd, rp) &lt; 0)
+     {
+         rplay_perror ("rplay");
+         exit (1);
+     }
+
+ - Function: void rplay_destroy (RPLAY *RP)
+     Release all memory used by a RPLAY object.
+
+     The RP argument should be a pointer to a RPLAY object created by
+     `rplay_create'.
+
+
+File: librplay.info,  Node: RPLAY Helper Functions,  Next: RPLAY Miscellaneous Functions,  Prev: RPLAY Core Functions,  Up: Top
+
+RPLAY Helper Functions
+**********************
+
+ - Function: int rplay_default (char *SOUND)
+     Play SOUND on the default rplay host which is obtained using
+     `rplay_default_host'.
+
+     The SOUND argument is the name of the sound to play.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_default ("bogus.au") < 0)
+     {
+         rplay_perror ("rplay_default");
+         exit (1);
+     }
+
+ - Function: char * rplay_default_host (void)
+     Obtain the name of the default rplay host.  A default rplay host
+     can be specified by the user with the `RPLAY_HOST' environment
+     variable.  If this variable is not defined, `localhost' will be
+     used instead.
+
+   Example:
+     char *hostname;
+     
+     hostname = rplay_default_host ();
+
+ - Function: int rplay_display (char *SOUND)
+     Play a sound on the host returned by rplay_open_display.
+
+     The SOUND argument is the name of the sound to play.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_display ("bogus.au") < 0)
+     {
+         rplay_perror ("rplay_display");
+         exit (1);
+     }
+
+ - Function: int rplay_host (char *HOST, char *SOUND)
+     Play a sound on a host.
+
+     The HOST is the name or IP address of the host where SOUND will be
+     played.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_host ("bozo.sdsu.edu", "bogus.au") < 0)
+     {
+         rplay_perror ("rplay_host");
+         exit (1);
+     }
+
+ - Function: int rplay_host_volume (char *HOST, char *SOUND, int VOLUME)
+     Play a sound at specific volume on a host.
+
+     The HOST is the name or IP address of the host where SOUND will be
+     played using VOLUME.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_host_volume ("bozo.sdsu.edu", "bogus.au", 200) < 0)
+     {
+         rplay_perror ("rplay_host_volume");
+         exit (1);
+     }
+
+ - Function: int rplay_local (char *SOUND)
+     Play a sound on the localhost.
+
+     The SOUND argument is the name of the sound to play.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_local ("bogus.au") < 0)
+     {
+         rplay_perror ("rplay_local");
+         exit (1);
+     }
+
+ - Function: int rplay_open_default (void)
+     Open a UDP socket connection to send RPLAY packets to the user's
+     default rplay host.  The default rplay host is obtained using
+     `rplay_default_host'.
+
+     The return value is a socket descriptor on success and `-1' on
+     failure.
+
+   Example:
+     int rplay_fd;
+     
+     rplay_fd = rplay_open_default ();
+     if (rplay_fd < 0)
+     {
+         rplay_perror ("rplay_open_default");
+         exit (1);
+     }
+
+ - Function: int rplay_open_display (void)
+     Open a UDP socket connection to the host associated with the
+     current X Windows display.  The `DISPLAY' environment variable is
+     used obtain the name of the X Windows display host.  If this
+     variable is not defined, `localhost' is used.
+
+     The return value is a socket descriptor on success and `-1' on
+     failure.
+
+   Example:
+     int rplay_fd;
+     
+     rplay_fd = rplay_open_display ();
+     if (rplay_fd < 0)
+     {
+         rplay_perror ("rplay_open_display");
+         exit (1);
+     }
+
+ - Function: int rplay_open_port (char *HOST, int PORT)
+     Open a UDP socket connection to send RPLAY packets to host at a
+     specific port.
+
+     The HOST argument is the same as `rplay_open' and the PORT
+     argument should be the port number desired.  The default port is
+     defined in rplay.h as `RPLAY_PORT'.
+
+     The return value is a socket descriptor on success and `-1' on
+     failure.
+
+   Example:
+     int rplay_fd;
+     
+     rplay_fd = rplay_open_port ("130.191.224.3", 5555);
+     if (rplay_fd < 0)
+     {
+         rplay_perror ("rplay_open_port");
+         exit (1);
+     }
+
+ - Function: int rplay_open_sockaddr_in (struct sockaddr_in *ADDR)
+     Open a UDP socket connection to send RPLAY packets to the address
+     specified in a `struct sockaddr_in'.
+
+     The return value is a socket descriptor on success and `-1' on
+     failure.
+
+   Example:
+     struct sockaddr_in *saddr;
+     int rplay_fd;
+     
+     rplay_fd = rplay_open_sockaddr_in (saddr);
+     if (rplay_fd < 0)
+     {
+         rplay_perror ("rplay_open_sockaddr_in");
+         exit (1);
+     }
+
+ - Function: int rplay_ping (char *HOST)
+     Send a `RPLAY_PING' package to a host.  This funcion is used to
+     wake-up rplay servers that are started by inetd.
+
+     The HOST argument is the name or IP address of the host that will
+     receive the ping.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rplay_ping ("bozo.sdsu.edu") < 0)
+     {
+         rplay_perror ("rplay_ping");
+         exit (1);
+     }
+
+ - Function: int rplay_ping_sockaddr_in (struct sockaddr_in *ADDR)
+     The same as `rplay_ping' except the ping is sent to the host
+     addressed by ADDR.
+
+ - Function: int rplay_ping_sockfd (int SOCKFD)
+     The same as `rplay_ping' except the ping is sent to the host
+     associated with UDP socket descriptor SOCKFD.
+
+ - Function: int rplay_sound (int RPLAY_FD, char *SOUND)
+     Play a sound on a host associated with a UDP socket descriptor.
+
+     The RPLAY_FD argument is a UDP socket descriptor returned by any
+     of the rplay_open routines and the SOUND argument is the name of
+     the sound to be played.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     rplay_sound (rplay_fd, "bogus.au");
+
+
+File: librplay.info,  Node: RPLAY Miscellaneous Functions,  Next: RPLAY Error Reporting,  Prev: RPLAY Helper Functions,  Up: Top
+
+RPLAY Miscellaneous Functions
+*****************************
+
+ - Function: char * rplay_convert (char *PTR)
+     Convert a RPLAY 2.0 packet to a RPLAY 3.0 packet.
+
+     The PTR argument should be a pointer to the data contained in a
+     RPLAY 2.0.
+
+     The return value is the data pointed to by PTR converted to a
+     RPLAY 3.0 packet.
+
+ - Function: int rplay_pack (RPLAY *RP)
+     Pack-up the attributes of the RPLAY object into the packet buffer
+     associated with the object.  This routine is called automatically
+     by all routines that modify attributes.
+
+     The RP argument should be a pointer to a RPLAY object created by
+     `rplay_create'.
+
+     The return value is `0' on success and `-1' on failure.
+
+ - Function: RPLAY * rplay_unpack (char *RAW_PTR)
+     Unpack a raw rplay 3.0 packet into a new RPLAY object.
+
+     The RAW_PTR argument should be a pointer to a rplay 3.0 packet
+     sent by a rplay client.
+
+     The return value is a pointer to a new RPLAY object that is created
+     using `rplay_create'.
+
+
+File: librplay.info,  Node: RPLAY Error Reporting,  Next: RPTP Core Functions,  Prev: RPLAY Miscellaneous Functions,  Up: Top
+
+RPLAY Error Reporting
+*********************
+
+ - Function: void rplay_perror (char *MESSAGE)
+     Report errors return by rplay library routines to standard error.
+     Errors are obtained using `rplay_errno' and `rplay_errlist'.  This
+     should be called when routines return -1 or NULL.
+
+     The MESSAGE argument followed by `: ' will prefix the rplay error
+     message.
+
+
+File: librplay.info,  Node: RPTP Core Functions,  Next: RPTP Helper Functions,  Prev: RPLAY Error Reporting,  Up: Top
+
+RPTP Core Functions
+*******************
+
+ - Function: int rptp_open (char *HOST, int PORT, char *RESPONSE, int
+          RESPONSE_SIZE)
+     Open a TCP socket connection for a RPTP session.
+
+     The HOST argument is the name or IP address of a RPTP server, PORT
+     is the TCP port at HOST to connect to, and up-to RESPONSE_SIZE
+     bytes of the server's initial reponse are stored in RESPONSE.
+
+     The return value is a TCP socket descriptor and `-1' on failure.
+
+   Example:
+     int rptp_fd;
+     char buf[RPTP_MAX_LINE]; /* defined in rplay.h */
+     
+     rptp_fd = rptp_open ("bozo.sdsu.edu", RPTP_PORT, buf, sizeof(buf));
+     if (rptp_fd < 0)
+     {
+         rptp_perror ("bozo.sdsu.edu");
+         exit(1);
+     }
+
+ - Function: int rptp_close (int RPTP_FD)
+     Close a TCP socket descriptor created by `rptp_open'.
+
+     The return value is `0' on success and `-1' on failure.
+
+ - Function: int rptp_read (int RPTP_FD, char *BUF, int NBYTES)
+     Read data from a RPTP server.
+
+     The RPTP_FD argument should be a TCP socket descriptor returned by
+     RPTP_OPEN.  At most NBYTES will be read into the BUF.
+
+     The return value is the number of bytes read and `-1' on failure.
+
+   Example:
+     if (rptp_read (rptp_fd, buf, sizeof(buf)) < 0)
+     {
+         rptp_perror ("rptp_read");
+         exit (1);
+     }
+
+ - Function: int rptp_write (int RPTP_FD, char *BUF, int NBYTES)
+     Write data to a RPTP server.
+
+     The RPTP_FD argument should be a TCP socket descriptor returned by
+     RPTP_OPEN.  NBYTES of data will be written from BUF.
+
+     The return value is the number of bytes written and `-1' on
+     failure.
+
+   Example:
+     if (rptp_write (rptp_fd, buf, sizeof(buf)) != sizeof(buf))
+     {
+         rptp_perror ("rptp_write");
+         exit (1);
+     }
+
+
+File: librplay.info,  Node: RPTP Helper Functions,  Next: RPTP Error Reporting,  Prev: RPTP Core Functions,  Up: Top
+
+RPTP Helper Functions
+*********************
+
+ - Function: int rptp_command (int RPTP_FD, char *COMMAND, char
+          *RESPONSE, int RESPONSE_SIZE)
+     Send a RPTP command a RPTP server, storing the server's response
+     in a buffer.
+
+     The RPTP_FD argument should be a TCP socket descriptor returned by
+     RPTP_OPEN.  COMMAND is the command that will be sent and RESPONSE
+     is where up-to RESPONSE_SIZE bytes of the command response will be
+     stored.
+
+     The return value is `0' if the response begins with `RPTP_OK' or
+     or `RPTP_NOTIFY', `1' if the response beings with `RPTP_ERROR',
+     and `-1' if the response beings with `RPTP_TIMEOUT' or there's an
+     error.
+
+   Example:
+     char *error;
+     
+     switch (rptp_command (rptp_fd, command, response, sizeof(response)))
+     {
+     case -1:
+         rptp_perror (command);
+         break;
+     
+     case 1:
+         error = rptp_parse (response, "error");
+         printf ("%s\n", error);
+         break;
+     
+     case 0:
+         /* Success!  Now do something useful. */
+         break;
+     }
+
+ - Function: int rptp_getline (int RPTP_FD, char *BUF, int NBYTES)
+     Read a line from a RPTP connection.  `\r\n' will be removed from
+     the line.
+
+     The RPTP_FD argument should be a TCP socket descriptor returned by
+     RPTP_OPEN.  BUF is the buffer where up-to NBYTES of the line will
+     be stored.
+
+     The return value is the number of bytes read and `-1' on failure.
+
+   Example:
+     if (rptp_getline (rptp_fd, buf, sizeof(buf)) < 0)
+     {
+         rptp_perror ("rptp_getline");
+         exit (1);
+     }
+
+ - Function: char * rptp_parse (char *RESPONSE, char *NAME)
+     Parse name-value pairs contained in RPTP responses.
+
+     The RESPONSE argument can be a list of name-value pairs or `NULL'.
+     The NAME can be the name of specific name-value pair or `NULL'.
+     The example below gives more details.  Note that any leading
+     dashes in any name-value pair will be ignored.
+
+     The return value can be name or value of a name-value pair
+     depending on the arguments.
+
+   Example:
+     /* Return the value of `name' where `name=value' is
+        in the response string. */
+     value = rptp_parse (response, "name")
+     
+     /* Same as above but return the value of `name' in
+        the previously specified response. */
+     value = rptp_parse (NULL, "name")
+     
+     /* Return the first `name' in the response `name=value' list. */
+     name = rptp_parse (response, NULL)
+     
+     /* Same as above but return the next `name' is the
+        previously specified response.
+     name = rptp_parse (NULL, NULL)
+
+ - Function: int rptp_putline (int RPTP_FD, char *FMT, ...)
+     Send a line to a RPTP server.  This routine will always append
+     `\r\n' to the line sent.
+
+     The RPTP_FD argument should be a TCP socket descriptor returned by
+     RPTP_OPEN.  FMT is any `printf' format string and the rest of the
+     arguments are the values for the format specified.
+
+     The return value is `0' on success and `-1' on failure.
+
+   Example:
+     if (rptp_putline (rptp_fd, "find sound=%s", "bogus.au") < 0)
+     {
+         rptp_perror ("rptp_putline");
+         exit (1);
+     }
+
+
+File: librplay.info,  Node: RPTP Error Reporting,  Next: Function Index,  Prev: RPTP Helper Functions,  Up: Top
+
+RPTP Error Reporting
+********************
+
+ - Function: void rptp_perror (char *MESSAGE)
+     Report errors return by rptp library routines to standard error.
+     Errors are obtained using `rptp_errno' and `rptp_errlist'.  This
+     should be called when routines return -1 or NULL.
+
+     The MESSAGE argument followed by `: ' will prefix the rptp error
+     message.
+
+
+File: librplay.info,  Node: Function Index,  Prev: RPTP Error Reporting,  Up: Top
+
+Function Index
+**************
+
+* Menu:
+
+* rplay:                                RPLAY Core Functions.
+* rplay_close:                          RPLAY Core Functions.
+* rplay_convert:                        RPLAY Miscellaneous Functions.
+* rplay_create:                         RPLAY Core Functions.
+* rplay_default:                        RPLAY Helper Functions.
+* rplay_default_host:                   RPLAY Helper Functions.
+* rplay_destroy:                        RPLAY Core Functions.
+* rplay_display:                        RPLAY Helper Functions.
+* rplay_get:                            RPLAY Core Functions.
+* rplay_host:                           RPLAY Helper Functions.
+* rplay_host_volume:                    RPLAY Helper Functions.
+* rplay_local:                          RPLAY Helper Functions.
+* rplay_open:                           RPLAY Core Functions.
+* rplay_open_default:                   RPLAY Helper Functions.
+* rplay_open_display:                   RPLAY Helper Functions.
+* rplay_open_port:                      RPLAY Helper Functions.
+* rplay_open_sockaddr_in:               RPLAY Helper Functions.
+* rplay_pack:                           RPLAY Miscellaneous Functions.
+* rplay_perror:                         RPLAY Error Reporting.
+* rplay_ping:                           RPLAY Helper Functions.
+* rplay_ping_sockaddr_in:               RPLAY Helper Functions.
+* rplay_ping_sockfd:                    RPLAY Helper Functions.
+* rplay_set:                            RPLAY Core Functions.
+* rplay_sound:                          RPLAY Helper Functions.
+* rplay_unpack:                         RPLAY Miscellaneous Functions.
+* rptp_close:                           RPTP Core Functions.
+* rptp_command:                         RPTP Helper Functions.
+* rptp_getline:                         RPTP Helper Functions.
+* rptp_open:                            RPTP Core Functions.
+* rptp_parse:                           RPTP Helper Functions.
+* rptp_perror:                          RPTP Error Reporting.
+* rptp_putline:                         RPTP Helper Functions.
+* rptp_read:                            RPTP Core Functions.
+* rptp_write:                           RPTP Core Functions.
+
+
+
+Tag Table:
+Node: Top734
+Node: RPLAY Core Functions1886
+Node: RPLAY Helper Functions7013
+Node: RPLAY Miscellaneous Functions12728
+Node: RPLAY Error Reporting13892
+Node: RPTP Core Functions14398
+Node: RPTP Helper Functions16308
+Node: RPTP Error Reporting19628
+Node: Function Index20113
+
+End Tag Table

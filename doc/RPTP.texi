@@ -1,0 +1,1098 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename RPTP.info
+@settitle The RPTP Protocol
+@defindex ev
+@iftex
+@finalout
+@end iftex
+@setchapternewpage odd
+@c %**end of header
+
+@ifinfo
+
+This file documents RPTP protocol.
+
+Copyright (C) 1995 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through Tex and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+@end ifinfo
+
+@titlepage
+@title The RPTP Protocol
+
+@author by Mark Boyns
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1995 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+
+@end titlepage
+@page
+
+@node Top, Overview, (dir), (dir)
+@top RPTP
+
+This document describes the Remote Play Transfer Protocol, otherwise
+known as RPTP.
+
+@menu
+* Overview::
+* Attributes::
+* Events::
+* Event Notification::
+* Commands::
+* Connecting::
+* Timeouts::
+* Attribute Index::                 Attribute Index.
+* Event Index::                     Event Index.
+* Command Index::                   Command Index.
+@end menu
+
+@node Overview, Attributes, Top, Top
+@chapter Overview
+
+RPTP is a command-based TCP interface to control the rplay audio server.
+The protocol is simple, the client sends a command and the server sends
+back a result.
+
+Name-value pairs are used in both commands and results.  A name-value
+pair is of the form @samp{name=value} where @samp{name} is an attribute
+name and @samp{value} is the value of the attribute.  Multiple
+name-value pairs on a line are separated by a spaces and/or tabs.  When
+@samp{value} contains spaces or tabs it must be quoted as
+@samp{name="value"}.
+
+Commands consist of a command name followed by command attributes.  An
+example would be @samp{play volume=50 sound=bogus.au}.  In this case,
+the command is @samp{play} and its attributes are @samp{volume=50} and
+@samp{sound=bogus.au}.
+
+The server responds to each command with a result line.  Each result
+line begins with a special character which is used to determine command
+success or failure.  The following characaters are defined:
+
+@table @samp
+@item +
+Successful command execution (RPTP_OK)
+
+@item -
+Error (RPTP_ERROR)
+
+@item !
+Connection timeout (RPTP_TIMEOUT)
+
+@item @@
+Event notification (RPTP_NOTIFY)
+@end table
+
+After this first character, the result line contains name-value pairs.
+For example, if the server wanted to report an error to the client,
+the result line could be:  @samp{-error="sorry, you can't do that"}.
+
+There is one RPTP command that returns more than one line.  This is the
+list command which returns a normal result line followed by zero or more
+lines terminated by a line containing only a @samp{.}.  These additional
+lines do not begin with any special characters.  Future versions may
+include an attribute that clients can use to determine the number of
+lines that will be returned.
+
+All RPTP lines are terminated using a carriage return @samp{\r} (ASCII 13)
+followed by a newline @samp{\n} (ASCII 10).
+
+@node Attributes, Events, Overview, Top
+@chapter Attributes
+
+The following is a list of attributes that can be found within
+the name-value lists.
+
+@defvr Attribute access
+A set of characters defining access permissions.  These characters can
+include @samp{r} - read access, @samp{w} - write access, and
+@samp{x} - execute access.
+
+Example:
+@example
+access=rwx
+@end example
+@end defvr
+
+@defvr Attribute application
+The name of an rplay application.
+
+Example:
+@example
+application="rptp 3.2.0a7"
+@end example
+@end defvr
+
+@defvr Attribute audio-bits
+The number of bits in an audio sample or audio device.
+The value can be 8, 16, and maybe 24 and 32 in the future.
+
+Example:
+@example
+audio-bits=16
+@end example
+@end defvr
+
+@defvr Attribute audio-bufsize
+The size in bytes of the audio buffer.
+
+Example:
+@example
+audio-bufsize=1600
+@end example
+@end defvr
+
+@defvr Attribute audio-byte-order
+The byte order of the audio data.  The value can be either
+big-endian or little-endian.
+
+Example:
+@example
+audio-byte-order=big-endian
+@end example
+@end defvr
+
+@defvr Attribute audio-channels
+The number of channels in an audio sample or audio device.
+The value can be 1 or 2.
+
+Example:
+@example
+audio-channels=2
+@end example
+@end defvr
+
+@defvr Attribute audio-device
+The name of an audio device.
+The value can be any audio device name.
+
+Example:
+@example
+audio-device=/dev/audio
+@end example
+@end defvr
+
+@defvr Attribute audio-format
+The format of an audio sample or audio device.
+The value can be ulaw, linear-8, ulinear-8, linear-16, or ulinear-16.
+(linear = signed, ulinear = unsigned)
+
+Example:
+@example
+audio-format=ulaw
+@end example
+@end defvr
+
+@defvr Attribute audio-offset
+Number of bytes to skip from the current position in the audio data.
+
+Example:
+@example
+audio-offset=32.
+@end example
+@end defvr
+
+@defvr Attribute audio-port
+Audio output ports.
+The value can be speaker, headphone, and lineout.
+Multiple ports should be separated using a comma.
+
+Example:
+@example
+audio-port=headphone,speaker
+@end example
+@end defvr
+
+@defvr Attribute audio-rate
+The rate at which audio buffers are being written.
+
+Example:
+@example
+audio-rate=10
+@end example
+@end defvr
+
+@defvr Attribute audio-sample-rate
+The sample rate of an audio sample or audio device.
+
+Example:
+@example
+audio-sample-rate=11025
+@end example
+@end defvr
+
+@defvr Attribute audio-volume
+The volume of an audio sample or audio device.
+The value can be an integer between 0 and 255.
+
+Example:
+@example
+audio-volume=120
+@end example
+@end defvr
+
+@defvr Attribute bits
+See audio-bits.
+@end defvr
+
+@defvr Attribute channels
+See audio-channels.
+@end defvr
+
+@defvr Attribute count
+The number of times a sound will be played or
+a generic number of items.
+
+Example:
+@example
+count=5
+@end example
+@end defvr
+
+@defvr Attribute event
+The name of an RPTP event.
+
+Example:
+@example
+event=play
+@end example
+@end defvr
+
+@defvr Attribute error
+An error message.
+
+Example:
+@example
+error="access denied"
+@end example
+@end defvr
+
+@defvr Attribute format
+See audio-format.
+@end defvr
+
+@defvr Attribute host
+A hostname.
+
+Example:
+@example
+host=mojo
+@end example
+@end defvr
+
+@defvr Attribute id
+A spool id.
+The value can be an integer between 0 and 999.  A value of
+0 refers to all ids.  An id always begins with the @samp{#}
+character since ids can be intermixed with sound names.
+Therefore, sounds can never begin with @samp{#}.
+
+Example:
+@example
+id=#219
+@end example
+@end defvr
+
+@defvr Attribute idle
+The amount of time a RPTP connection has been idle.
+
+Example:
+@example
+idle=1+01:37:05
+@end example
+@end defvr
+
+@defvr Attribute input
+Where audio is coming from.
+
+Example:
+@example
+input=flow     
+@end example
+@end defvr
+
+@defvr Attribute input-bits
+See audio-bits.
+@end defvr
+
+@defvr Attribute input-byte-order
+See audio-byte-order.
+@end defvr
+
+@defvr Attribute input-channels
+See audio-channels.
+@end defvr
+
+@defvr Attribute input-format
+See audio-format.
+@end defvr
+
+@defvr Attribute input-offset
+See audio-offset.
+@end defvr
+
+@defvr Attribute input-sample-rate
+See audio-sample-rate.
+@end defvr
+
+@defvr Attribute left
+The output level of the left speaker.
+Valid levels range from 0 to 255.
+@end defvr
+
+@defvr Attribute list-count
+The number of times a list of sounds will be played.
+
+Example:
+@example
+list-count=5
+@end example
+@end defvr
+
+@defvr Attribute message
+A generic message.
+
+Example:
+@example
+message="stop successful"
+@end example
+@end defvr
+
+@defvr Attribute notify
+A list of RPTP events.
+Multiple events should be separated using a comma.
+
+Example:
+@example
+notify=play,pause,done
+@end example
+@end defvr
+
+@defvr Attribute pause
+The number of sounds paused.
+
+Example:
+@example
+pause=1
+@end example
+@end defvr
+
+@defvr Attribute play
+The number of sounds playing.
+
+Example:
+@example
+play=3
+@end example
+@end defvr
+
+@defvr Attribute position
+The current second offset in a sound.
+@end defvr
+
+@defvr Attribute priority
+The priority of a sound.
+The value should be an integer between 0 and 255 where
+0 is the lowest priority and 255 is the highest.
+
+Example:
+@example
+priority=0
+@end example
+@end defvr
+
+@defvr Attribute random
+Play a random sound from a list of sounds.
+
+Example:
+@example
+random=true
+@end example
+@end defvr
+
+@defvr Attribute remain
+Number of seconds remaining in a sound.
+@end defvr
+
+@defvr Attribute right
+The output level of the right speaker.
+Valid levels range from 0 to 255.
+@end defvr
+
+@defvr Attribute sample
+The current sample offset in a sound.
+@end defvr
+
+@defvr Attribute samples
+The total number of samples in a sound.
+@end defvr
+
+@defvr Attribute sample-rate
+See audio-sample-rate.
+@end defvr
+
+@defvr Attribute seconds
+Number of seconds in a sound.
+
+Example:
+@example
+seconds=247.54
+@end example
+@end defvr
+
+@defvr Attribute size
+The number of bytes in an audio file.
+
+Example:
+@example
+size=1868508
+@end example
+@end defvr
+
+@defvr Attribute sound
+The name of a sound.
+
+Example:
+@example
+sound=petergun.au
+@end example
+@end defvr
+
+@defvr Attribute uptime
+The amount of time an RPTP server has been running.
+
+Example:
+@example
+uptime=27+09:19:10
+@end example
+@end defvr
+
+@defvr Attribute version
+The version of rplay.
+
+Example:
+@example
+version=3.2.0a8
+@end example
+@end defvr
+
+@defvr Attribute volume
+See audio-volume.
+@end defvr
+
+@node Events, Event Notification, Attributes, Top
+@chapter Events
+
+RPTP supports both synchronous and asynchronous event notification.
+Events can be use to monitor the status of the server or wait for
+something special to happen.  These events are:
+
+@table @code
+@item all
+@evindex all
+All events.
+
+@item any
+@evindex any
+See all.
+
+@item continue
+@evindex continue
+A sound has been continued.
+
+@item done
+@evindex done
+A sound is finished.
+
+@item level
+@evindex level
+Used to obtain the output level of the left and right speakers.
+Level values range from 0 to 255.
+
+@item none
+@evindex none
+No events.
+
+@item pause
+@evindex pause
+A sound has been paused.
+
+@item play
+@evindex play
+A sound has been played.
+
+@item position
+@evindex position
+Used to obtain the current sample position of a sound that's being
+played.
+
+@item skip
+@evindex skip
+A sound has been skipped.
+
+@item state
+@evindex state
+A server state change.
+
+@item stop
+@evindex stop
+A sound has been stopped.
+
+@item volume
+@evindex volume
+The volume has changed.
+@end table
+
+@node Event Notification, Commands, Events, Top
+@chapter Event Notification
+
+RPTP clients can receive event notification messages from the server.
+The event notification messages sent by the server always begin with the
+@samp{@@} character followed by a list of attributes.  This character is
+used to help RPTP clients distinguish notification messages from other
+RPTP responses.  Using a special character is especially useful for
+clients that deal with server messages asychronously.
+
+Each message will always contain an event attribute to inform the client
+which event occurred.  The message can also contain several other
+attributes to provide the client with more event information.
+
+The following is a list of sample event messages:
+@table @code
+
+@item continue
+Example:
+@example
+@@event=continue id=#160 sound=bogus.au
+@end example
+
+@item done
+Example:
+@example
+@@event=done id=#23 sound=bogus.au
+@end example
+
+@item level
+Example:
+@example
+@@event=level volume=46 left=23 right=23
+@end example
+
+@item pause
+Example:
+@example
+@@event=pause id=#160 sound=bogus.au
+@end example
+
+@item play
+Example:
+@example
+@@event=play id=#160 sound=bogus.au volume=127 sample-rate=8000 seconds=1.19 count=1
+@end example
+
+@item position
+Example:
+@example
+@@event=position id=#24 position=0.50 remain=0.69 seconds=1.19 sample=4000 samples=9542
+@end example
+
+@item skip
+Example:
+@example
+@@event=skip id=#160 sound=bogus.au
+@end example
+
+@item state
+Example:
+@example
+@@event=state play=1 pause=1 volume=120
+@end example
+
+@item stop
+Example:
+@example
+@@event=stop id=#160 sound=bogus.au
+@end example
+
+@item volume
+Example:
+@example
+@@event=volume volume=200
+@end example
+@end table
+
+Notification messages can be enabled and disabled using the @code{set}
+command.  For example, @samp{set notify=play,pause} tells the server to
+send notification messages when sounds are played or paused.
+
+For fun you might try connecting to your rplay server with telnet and
+monitor its events in real-time.  This can be done using the following:
+
+@noindent
+@example
+$ telnet somehost.sdsu.edu 5556
+@end example
+
+Once connected, type @samp{set notify=all} and you will receive
+notification for all server events.
+
+@node Commands, Connecting, Event Notification, Top
+@chapter Commands
+
+Clients use commands to interact with the server.  All commands will
+return errors using a result line beginning with @samp{-}.  This line
+will always contain the @code{error} attribute which contains a text
+error message.  An example error response would be:
+@samp{-error="access denied"}.
+
+The follow is a list of all the RPTP commands.  Almost all commands
+accept attributes which can be specified in any order.  More commands
+and command attributes can and probably will be added in the future.
+
+@deffn Command access
+Obtain client access permissions.
+
+This command returns one line containing the @code{access} attribute.
+@end deffn
+
+@deffn Command application @var{name}
+Set the name of the client application.
+
+This command returns one line containing the @code{name} of the application.
+
+Example:
+@example
+application Xrplay 2.0
++Xrplay 2.0
+@end example
+
+@strong{Caution:} This command is considered obsolete and may be removed
+in the future.  Please use the @code{set} command instead.
+@end deffn
+
+@deffn Command continue @var{id}|@var{sound} ...
+Continue playing a paused sound.
+
+This command returns one line containing the @code{message} attribute.
+
+Example:
+@example
+continue sound=bogus.au
++message="continue successful"
+@end example
+@end deffn
+
+@deffn Command done @var{id}|@var{sound} ...
+Force a playing or paused sound to be done.  In most cases this is the
+same as stop.
+
+This command returns one line containing the @code{message} attribute.
+
+Example:
+@example
+done sound=bogus.au
+message="done successful"
+@end example
+@end deffn
+
+@deffn Command find @var{sound}
+Search for a sound.
+
+This command returns one line containing the @code{sound} and @code{size}
+attributes.
+
+Example:
+@example
+find sound=bogus.au
++sound=bogus.au size=9574
+@end example
+@end deffn
+
+@deffn Command get @var{sound}
+Retrieve a sound.
+
+This command returns one line containing the @code{sound} and @code{size}
+attributes followed by @code{size} bytes of audio data.
+
+Example:
+@example
+get sound=bogus.au
++sound=bogus.au size=9574
+... 9574 bytes of audio data ...
+@end example
+@end deffn
+
+@deffn Command help
+Obtain a list of server-supported commands.
+@end deffn
+
+@deffn Command info @var{sound}
+Obtain information about a sound.
+
+This command returns one line containing information about the sound.
+The following attributes may be included: @code{sound}, @code{size},
+@code{bits}, @code{sample-rate}, and @code{channels}.
+
+Example:
+@example
+info sound=bogus.au
++sound=bogus.au size=9574 bits=8 sample-rate=8000 channels=1
+@end example
+@end deffn
+
+@deffn Command list [connections|hosts|servers|spool|sounds]
+List the specified server information.
+
+@table @code
+@item connections
+the server's RPTP connections
+
+@item hosts
+the server's rplay.hosts.
+
+@item servers
+the server's rplay.servers.
+
+@item spool
+the server's audio spool.
+
+@item sounds
+the server's rplay.conf and rplay.cache.
+@end table
+
+This command returns one line containing the @code{message} attribute
+followed by zero or more lines terminated by a line containing only
+a @samp{.}.
+
+Example:
+@example
+list connections
++message="connections"
+host=130.191.225.64 type=client what=idle
+host=127.0.0.1 type=client what="notify 00000080" idle=.06 application="Xrplay 2.0"
+.
+     
+list hosts
++message="hosts"
+host=mojo access=rwx
+host=127.0.0.1 access=rwx
+.
+
+list servers
++message="servers"
+host=hercules.sdsu.edu port=5556
+host=pandora.sdsu.edu port=5556
+.
+     
+list spool
++message="spool"
+id=#437 state=play sound=petergun host=130.191.225.64 volume=127 \backslash 
+priority=0 count=1 seconds=227.75 sample_rate=8000
+.
+     
+list sounds
++message="sounds"
+sound=monster2.au
+sound=monster1.au
+sound=monkey-3.au
+sound=monkey-2.au
+sound=monkey-1.au
+.
+@end example
+
+@strong{Caution:} This command does not use name-value pairs as
+arguments.
+@end deffn
+
+@deffn Command pause @var{id}|@var{sound}
+Pause a playing sound.
+
+This command returns one line containing the @code{message} attribute.
+
+Example:
+@example
+pause sound=bogus.au
++message="pause successful"
+@end example
+@end deffn
+
+@deffn Command play
+Play a sound.
+
+This command accepts several attribute arguments, but only the
+@code{sound} attribute is required and it may be repeated to play a list
+of sounds sequentially.
+
+The @code{sound} attribute can be preceded by any of the following
+attributes:
+@table @code
+@item count
+@item list-count
+@item priority
+@item random
+@item sample-rate
+@item volume
+@item input
+@item input-bits
+@item input-byte-order
+@item input-channels
+@item input-format
+@item input-offset
+@item input-sample-rate
+@end table
+
+This command returns one line containing the @code{id} attribute.
+
+Example:
+@example
+play sample-rate=4000 priority=255 sound=Debbie
++id=#84
+@end example
+@end deffn
+
+@deffn Command put @var{id}|@var{size}
+Give the server an entire sound or send flow data to a particular spool
+id.
+
+This command returns one line containing the @code{sound} or @code{id}
+and @code{size} attributes.  After this line is received by the client,
+the server assumes the client will then send @code{size} bytes of audio
+data.  If the specified spool id doesn't exist, the server will return
+an error.
+
+Example:
+@example
+put sound=bogus.au size=9574
++sound=bogus.au size=9574
+
+or
+
+put id=#200 size=8000
++id=#200 size=8000
+@end example
+@end deffn
+
+@deffn Command quit
+Terminate the RPTP session.
+
+This command returns nothing, the server simply closes the connection.
+@end deffn
+
+
+@deffn Command reset
+Tell the server to reset itself.  A reset usually includes re-reading
+all configuration files, closing all connections, and removing all
+sounds from the spool.
+
+If possible, the server will return one line containing the @code{message}
+attribute.  The server will probably close the connect so the line may
+not be sent.
+@end deffn
+
+@deffn Command set name[=value] ...
+Get and set server attributes.  The current set of supported
+server attributes is:
+@table @code
+@item application
+@item level-notify-rate
+@item notify
+@item notify-rate
+@item position-notify-rate
+@item priority-threshold
+@item volume
+@end table
+     
+This command returns one line containing the server's values for the
+specified attributes.  If an attribute cannot be set, the server will
+return a value of @code{-1} for that attribute.
+
+Example:
+@example
+set application="Xrplay 2.0" notify=state volume=127
++application="Xrplay 2.0" notify=state volume=127
+
+or
+
+set volume
++volume=127
+@end example
+
+@strong{Caution:} This command does not use name-value pairs to "get"
+the value of attributes.
+@end deffn
+
+@deffn Command skip @var{id}|@var{count}
+Skip around to sounds in a sound list.  The sound list must be
+referenced by @var{id}.  The number of sounds to skip (@var{count}) can
+be negative (skip backwards), zero (skip to the beginning of the current
+sound), or positive (skip forward).  Skipping before the beginning of
+the sound list will cause the first sound to be played.  Skipping after
+the last sound will terminate the spool entry.  Skipping a paused sound
+will cause the next sound (the skipee?) to also be paused.
+
+This command returns one line containing the @code{message} attribute.
+
+Example:
+@example
+skip id=#0 count=1
++message="skipped"
+@end example
+@end deffn
+
+@deffn Command status
+Obtain a server's current status.
+
+This command returns one line containing several attributes.
+
+Example:
+@example
+status
++host=mojo version=3.2.0a8 uptime=01:32 audio-bits=8 audio-bufsize=800 \
+audio-channels=1 audio-device=/dev/audio audio-format=ulaw \
+audio-port=speaker audio-rate=10 audio-sample-rate=8000 volume=127 \
+curr-bufsize=800 curr-rate=10
+@end example
+@end deffn
+
+@deffn Command stop @var{id}|@var{sound} ...
+Stop a paused or playing sound.
+
+This command returns one line containing the @code{message} attribute.
+
+Example:
+@example
+stop sound=bogus.au
++message="stop successful"
+@end example
+@end deffn
+
+@deffn Command version
+Obtain the version number of the server.
+
+This command returns one line containing the @code{version} attribute.
+
+Example:
+@example
+version
++version=3.2.0a8
+@end example
+@end deffn
+
+@deffn Command volume [@var{new-volume}]
+Get and set the volume of the audio device.
+     
+This command returns one line containing the volume of the audio device.
+@end deffn
+
+@deffn Command wait @var{id}|@var{event}|@var{command}
+Wait for a spool id, an event, or wait for the completion of a RPTP
+command.
+
+This comand returns one line that always contains the event attribute.
+Other attributes may also be included to provide more event information.
+
+Example:
+@example
+wait play sound=bogus
++event=done id=#267 sound=bogus.au
+
+or
+
+wait event=volume
++event=volume volume=135
+
+or
+
+wait id=#300
++event=done id=#300 sound=tap2.au
+
+or
+
+wait event=any
++event=play id=#360 sound=tap2.au volume=127 sample-rate=8000 seconds=0.21 count=1
+@end example
+
+@strong{Caution:} This command is considered obsolete and may be removed
+in the future. Please use the @code{set} command instead.
+@end deffn
+
+@node Connecting, Timeouts, Commands, Top
+@chapter Connecting
+An initial connection to a RPTP server is considered to be a RPTP
+command.  This means that the server will always send a response to
+every client connection.  The response sent is one line that begins with
+@samp{+} for a successful connection and @samp{-} for errors.  The rest
+of the line consists of server attributes that can be used to find out more
+information about the server.  An example would be:
+
+@example
++host=hercules version=3.2.0b3 uptime=00:47:20 audio-bits=16 \
+audio-bufsize=2450 audio-byte-order=big-endian audio-channels=1 \
+audio-device=/dev/audio audio-format=linear-16 \
+audio-port=speaker,headphone,lineout audio-rate=10 \
+audio-sample-rate=11025 volume=120 curr-bufsize=2450 curr-rate=9 \
+priority-threshold=0
+@end example
+
+Note that a @samp{\} was used in the above example to split up the long
+attribute line.
+
+@node Timeouts, Attribute Index, Connecting, Top
+@chapter Timeouts
+RPTP servers can be configured to close connections on idle clients.
+Before the connection is closed, the server will send a timeout
+notification to the client.  The notification is one line that begins
+with @samp{!}.  The reset of the line will contain attributes which
+should contain information about the timeout.  For example:
+
+@example
+!message="Connection timed out after 300 idle seconds."
+@end example
+
+@node Attribute Index, Event Index, Timeouts, Top
+@appendix Attribute Index
+@printindex vr
+
+@node Event Index, Command Index, Attribute Index, Top
+@appendix Event Index
+@printindex ev
+
+@node Command Index,  , Event Index, Top
+@appendix Command Index
+@printindex fn
+
+@summarycontents
+@contents
+
+@bye

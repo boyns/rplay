@@ -1,0 +1,263 @@
+#!/usr/local/bin/wish -f
+# 
+# Copyright (C) 1994-95 Mark Boyns <boyns@sdsu.edu>
+#
+# tkrplay
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+#
+# Usage: tkrplay <sound_dir>
+#
+
+# -- Begin configuration options ---
+
+set default_host "localhost"
+set default_volume 127
+set default_priority 0
+set sound_dir "/opt/sounds"
+
+# --- End configuration options ---
+
+set host $default_host
+set volume $default_volume
+set priority $default_priority
+set hvolume [lindex [split [exec rptp -h $host volume] =] 1]
+set version "1.1"
+
+#
+# Set window manager parameters.
+#
+wm title . "tkrplay $version"
+wm iconname . "tkrplay $version"
+wm minsize . 1 1
+
+#
+# Create the Quit and Configure buttons.
+#
+frame .menu -relief raise -borderwidth 2
+pack .menu -side top -fill x
+menubutton .menu.file -text "File" -menu .menu.file.m -underline 0 -relief raise
+menu .menu.file.m
+.menu.file.m add command -label "Quit" -command "destroy ." -underline 0
+button .menu.config -text "Configure" -command "config" -relief raised
+pack .menu.file -side left
+pack .menu.config -side right
+
+#
+# Create the current directory entry.
+#
+frame .pwd
+entry .pwd.entry -relief sunken -width 40
+label .pwd.label 
+pack .pwd.entry -side right
+pack .pwd.label -side left
+bind .pwd.entry <Return> {
+	if [file isdirectory [.pwd.entry get]] {
+		cd [.pwd.entry get]
+		load
+	}
+}
+.pwd.label config -text Directory:
+pack .pwd
+
+#
+# Create the sounds list.
+#
+frame .sounds
+scrollbar .sounds.scroll -command ".sounds.list yview"
+pack .sounds.scroll -side right -fill y
+listbox .sounds.list -yscroll ".sounds.scroll set" -relief sunken -setgrid yes
+bind .sounds.list <Control-q> {destroy .}
+bind .sounds.list <Control-c> {destroy .}
+bind .sounds.list <Double-Button-1> {foreach i [selection get] {doit "play" $i}}
+pack .sounds.list -side top -fill both -expand yes
+pack .sounds -side top -fill both
+
+#
+# Create the sound action buttons.
+#
+frame .buttons
+button .buttons.play -text "Play" -command \
+	{ foreach i [.sounds.list curselection] { doit "play" [.sounds.list get $i] } }
+button .buttons.stop -text "Stop" -command \
+	{ foreach i [.sounds.list curselection] { doit "stop" [.sounds.list get $i] } }
+button .buttons.pause -text "Pause" -command \
+	{ foreach i [.sounds.list curselection] { doit "pause" [.sounds.list get $i] } }
+button .buttons.continue -text "Continue" -command \
+	{ foreach i [.sounds.list curselection] { doit "continue" [.sounds.list get $i] } }
+button .buttons.prev -bitmap @/opt/X11R6/include/X11/bitmaps/RotateLeft -command { cd ..; load }
+button .buttons.next -bitmap @/opt/X11R6/include/X11/bitmaps/Excl -command { stop "#0" }
+pack .buttons.prev .buttons.play .buttons.stop .buttons.pause \
+	.buttons.continue .buttons.next -side left -expand yes
+pack .buttons -side bottom -fill both
+
+#
+# Create the "Configure" window.
+#
+proc config {} {
+	global host
+	global volume
+	global hvolume
+	global priority
+
+	catch {destroy .config}
+	toplevel .config
+	wm title .config "tkrplay configure"
+
+	frame .config.host
+	entry .config.host.e -relief sunken -width 40
+	pack .config.host.e -side right
+	.config.host.e insert 0 $host
+	label .config.host.l
+	pack .config.host.l -side left
+	.config.host.l config -text "Sound Host:"
+	pack .config.host -fill x
+
+	frame .config.hvolume -relief raised -borderwidth 2
+	label .config.hvolume.l -text "Host Volume"
+	scale .config.hvolume.s -from 0 -to 255 -length 10c -orient horizontal -tickinterval 50
+	.config.hvolume.s set $hvolume
+	pack .config.hvolume.l .config.hvolume.s
+	pack .config.hvolume
+
+	frame .config.volume -relief raised -borderwidth 2
+	label .config.volume.l -text "Sound Volume"
+	scale .config.volume.s -from 0 -to 255 -length 10c -orient horizontal -tickinterval 50
+	.config.volume.s set $volume
+	pack .config.volume.l .config.volume.s
+	pack .config.volume
+
+	frame .config.priority -relief raised -borderwidth 2
+	label .config.priority.l -text "Sound Priority"
+	scale .config.priority.s -from 0 -to 255 -length 10c -orient horizontal -tickinterval 50
+	.config.priority.s set $priority
+	pack .config.priority.l .config.priority.s
+	pack .config.priority
+
+	button .config.apply -text "Apply" -command {
+		set host [.config.host.e get]
+		set hvolume [.config.hvolume.s get]
+		set volume [.config.volume.s get]
+		set priority [.config.priority.s get]
+
+		set hvolume [lindex [split [exec rptp -h $host volume $hvolume] =] 1]
+		.config.hvolume.s set $hvolume
+	}
+	button .config.reset -text "Reset" -command {
+		set volume $default_volume
+		.config.volume.s set $default_volume
+		set priority $default_priority
+		.config.priority.s set $default_priority
+		set host $default_host
+    		.config.host.e delete 0 end
+		.config.host.e insert 0 $default_host
+
+		set hvolume [lindex [split [exec rptp -h $host volume] =] 1]
+		.config.hvolume.s set $hvolume
+	}
+	button .config.cancel -text "Cancel" -command "destroy .config"
+	pack .config.apply .config.reset .config.cancel -side left -expand yes
+}
+
+#
+# Play a sound.
+#
+proc play args {
+	global host
+	global priority
+	global volume
+	exec rplay -h $host -P $priority -v $volume $args
+}
+
+#
+# Pause a sound.
+#
+proc pause args {
+	global host
+	global priority
+	global volume
+	exec rplay -h $host -P $priority -v $volume -p $args
+}
+
+#
+# Continue a sound.
+#
+proc continue args {
+	global host
+	global priority
+	global volume
+	exec rplay -h $host -P $priority -v $volume -c $args
+}
+
+#
+# Stop a sound.
+#
+proc stop args {
+	global host
+	global priority
+	global volume
+	exec rplay -h $host -P $priority -v $volume -s $args
+}
+
+#
+# Load a list of the current directories' sounds.  Only .au, .wav, .aiff, and
+# directories are displayed.
+#
+proc load {} {
+    global dir
+    set dir [pwd]
+    .pwd.entry delete 0 end
+    .pwd.entry insert 0 $dir
+    .sounds.list delete 0 [.sounds.list size]
+    foreach i [exec ls -a] {
+	if [file isdirectory $i] {
+		if {[string compare $i "."] != 0 && [string compare $i ".."] != 0} {
+            		.sounds.list insert end $i
+		}
+	} else {
+		if {[string match *.au $i] || [string match *.wav $i] || [string match *.aiff $i]} {
+            		.sounds.list insert end $i
+		}
+	}
+    }
+}
+
+#
+# Change working directory or perform a sound action.
+#
+proc doit {action file} {
+	global dir
+	if [file isdirectory $file] {
+		cd $file
+		load
+	} else {
+		case $action in {
+			{ play } { play $dir/$file }
+			{ stop } { stop $dir/$file }
+			{ pause } { pause $dir/$file }
+			{ continue } { continue $dir/$file }
+		}
+	}
+}
+
+#
+# Here's where everything starts.
+#
+focus .sounds.list
+if $argc>0 {set dir [lindex $argv 0]} else {set dir $sound_dir}
+cd $dir
+load 

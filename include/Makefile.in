@@ -1,0 +1,37 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS= @srcdir@/../mkinstalldirs
+
+TARGET=		rplay.h
+
+all:
+
+$(TARGET):
+
+install:	$(TARGET)
+		$(MKINSTALLDIRS) $(includedir)
+		$(INSTALL_DATA) @srcdir@/$(TARGET) $(includedir)/$(TARGET)
+
+uninstall:
+		$(RM) $(includedir)/$(TARGET)
+
+clean:
+		$(RM) *~ *.bak *.orig
+
+distclean:	clean
+		$(RM) Makefile config.h
+
+tags:
+
+TAGS:
+
+etags:
+
+depend:
+

@@ -1,0 +1,142 @@
+.TH JUKEBOX 1 "27 August 1993"
+.SH NAME
+jukebox \- play a list of sounds (songs)
+.SH SYNOPSIS
+.B jukebox
+[-afhlqrsv] [directory\.\.\.]
+.SH DESCRIPTION
+
+Jukebox is a small program that plays a list of songs on the host of your
+choice, using Mark Boyns'
+.B rplay
+library.  This allows you to listen to some background music while you are working or doing anything else.
+
+There are two ways to build a list of songs : you may use the
+.B \-f
+option followed by a file name which contains a list of song
+names (like rplay.conf), or you may simply give the name of a directory.
+All the \.au files in this directory will be added to the list.
+
+While the jukebox is playing, you may skip a song with
+.I Ctrl\-C.
+This will stop the current song and play the next one.  You may also use
+.I Ctrl\-Z,
+which will stop both the current song and the jukebox.  Once the jukebox
+has been stopped with a
+.I Ctrl\-Z,
+you may continue with the next song : use
+.B fg
+or whatever your shell needs to restart a stopped process.  If you want
+to terminate the process, use
+.B kill XXX
+or
+.B kill \-HUP XXX,
+where XXX is the process number of the jukebox.
+.SH OPTIONS
+.TP
+.B \-h hostname[:hostname\.\.\.]
+Play sounds on this or all of these hosts.
+This option will override the default host defined by the
+.B RPLAY_HOST
+environment variable.
+.TP
+.B \-f <name>
+Take a list of sounds from the file
+.B <name>.
+This file should contain one sound name per line.  You may supply several
+lists of songs, each one preceded by the \-f flag.
+.TP
+.B \-l
+Loop mode.  The jukebox will keep on playing until stopped with a
+Ctrl-Z or another signal.
+.TP
+.B \-a
+Play the songs in alphabetical order (file names).
+This might be useful if the file names begin with the name of
+the artist or group, for example.
+.TP
+.B \-r
+Play the songs in a random order.  If the jukebox is in loop mode,
+a new list (in a different order) will be created each time the jukebox
+reaches the last song.
+.TP
+.B \-q
+Quiet mode.  Suppresses output except for error messages.
+.TP
+.B \-s <n>
+Sleep between songs (
+.B <n>
+is in milliseconds and may be negative).
+If you give a negative number, the two songs will be superimposed.
+You may use this option to create a "fade in / fade out" effect (see examples below).
+.TP
+.B \-v <n>
+Change the default play volume.
+.SH EXAMPLES
+.LP
+Suppose you have several directories named "songs/XXX", where "XXX" is
+the name of some artist or group.  If you want to play some music on
+"verif1" (replace this with the name of your host), you might type
+something like this :
+.IP
+.B "jukebox -h verif1 -r -s -4000 songs/*"
+.PP
+This will play all the songs from these directories, taken in a random
+order.  There is also a "negative delay" of 4 seconds.  If all the songs
+begin with a "fade in" and end with a "fade out", you will get a pretty
+good effect.
+
+If you want to play your favourite songs over and over on the default host,
+you could type :
+.IP
+.B "jukebox -l -q songs/kate_bush songs/queen songs/rem ..."
+.PP
+(By the way, it is simpler to go in the "songs" directory to type these
+commands as the paths would be shorter, but this is only an example).
+Here, the 
+.B \-q
+option is used to suppress all normal output.  You can then use the jukebox
+as a background job if you are short of terminals.
+
+You may also put the names of your favorite songs in a file, and use this
+file with the
+.B \-f
+option.  You may even create several files and use them in any
+order, like this :
+.IP
+.B "jukebox -f rock_n_roll -f pop_music songs/rap ..."
+.PP
+In this example, the songs are taken from the files "rock_n_roll" and
+"pop_music", but also from the directory "songs/rap".
+
+.SH "SEE ALSO"
+.BR rplay (1),
+.BR rplayd (1),
+.BR rplay.conf (5)
+.SH AUTHOR
+This program was written by Raphael Quinet (University of Liege, Belgium)
+He can be reached by E-mail as follows:
+.RS
+
+.B quinet@montefiore.ULg.ac.Be
+
+.RE
+The
+.B jukebox
+program makes use of Mark Boyns'
+.B rplay
+package which can play multiple sounds on remote machines.
+.br
+He can be reached by E-mail as follows:
+.RS
+
+.B boyns@SDSU.edu
+.RE
+.SH BUGS
+You have to supply the full pathnames in the sound lists.
+
+The program's timer doesn't expect the sounds to be delayed in
+any way while they are playing.  This leads to disastrous effects
+if the song has to be fetched from another server or if someone
+pauses the audio device.
+

@@ -1,0 +1,65 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+sysconfdir = @sysconfdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS= @srcdir@/../mkinstalldirs
+
+CPPFLAGS = $(CC_OPTIONS) -I. -I../include -I@srcdir@ -I@srcdir@/../include -I@srcdir@/../lib -I@srcdir@/../adpcm -I@srcdir@/../gsm -I@srcdir@/../rx @DEFS@ \
+	-DRPLAY_CONF=\"${sysconfdir}/rplay.conf\" \
+	-DRPLAY_HOSTS=\"${sysconfdir}/rplay.hosts\" \
+	-DRPLAY_SERVERS=\"${sysconfdir}/rplay.servers\" \
+	-DRPLAY_HELPERS=\"${sysconfdir}/rplay.helpers\" \
+	-DRPLAY_CACHE=\"/tmp/.rplay-cache\" \
+	-DRPLAY_LOG=\"/tmp/rplay.log\" \
+	-DRPLAYDRC=\"\~/.rplaydrc\"
+
+.c.o:
+		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+LDFLAGS=	$(LD_OPTIONS) -L../librplay -lrplay -L../lib -lrp \
+		-L../adpcm -ladpcm -L../gsm -lgsm -L../rx -lrx @LDFLAGS@ @LIBS@ -lm
+
+TARGET=		rplayd
+
+SRCS=		audio.c buffer.c cache.c cdrom.c command.c connection.c flange.c \
+		helper.c host.c misc.c native.c rplayd.c server.c sound.c \
+		spool.c timer.c ulaw.c xhash.c
+
+OBJS=		audio.o buffer.o cache.o cdrom.o command.o connection.o flange.o \
+		helper.o host.o misc.o native.o rplayd.o server.o sound.o \
+		spool.o timer.o ulaw.o xhash.o
+
+all:		$(TARGET)
+
+$(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm.a ../rx/librx.a
+		$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+install:	all
+		$(MKINSTALLDIRS) $(sbindir)
+		$(INSTALL_PROGRAM) $(TARGET) $(sbindir)/$(TARGET)
+		@test -x $(bindir)/$(TARGET) && echo "" && echo "    Note: Consider removing $(bindir)/$(TARGET)" && echo ""
+
+uninstall:
+		$(RM) $(bindir)/$(TARGET)
+
+clean:
+		$(RM) $(OBJS) $(TARGET) a.out core *~ *.bak *.orig TAGS
+		cd audio; $(RM) *~ *.bak *.orig
+
+distclean:	clean
+		$(RM) Makefile audio.c audio.h
+
+tags:
+		$(TAGS) *.[ch]
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SRCS)

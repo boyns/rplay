@@ -1,0 +1,85 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS= @srcdir@/../mkinstalldirs
+
+.SUFFIXES:
+.SUFFIXES: .texi .info .dvi .ps .html
+
+.texi.info:
+	$(MAKEINFO) $(MAKEINFO_FLAGS) $<
+
+.texi.dvi:
+	$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<
+
+.dvi.ps:
+	$(DVIPS) $< -o 
+
+.texi.html:
+	$(TEXI2HTML) $(TEXI2HTML_FLAGS) $<
+
+all:
+
+info: RPLAY.info RPTP.info librplay.info rplay.info
+
+dvi: RPLAY.dvi RPTP.dvi librplay.dvi rplay.dvi
+
+ps: RPLAY.ps RPTP.ps librplay.ps rplay.ps
+
+html: RPLAY.html RPTP.html librplay.html rplay.html
+
+man:
+	./genman rplay.1.in
+	./genman rptp.1.in
+	./genman rplayd.8.in
+
+install: all
+	-$(MKINSTALLDIRS) $(mandir)/man1 $(mandir)/man5 $(mandir)/man8 $(infodir)
+	-$(INSTALL_DATA) rplay.1 $(mandir)/man1
+	-$(INSTALL_DATA) rplayd.8 $(mandir)/man8
+	-$(INSTALL_DATA) rptp.1 $(mandir)/man1
+	-$(INSTALL_DATA) rplay.conf.5 $(mandir)/man5
+	-$(INSTALL_DATA) rplay.helpers.5 $(mandir)/man5
+	-$(INSTALL_DATA) rplay.hosts.5 $(mandir)/man5
+	-$(INSTALL_DATA) rplay.servers.5 $(mandir)/man5
+	-$(INSTALL_DATA) RPLAY.info $(infodir)/RPLAY.info
+	-$(INSTALL_DATA) RPTP.info $(infodir)/RPTP.info
+	-$(INSTALL_DATA) librplay.info $(infodir)/librplay.info
+	-$(INSTALL_DATA) rplay.info $(infodir)/rplay.info
+
+uninstall:
+	-$(RM) $(mandir)/man1/rplay.1
+	-$(RM) $(mandir)/man8/rplayd.8
+	-$(RM) $(mandir)/man1/rptp.1
+	-$(RM) $(mandir)/man5/rplay.conf.5
+	-$(RM) $(mandir)/man5/rplay.helpers.5
+	-$(RM) $(mandir)/man5/rplay.hosts.5
+	-$(RM) $(mandir)/man5/rplay.servers.5
+	-$(RM) $(infodir)/RPLAY.info
+	-$(RM) $(infodir)/RPTP.info
+	-$(RM) $(infodir)/librplay.info
+	-$(RM) $(infodir)/rplay.info
+
+clean:
+	$(RM) *~ *.bak *.orig
+	$(RM) *.aux *.cp *.cps *.fn *.fns *.ky *.kys *.log
+	$(RM) *.pg *.pgs *.toc *.tp *.tps *.vr *.vrs
+	$(RM) *.ev *.evs *.ov *.ovs *.cv *.cvs *.ma *.mas
+
+distclean:	clean
+	$(RM) Makefile
+	$(RM) *.html *.dvi *.ps
+
+tags:
+
+TAGS:
+
+etags:
+
+depend:
+

@@ -1,0 +1,35 @@
+<EventZero>
+<EventOne>
+KeyPress		# A key was pressed while on the root
+KeyRelease		# A key was released while on the root
+ButtonPress		# A button was pressed (anywhere)
+ButtonRelease		# A button was released (anywhere)
+MotionNotify		# A mouse drag was started
+EnterNotify		# The mouse entered a window
+LeaveNotify		# The mouse left a window
+FocusIn			# A window gained focus
+FocusOut		# A window lost focus
+KeymapNotify
+Expose			# Some rectangle on the screen was redrawn
+GraphicsExpose		# Some rectangle on the screen was redrawn
+NoExpose
+VisibilityNotify
+CreateNotify
+DestroyNotify
+UnmapNotify		# A window was unmapped from the screen
+MapNotify		# A window was mapped onto the screen
+MapRequest
+ReparentNotify
+ConfigureNotify
+ConfigureRequest
+GravityNotify
+ResizeRequest
+CirculateNotify
+CirculateRequest
+PropertyNotify
+SelectionClear
+SelectionRequest
+SelectionNotify
+ColormapNotify
+ClientMessage
+MappingNotify

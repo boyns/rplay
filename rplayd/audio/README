@@ -1,0 +1,10 @@
+
+This directory contains system specific audio code.  
+
+audio_generic.c should be used as a template for new systems.
+
+audio.old contains the old audio.c from 3.1.1beta and could be
+used as a reference.
+
+Please read the ../../PORTING file for more information.
+

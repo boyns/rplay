@@ -1,0 +1,9 @@
+
+This directory contains rplay 3 sound patches to olvwm 3.3 which
+were originally done my Andrew Scherpbier and modified to support
+rplay 3 by Joseph E. Sacco <jsacco@ssl.com>.
+
+olvwm-3.3-patch		The patch.
+olvwm.events		A list of olvwm events.
+.olvwm-sounds		A sample olvwm sound configuration file.
+

@@ -1,0 +1,61 @@
+XCOMM  Imakefile -- Imakefile for XJukebox
+XCOMM  Copyright (C) 1993  Raphael Quinet
+XCOMM 
+XCOMM  This program is free software; you can redistribute it and/or modify
+XCOMM  it under the terms of the GNU General Public License as published by
+XCOMM  the Free Software Foundation; either version 2 of the License, or
+XCOMM  (at your option) any later version.
+XCOMM 
+XCOMM  This program is distributed in the hope that it will be useful,
+XCOMM  but WITHOUT ANY WARRANTY; without even the implied warranty of
+XCOMM  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+XCOMM  GNU General Public License for more details.
+XCOMM 
+XCOMM  You should have received a copy of the GNU General Public License
+XCOMM  along with this program; if not, write to the Free Software
+XCOMM  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+XCOMM 
+XCOMM  Author : Raphael Quinet
+XCOMM  E-Mail : quinet@montefiore.ulg.ac.be
+XCOMM           quinet@server.montefiore.ulg.ac.be
+XCOMM  S-Mail : 9, Rue des Martyrs  4550 Nandrin  (Belgium, Europe)
+
+XCOMM These are the directories where the rplay files can be found :
+RPLAY_LIB       = /usr/local/lib
+RPLAY_INCLUDE   = /usr/local/include
+
+XCOMM Uncomment and adjust these to change the destinations of "make install"
+XCOMM and "make install.man" if the defaults are not satisfactory.
+XCOMM BINDIR          = /usr/local/bin
+XCOMM MANDIR          = /usr/local/man/man1
+XCOMM MANSUFFIX       = 1
+
+XCOMM It's not a good idea to change the default "app-default" directory.
+XCOMM Chances are that "XJukebox.ad" and "XJukebox-color.ad" will simply be
+XCOMM ignored if you uncomment and change the following line.  But you may
+XCOMM change it if you can't install the files in their default directory.
+XCOMM XAPPLOADDIR     = /usr/lib/X11/app-defaults
+
+XCOMM How excited are you about debugging ?  This can be -g, -O, or nothing.
+XCOMM CDEBUGFLAGS     = -g
+
+XCOMM -------------------------------------------------------------------------
+XCOMM Please don't change anything below this point - no need really - I hope.
+
+           SRCS = xjukebox.c rptpstuff.c widgets.c
+
+           OBJS = xjukebox.o rptpstuff.o widgets.o
+
+        DEPLIBS = XawClientDepLibs
+LOCAL_LIBRARIES = XawClientLibs -L$(RPLAY_LIB) -lrplay
+        DEFINES = -I$(RPLAY_INCLUDE)
+
+ComplexProgramTarget(xjukebox)
+InstallAppDefaults(XJukebox)
+InstallAppDefaults(XJukebox-color)
+
+XCOMM You will only need the following lines if you change Xjukebox.ad and
+XCOMM you want to hard-code the changes into xjukebox.  This is not needed if
+XCOMM Xjukebox.ad is installed in the ".../lib/X11/app-defaults" directory.
+XJukebox.ad.h: XJukebox.ad
+	ad2c XJukebox.ad > XJukebox.ad.h

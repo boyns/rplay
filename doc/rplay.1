@@ -1,0 +1,90 @@
+.TH RPLAY 1 6/29/98
+.SH NAME
+rplay \- play, pause, continue, and stop sounds
+.SH SYNOPSIS
+.B rplay [options] [sound ...]
+.SH DESCRIPTION
+rplay is client that communicates with rplayd to play, pause,
+continue, and stop sounds using both the RPLAY and RPTP protocols.
+Sound files can be played by rplayd directly if available on the local
+system or sounds can be sent over the network using UDP or TCP/IP.
+rplay will attempt to determine whether or not the server has the
+sound before using the network.
+.SH OPTIONS
+.TP
+.I "\-b BYTES, \-\-buffer\-size=BYTES"
+Use of a buffer size of BYTES when playing sounds using RPTP flows.
+The default is 8K.
+.TP
+.I "\-c, \-\-continue"
+Continue sounds.
+.TP
+.I "\-n N, \-\-count=N"
+Number of times to play the sound, default = 1.
+.TP
+.I "\-N N, \-\-list\-count=N"
+Number of times to play all the sounds, default = 1.
+.TP
+.I "\-\-list\-name=NAME"
+Name this list NAME.  rplayd appends sounds with the same
+NAME into the same sound list -- it plays them sequentially.
+.TP
+.I "\-\-help"
+Display helpful information.
+.TP
+.I "\-h HOST, \-\-host=HOST, \-\-hosts=HOST"
+Specify the rplay host, default = localhost.
+.TP
+.I "\-i INFO, \-\-info=INFO"
+Audio information for a sound file.  This option is intended
+to be used when sounds are read from standard input.
+INFO must be of the form:
+    `format,sample-rate,bits,channels,byte-order,offset'
+Examples: ulaw,8000,8,1,big-endian,0
+          gsm,8000
+Shorthand info is provided for Sun's audio devices using the
+following options: --info-amd, --info-dbri, --info-cs4231.
+There's also: --info-ulaw and --info-gsm.
+.TP
+.I "\-p, \-\-pause"
+Pause sounds.
+.TP
+.I "\-\-port=PORT"
+Use PORT instead of the default RPLAY/UDP or RPTP/TCP port.
+.TP
+.I "\-P N, \-\-priority=N"
+Play sounds at priority N (0 <= N <= 255), default = 0.
+.TP
+.I "\-r, \-\-random"
+Randomly choose one of the given sounds.
+.TP
+.I "\-\-reset"
+Tell the server to reset itself.
+.TP
+.I "\-\-rplay, \-\-RPLAY"
+Force the use of the RPLAY protocol.
+The default protocol to be used is determined by checking whether or not
+the server has local access to the specified sounds.  RPLAY is used when
+sounds are accessible, otherwise RPTP and possibly flows are used.
+RPLAY will also be used when sound accessibility cannot be determined.
+.TP
+.I "\-\-rptp, \-\-RPTP"
+Force the use of the RPTP protocol.
+See `--rplay' for more information about protocols.
+.TP
+.I "\-R N, \-\-sample\-rate=N"
+Play sounds at sample rate N, default = 0.
+.TP
+.I "\-s, \-\-stop"
+Stop sounds.
+.TP
+.I "\-\-version"
+Print the rplay version and exit.
+.TP
+.I "\-v N, \-\-volume=N"
+Play sounds at volume N (0 <= N <= 255), default = 127.
+.SH SEE ALSO
+.IR rplayd (8),
+.IR rptp (1)
+
+

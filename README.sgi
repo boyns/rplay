@@ -1,0 +1,15 @@
+rplay README.sgi - Notes for SGI users.
+
+* REQUIREMENTS 
+
+The SGI support has been tested on IRIX 4.0.5 and IRIX 5.2.
+IRIX 5.2 does not include the multimedia development kit that
+came with 4.0.5 -- it is an extra option (SC4-DMDEV-2.0).
+
+There has been a lot of outcry about this and SGI decided to put the
+multimedia development kit back in 5.3, meaning full audio and video and
+QT/MPEG/SGI-MOV file support.
+
+If you do not have the multimedia development kit, you can call SGI
+and ask for it.  The phone number of SGI is  1-800-800-SGI1 (1-800-800-7441).
+

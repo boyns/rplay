@@ -1,0 +1,82 @@
+.TH RPLAY.HOSTS 5 12/21/97
+.SH NAME
+rplay.hosts \- rplay host authentication database
+.SH SYNOPSIS
+.B /usr/local/etc/rplay.hosts
+.SH DESCRIPTION
+The
+.I rplay.hosts
+file contains a list of hosts and access permissions which
+.I rplayd
+uses to validate incoming connections.  Each line is of
+the form:
+.IP
+hostname[:permission]
+.PP
+where
+.TP 15
+.B hostname
+is the name of a remote host or a host's IP address.
+Wildcards can be used within IP addresses to match
+multiple hosts.  The wildcard character is "*".
+.TP 15
+.B permission
+is an optional field containing any combination of the following
+characters:
+.RS
+.TP 3
+.B r
+the host can read sounds.
+.TP 3
+.B w
+the host can write sounds.
+.TP 3
+.B x
+the host can play, stop, pause, and continue sounds.  This
+is normally called execute permission.
+.RE
+.TP
+"rx" permissions are used when no permissions are specified.
+.SH EXAMPLE
+.LP
+.ft B
+.nf
+#
+# All hosts have read access:
+#
+*:r
+
+#
+# Trusted hosts:
+#
+nice-guy.sdsu.edu:rwx
+friend.sdsu.edu:rwx
+amigo.sdsu.edu:rwx
+130.191.224.224:rwx
+
+#
+# Hosts which can read and execute:
+#
+foo.bar.com:rx
+130.190.*:rx
+146.244.234.*:rx
+using.default.perms.edu
+.fi
+.ft R
+.LP
+.SH FILES
+.B /usr/local/etc/rplay.hosts
+.SH "SEE ALSO"
+.BR rplayd (1)
+.SH BUGS
+The permissions for an "*" entry apply to
+.B all
+matching hosts.
+The order of this file does not matter.
+Specific hosts can have access disabled with entries like:
+.LP
+.nf
+bad.guy.edu:
+.fi
+.LP
+however, any matching "*" entries will still apply.

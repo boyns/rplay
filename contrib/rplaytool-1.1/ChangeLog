@@ -1,0 +1,24 @@
+Mon Feb 27 23:27:48 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added and removed some buttons in the Sounds window.  Now
+        there's Play, Next, Prev, and Stop buttons as well as a Move
+        button/menu.
+
+Fri Feb 17 10:44:28 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* Added the following options: --dir, --disk-sounds,
+        --server-sounds, and --sounds.  See `rplaytool --help' for more
+        information.
+
+Mon Feb 13 15:02:07 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplaytool_stubs.c (longopts): Added GNU long-named options
+	--help, --host, --playlist1, --playlist2, --playlist3,
+	--playlist4, --version.
+	* Complete pathnames are never displayed in playlists.
+
+Sun Feb 12 12:09:26 1995  Mark Boyns  <boyns@sdsu.edu>
+
+	* rplaytool_stubs.c (do_soundlist): Fixed double-click problem.
+	(do_disklist): Fixed double-click problem.
+	(process_input): Don't display full pathnames in the spool list.

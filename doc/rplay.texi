@@ -1,0 +1,186 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename rplay.info
+@settitle rplay
+@iftex
+@finalout
+@end iftex
+@setchapternewpage odd
+@c %**end of header
+
+@ifinfo
+
+This file documents the rplay Network Audio System.
+
+Copyright (C) 1993-97 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through Tex and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+@end ifinfo
+
+@titlepage
+@title The rplay Network Audio System
+
+@author by Mark Boyns
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1993-97 Mark Boyns
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+
+@end titlepage
+@page
+
+@node Top, Overview, (dir), (dir)
+@top rplay Network Audio System
+
+@ifinfo
+
+This file documents the rplay Network Audio System.
+
+@end ifinfo
+
+@menu
+* Overview::                    Prelimary information
+* rplayd::                      The rplay audio server.
+* rplay::                       A sample RPLAY client.
+* rptp::                        A sample RPTP client.
+* xrplay::                      A X Windows rplay audio control panel.
+@end menu
+
+@node Overview, rplayd, Top, Top
+@chapter Overview
+rplay is a flexible network audio system that allows sounds to be
+played to and from local and remote Unix systems.  Sounds can be
+played with or without sending audio data over the network using
+either UDP or TCP/IP.  rplay audio servers can be configured to share
+sound files with each other.
+
+Support for rplay is included in several applications.  These include
+xpilot, xlockmore, xboing, fvwm, and ctwm.
+
+The rplay audio server is known to work well on Linux, SunOS 4.1.x,
+and Solaris 2.x.  FreeBSD, Irix, and HPUX are known to work but the
+current status of these drivers is unknown.  Linux support is based on
+the Open Sound System (OSS) driver so other systems using this driver
+might work with a few modifications.
+
+@noindent
+rplay supports two network protocols:
+@table @code
+@item RPLAY
+The Remote Play protocol which is connection-less and based on UDP (User
+Datagram Protocol).  This protocol uses one-way communication with the
+audio server using single UDP packets.  RPLAY was designed to be used by
+games which attempt to play hundreds of sounds a second, but it is also
+ideal for low-bandwidth applications.  If you want simplicity, speed,
+and no error reporting, you should use RPLAY.
+
+@item RPTP
+The Remote Play Transfer Protocol which is connection-oriented and based
+on TCP (Transmission Control Protocol).  This protocol uses two-way
+communication with the audio server using an interactive command
+language.  RPTP is intended to be used by applications that require
+complete control of the audio server.
+@end table
+
+Both protocols allow sounds to be played, paused, continued, and
+stopped.
+
+@node rplayd, rplay, Overview, Top
+@chapter rplayd
+rplayd  is  the  sound  server for the rplay audio system.
+The server listens for requests to play, pause,  continue,
+and  stop  sounds using both the RPLAY and RPTP protocols.
+Normally RPLAY requests are received on port 5555/udp  and
+RPTP  on  5556/tcp.   (Older ports 55555/udp and 55556/tcp
+are also supported)  Access to the  server  is  restricted
+using the rplay.hosts file.
+
+rplayd  can be started during the system boot process, via
+inetd,  or  by  individual  users.   root  access  may  be
+required depending on audio device permissions.
+
+In  most causes rplayd will play sounds that are available
+on the local disk.  However, rplayd can be sent sounds via
+the  network  and rplayd can also contact other rplayds to
+share sound files.  The index of all the local sound files
+is  stored  in rplay.conf and remote rplayds are specified
+in rplay.servers.  Sounds received from other rplayds will
+be  stored  in  a  cache  directory  normally  located  in
+/tmp/.rplay-cache.  Cache entries are expired  on  an  LRU
+basis.
+
+Many  sound  file  formats are supported by rplayd.  These
+include:
+
+AU AIFF WAV VOC UB UL
+G.721 4-bit, G.723 3-bit, G.723 5-bit
+GSM
+
+Several sounds can be played at once  and  sounds  can  be
+played  at  any  sample rate.  rplayd can be configured to
+output many different formats using  the  various  --audio
+options.
+
+On some systems, namely Solaris and Linux, rplayd can read sounds
+directly from CDROM using CDDA.  The special sound name cdrom: will play
+the entire CDROM.  cdrom:3-5 will play tracks 3 through 5.
+
+@node rplay, rptp, rplayd, Top
+@chapter rplay
+rplay is client that communicates with rplayd to play, pause, continue,
+and stop sounds using both the RPLAY and RPTP protocols.  Sound files
+can be played by rplayd directly if available on the local system or
+sounds can be sent over the network using UDP or TCP/IP.  rplay will
+attempt to determine whether or not the server has the sound before
+using the network.
+
+@node rptp, xrplay, rplay, Top
+@chapter rptp
+rptp is a simple RPTP client that communicates with rplayd using the
+RPTP protocol.  Several commands can be issued to control rplayd and
+report its status.  See the output of the rptp help command for a list
+of available commands.
+
+@node xrplay,  , rptp, Top
+@chapter xrplay
+rplay control panel which includes CD player-like buttons, volume
+control, a simple vu meter, and a sound progess bar.  Sounds can be
+played, paused, continued, and stopped using the appropriate buttons.
+
+xrplay is also useful as a sound file player and can be used with web
+browsers and other applications that use external programs to play
+sounds.
+
+xrplay communicates with the local (or remote) rplayd using the RPTP
+protocol.
+
+@bye
+

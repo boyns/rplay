@@ -1,0 +1,249 @@
+diff -r -c /tmp/olvwm3.3/Debug.c ./Debug.c
+*** /tmp/olvwm3.3/Debug.c	Sat Dec 12 09:27:01 1992
+--- ./Debug.c	Fri Dec 11 22:19:10 1992
+***************
+*** 60,65 ****
+--- 60,69 ----
+  	"ColormapNotify",
+  	"ClientMessage",
+  	"MappingNotify",
++ #ifdef	SOUNDS
++ 	"Startup",
++ 	"Shutdown",
++ #endif
+  };
+  
+  void
+***************
+*** 99,101 ****
+--- 103,209 ----
+  			typeNames[win->core.kind]);
+  	(void) fflush(stderr);
+  }
++ 
++ #ifdef SOUNDS
++ #include <rplay.h>
++ #include <string.h>
++ #include <stdio.h>
++ 
++ #define	NEVENTS		(sizeof(eventNames) / sizeof(char *))
++ 
++ RPLAY	*rp[NEVENTS];
++ 
++ static int	need_sound_init = 1;
++ static int	sound_fd = 0;
++ static int	sound_state = 1;
++ 
++ static sound_init()
++ {
++ 	int	i;
++ 	FILE	*fl;
++ 	char	buffer[100];
++ 	char	*token;
++ 	char	hostname[200];
++ 
++ 	need_sound_init = 0;
++ 	if (sound_fd == 0)
++ 	{
++ 		gethostname(hostname, 200);
++ 		if ((sound_fd = rplay_open(hostname)) < 0)
++ 			rplay_perror("create");
++ 	}
++ 
++ 	/*
++ 	 * Destroy any old sounds
++ 	 */
++ 	for (i = 0; i < NEVENTS; i++)
++ 	{
++ 		if (rp[i] != NULL)
++ 			rplay_destroy(rp[i]);
++ 		rp[i] = NULL;
++ 	}
++ 
++ 	/*
++ 	 * Now read the file which contains the sounds
++ 	 */
++ 	fl = fopen(".olvwm-sounds", "r");
++ 	if (fl == NULL)
++ 		return;
++ 	while (fgets(buffer, 100, fl) != NULL)
++ 	{
++ 		token = strtok(buffer, ": \t");
++ 		if (token == NULL)
++ 			continue;
++ 		for (i = 0; i < NEVENTS; i++)
++ 		{
++ 			if (strcmp(token, eventNames[i]) == 0)
++ 			{
++ 				token = strtok(NULL, " \t\r\n");
++ 				if (token == NULL || *token == '#' 
+						  || isspace(*token))
++ 					continue;
++ 				rp[i] = rplay_create(RPLAY_PLAY);
++ 				if (rp[i] == NULL)
++ 				{
++ 					rplay_perror("create");
++ 					continue;
++ 				}
++ 				if (rplay_set(rp[i], RPLAY_INSERT, 0,
++ 					RPLAY_SOUND,	token,
++ 					NULL) < 0)
++ 				{
++ 					rplay_perror("rplay");
++ 				}
++ 			}
++ 		}
++ 	}
++ 	fclose(fl);
++ }
++ 
++ 
++ play_sound(snd)
++ int	snd;
++ {
++ 	if (sound_state == 0)
++ 		return;
++ 
++ 	if (need_sound_init)
++ 		sound_init();
++ 
++ 	if (rp[snd] == NULL)
++ 		return;
++ 	if (rplay(sound_fd, rp[snd]) < 0)
++ 		rplay_perror("create");
++ }
++ 
++ 
++ toggle_sound()
++ {
++ 	sound_state ^= 1;
++ }
++ 
++ 
++ reread_sounds()
++ {
++ 	sound_init();
++ }
++ #endif
+diff -r -c /tmp/olvwm3.3/Makefile.sunpro ./Makefile.sunpro
+*** /tmp/olvwm3.3/Makefile.sunpro	Sat Dec 12 09:27:02 1992
+--- ./Makefile.sunpro	Sat Dec 12 08:20:29 1992
+***************
+*** 33,40 ****
+  #
+  # You shouldn't need to change anything below this line
+  
+! INC = -I${OPENWINHOME}/include
+! CFLAGS = ${INC} ${DEBUG} -DOW_I18N_L3 -DSUNDAE -DSHAPE
+  
+  HEADERS = cmdstream.h cursors.h defaults.h environ.h events.h gettext.h \
+  	  globals.h group.h helpcmd.h i18n.h iconimage.h iconmask.h  \
+--- 33,40 ----
+  #
+  # You shouldn't need to change anything below this line
+  
+! INC = -I${OPENWINHOME}/include -I/usr/local/include
+! CFLAGS = ${INC} ${DEBUG} -DOW_I18N_L3 -DSUNDAE -DSHAPE -DSOUNDS
+  
+  HEADERS = cmdstream.h cursors.h defaults.h environ.h events.h gettext.h \
+  	  globals.h group.h helpcmd.h i18n.h iconimage.h iconmask.h  \
+***************
+*** 53,59 ****
+  	ol_button.c
+  
+  LDFLAGS = -L${OPENWINHOME}/lib
+! LIBS = ${LDFLAGS} -lolgx -lX11 -lXext -ll -lm
+  
+  OBJS = ${SRCS:.c=.o} ${VERSION}
+  
+--- 53,59 ----
+  	ol_button.c
+  
+  LDFLAGS = -L${OPENWINHOME}/lib
+! LIBS = ${LDFLAGS} -lolgx -lX11 -lXext -ll -lm -lrplay
+  
+  OBJS = ${SRCS:.c=.o} ${VERSION}
+  
+diff -r -c /tmp/olvwm3.3/events.c ./events.c
+*** /tmp/olvwm3.3/events.c	Sat Dec 12 09:27:05 1992
+--- ./events.c	Fri Dec 11 22:21:34 1992
+***************
+*** 160,165 ****
+--- 160,168 ----
+  	if (GRV.PrintAll)
+  	    DebugEvent(event, "Dispatch - debug");
+  
++ #ifdef	SOUNDS
++ 	play_sound(event->type);
++ #endif
+  	saveTimestamp( event );
+  
+  	if (winInfo == NULL)
+diff -r -c /tmp/olvwm3.3/olwm.c ./olwm.c
+*** /tmp/olvwm3.3/olwm.c	Sat Dec 12 09:27:13 1992
+--- ./olwm.c	Fri Dec 11 22:23:02 1992
+***************
+*** 369,374 ****
+--- 369,377 ----
+  
+  	sendSyncSignal();
+  
++ #ifdef	SOUNDS
++ 	play_sound(35);
++ #endif
+  	EventLoop( DefDpy );
+  
+  	/*NOTREACHED*/
+***************
+*** 569,574 ****
+--- 572,580 ----
+  	
+  	SlaveStop();
+  	ListApply(ActiveClientList, ClientShutdown, (void *)0);
++ #ifdef	SOUNDS
++ 	play_sound(36);
++ #endif
+  	XSync(dpy, True);
+  	exit(0);
+  	/*NOTREACHED*/
+diff -r -c /tmp/olvwm3.3/usermenu.c ./usermenu.c
+*** /tmp/olvwm3.3/usermenu.c	Sat Dec 12 09:27:18 1992
+--- ./usermenu.c	Fri Dec 11 22:25:28 1992
+***************
+*** 190,195 ****
+--- 190,199 ----
+  extern int  GenDirMenuFunc();
+  extern int  StickSelnFunc();
+  extern int  MoveDesktopFunc();
++ #ifdef	SOUNDS
++ extern int  toggle_sound();
++ extern int  reread_sounds();
++ #endif
+  
+  /* ---------------------------------------------------------------------
+   *	local forward declarations
+***************
+*** 1334,1340 ****
+      },
+      {
+  	"MOVE_DESKTOP", MoveDesktopFunc, ServiceToken
+!     }
+  };
+  
+  #define NSERVICES COUNT(svctokenlookup)
+--- 1338,1352 ----
+      },
+      {
+  	"MOVE_DESKTOP", MoveDesktopFunc, ServiceToken
+!     },
+! #ifdef	SOUNDS
+!     {
+! 	"FLIPSOUND", toggle_sound, ServiceToken
+!     },
+!     {
+! 	"REREADSOUNDS", reread_sounds, ServiceToken
+!     },
+! #endif
+  };
+  
+  #define NSERVICES COUNT(svctokenlookup)

@@ -1,0 +1,41 @@
+README file for XJukebox 0.9
+----------------------------
+
+*----------------------------------------------------------------*
+| This program is currently under development, so please send    |
+| any questions, suggestions or bug reports concerning this      |
+| application to : Raphael Quinet <quinet@montefiore.ulg.ac.be>. |
+*----------------------------------------------------------------*
+
+Please read the "TODO" file for known bugs and missing features.
+
+Sorry, I didn't have the time to write a man page.  In the next release,
+maybe...
+
+To install, edit "Imakefile" (check the lines with RPLAY_LIB and
+RPLAY_INCLUDE), then do the following :
+	xmkmf -a
+	make
+	make install
+
+I you notice some unusual problems, drop me a note and I'll fix them as soon as
+possible.
+
+Changes since last version (0.8) :
+----------------------------------
+- Rewrote all function declarations.  You should be able to use most C
+  compilers with this version.  In 0.8, you had to use "gcc".  If you still
+  have some problems with your C compiler (even unusual warnings), please
+  report them to me.
+- Added the "-jukeboxShown" command-line option, and the corresponding
+  resource.  Not really useful, but at least your compiler won't complain
+  about empty structs in "widgets.c".
+- Added some lines in the TODO file, but nothing else in the source files :-).
+
+Credits :
+---------
+  Thanks to Mark Boyns <boyns@sdsu.edu> for nearly everything.  ;-)
+
+  Thanks to Patrick Atoon <patricka@sci.kun.nl> for his help about "cc"
+compatibility.  I made a lot of silly mistakes in the function declarations !
+

@@ -1,0 +1,22 @@
+.TH RPLAY.HELPERS 5 06/22/98
+.SH NAME
+rplay.helpers \- rplay helper applications
+.SH SYNOPSIS
+.B /usr/local/etc/rplay.helpers
+.SH DESCRIPTION
+The
+.I rplay.helpers
+file contains a list of regex and application pairs used by
+.I rplayd
+to convert unknown file formats.  The application must be configured
+to accept input from stdin and output data to stdout in the given
+audio format.
+Each line of this file is of the form:
+.IP
+<regex> <audio-format> <application>
+.SH EXAMPLE
+ .*mp3$  linear16,44100,16,2,little-endian  /usr/bin/mpg123 -s -q -r 44100 --stereo -
+.SH FILES
+.B /usr/local/etc/rplay.helpers
+.SH "SEE ALSO"
+.BR rplayd (8)

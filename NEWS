@@ -1,0 +1,37 @@
+rplay NEWS - User-visible changes.
+Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+
+Changes since rplay 3.2:
+
+* Improved Linux support, including playing sounds directly
+  from ATAPI CDROM.  Tested with the following:
+
+      Linux 2.0.34
+      Debian 2.0
+      ESS ES1688 AudioDrive (rev 6) (3.1)
+      TOSHIBA CD-ROM XM-1502B, ATAPI CDROM drive
+
+  This also includes a new --audio-fragsize rplayd option.  See
+  README.linux for more information.
+
+* Support for external helper applications used to convert
+  unsupported audio formats.  Helpers can be configured to
+  support formats such as MPEG (using mpg123), modules
+  (using xmp), and any other format that can be converted
+  using a stdin -> stdout filter.
+
+* --fork and --no-fork rplayd options.  When not in debug or inetd
+  mode, rplayd will fork to put itself in the background.
+
+* rplayd is now installed in $prefix/sbin/rplayd instead of
+  $prefix/bin/rplayd.
+
+* Running rplayd from inetd now requires the --inetd option.
+
+* --enable-rplayd-user=USER and --enable-rplayd-group=GROUP
+  configure options.
+
+* --user=USER and --group=GROUP rplayd options.
+
+* Lots of bug fixes.
+

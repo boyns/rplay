@@ -1,0 +1,5 @@
+# Sounds rplay.servers
+#
+# you can use this file to have rplayd retrieve sounds from a remote
+# server simply list the hostnames here.
+# soundserver.some_where.com

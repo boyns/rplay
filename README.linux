@@ -1,0 +1,41 @@
+rplay README.linux - notes for Linux users.
+
+Linux support is based on the Open Sound System driver included with
+most Linux kernels.
+
+/dev/dsp is used by default with CD quality output -- 44100 Hz,
+16-bit, 2 channels.  These parameters can be changed using the
+--audio-* command line options and/or ~/.rplaydrc.
+
+When /dev/audio is used, rplayd uses 8000 Hz, 8-bit, 1 channel, and
+ulaw output.
+
+/dev/mixer is used to control the volume and configure output ports.
+rplay supports headphone, lineout, and speaker.  Ports that aren't
+enabled have their volume set to zero.
+
+The --audio-fragsize rplayd option can be used to control audio device
+buffering.  Fragment sizes must be a power of 2 greater than 16.  By
+default, rplayd lets the audio driver pick an appropriate fragment size
+which has about a 0.5 second delay.  Example sizes:
+
+    256, 512, 1024, 2048, 4096, 8192
+
+DSP_BUFFSIZE in the kernel sound driver may need to setup with
+a different value to improve audio performance.  65536 is known
+to work well with rplay.  If you hear gaps, clicks, pops, etc., try
+increasing this value.
+
+Reading audio from CDROM uses /dev/cdrom by default.  Make this a
+symbolic link to your real CDROM device.  For example:
+
+    lrwxrwxrwx   1 root     root            8 Oct  1 12:46 /dev/cdrom -> /dev/hdc
+
+/dev/cdrom1, /dev/cdrom2, and /dev/cdrom3 can also be created if
+available.  Tracks can be played using:
+
+    $ rplay cdrom:     # play entire CD
+    $ rplay cdrom:5    # play track 5
+    $ rplay cdrom:1-3  # play tracks 1, 2, 3
+
+CDROM support only works on ATAPI CDROM devices, I think.

@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+$options = 0;
+
+$in = $ARGV[0];
+($progname, $section, $junk) = split ('\.', $in);
+$out = "$progname.$section";
+
+open (IN, "$in") || die "$in: $!";
+open (OUT, ">$out") || die "$out: $!";
+
+local ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime (time);
+$mon++;
+print OUT ".TH " . uc ($progname) . " $section" . " $mon/$mday/$year\n";
+
+print STDERR "Generating $out...";
+while (<IN>)
+{
+    print OUT;
+    if (/^\.SH OPTIONS$/)
+    {
+	open (PROG, "$progname --help|") || die "$progname: $!";
+	while (<PROG>)
+	{
+	    chop;
+	    next if /^$/;
+	    if (/^-/)
+	    {
+		s/-/\\-/g;
+		print OUT ".TP\n.I \"$_\"\n";
+		$options++;
+	    }
+	    elsif ($options)
+	    {
+		s/^\t//g;
+		print OUT "$_\n";
+	    }
+	}
+	close PROG;
+    }
+}
+close OUT;
+close IN;
+print STDERR "done\n";
+exit 0;

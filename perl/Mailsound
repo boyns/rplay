@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+#
+# This file is part of rplay.
+#
+# rplay is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# rplay is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with rplay; see the file COPYING.  If not, write to the
+# Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+#
+
+unshift (@INC, "/usr/local/lib");
+
+use RPlay;
+use Getopt::Long;
+
+if ($ENV{'HOME'})
+{
+    $opt_file = "$ENV{'HOME'}/.Mailsounds";
+}
+else
+{
+    $opt_file = (getpwuid ($<))[7] . "/.Mailsounds";
+}
+
+$opt_host = "localhost";
+$opt_matches = 1;
+GetOptions ('file=s', 'host=s');
+
+@patterns = ();
+@attributes = ();
+$matches = 0;
+
+open (CONF, $opt_file) || die "$opt_file: $!";
+while (<CONF>)
+{
+    next if (/^\#/ || /^[ \t\n]/);
+    chop;
+    ($pattern, $args) = split (/\t+/);
+    push (@patterns, $pattern);
+    local (%attrs);
+    foreach (split (/[\t ]+/, $args))
+    {
+	($name, $value) = split ('=');
+	$attrs{$name} = $value;
+    }
+    push (@attributes, \%attrs);
+}
+close (CONF);
+
+@lines = <STDIN>;
+foreach $i (0 .. $#patterns)
+{
+    foreach (@lines)
+    {
+	last if /^\n/;
+	if (/$patterns[$i]/)
+	{
+	    $hash_ref = $attributes[$i];
+	    %attrs = %$hash_ref;
+
+	    $host = $attrs{'host'};
+	    $host = $opt_host unless $host;
+	
+	    foreach $h (split (':', $host))
+	    {
+		$rp = new RPlay;
+		$rp->connect ($h);
+		$rp->play ($hash_ref);
+		$rp->disconnect ();
+	    }
+
+	    $matches++;
+	    last;
+	}
+    }
+
+    last if $matches == $opt_matches;
+}
+
+exit 0;

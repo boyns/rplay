@@ -1,0 +1,53 @@
+rplay 3.3 README
+Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+
+rplay is a flexible network audio system that allows sounds to be
+played to and from local and remote Unix systems.  Sounds can be
+played with or without sending audio data over the network using
+either UDP or TCP.  rplay audio servers can be configured to share
+sound files with each other.
+
+Support for rplay is included in several applications.  These include
+xpilot, xlockmore, xboing, fvwm, and ctwm.
+
+The rplay audio server is known to work well on Linux, SunOS 4.1.x,
+and Solaris 2.x.  FreeBSD, Irix, and HPUX are known to work but the
+current status of these drivers is unknown.  Linux support is based on
+the Open Sound System (OSS) driver so other systems using this driver
+might work with a few modifications.
+
+See the COPYING file for license information.
+See the INSTALL file for compilation and installation instructions.
+See the NEWS file for a list of user-visible changes.
+See the PORTING file for help with porting rplay to other systems.
+See the TODO file to find out what may be fixed/changed/implemented.
+
+This distribution includes:
+
+* rplayd - The rplay audio server.  Support for playing the following
+  sound formats: AU, AIFF, WAV, VOC, UB, UL, G.721 4-bit, G.723 3-bit,
+  G.723 5-bit, GSM.  Other formats such as MPEG 1.0/2.0 and Modules can
+  also be played using helper conversion applications.  Sounds can also
+  be played directly from CDROM.
+
+* rplay - Sound player which communicates with rplayd to play sounds.
+
+* rptp - Simple RPTP client.
+
+* librplay - A library used by rplay clients to communicate with rplay
+  servers.Supports both RPLAY and RPTP protocols.
+
+* doc - rplay documentation.
+
+* contrib - More rplay applications, pointers to programs that support
+  rplay, and patches which add rplay support to several programs.
+
+The rplay mailing list is located at <rplay@doit.org>.  To subscribe,
+mail to <rplay-request@doit.org> with the word "subscribe".
+
+The latest version of rplay is available at the following locations:
+
+    http://rplay.doit.org/
+    ftp://rplay.doit.org/pub/rplay/
+
+Send suggestions and bug reports to <boyns@doit.org>.

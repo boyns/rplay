@@ -1,0 +1,57 @@
+include @RPLAY_TOP@/Makefile.config
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS = @srcdir@/mkinstalldirs
+
+TARGET= @BUILD_TARGETS@
+
+all:
+		@for i in $(TARGET); \
+		do \
+			(echo make all in $$i...; cd $$i; $(MAKE) $(MFLAGS) all); \
+		done;
+
+world:		all install
+
+install:
+		@for i in $(TARGET); \
+		do \
+			(echo make install in $$i...; cd $$i; $(MAKE) $(MFLAGS) install); \
+		done;
+
+uninstall:
+		@for i in $(TARGET); \
+		do \
+			(echo make uninstall in $$i...; cd $$i; $(MAKE) $(MFLAGS) uninstall); \
+		done;
+
+clean:
+		@for i in $(TARGET); \
+		do \
+			(echo make clean in $$i...; cd $$i; $(MAKE) $(MFLAGS) clean); \
+		done;
+
+distclean:
+		@for i in $(TARGET); \
+		do \
+			(echo make distclean in $$i...; cd $$i; $(MAKE) $(MFLAGS) distclean); \
+		done;
+		$(RM) Makefile Makefile.config config.status config.cache config.log *~ *.bak *.orig stamp-configure stamp-build
+
+tags:
+		@for i in $(TARGET); \
+		do \
+			(echo make tags in $$i...; cd $$i; $(MAKE) $(MFLAGS) tags); \
+		done;
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		@for i in $(TARGET); \
+		do \
+			(echo make depend in $$i...; cd $$i; $(MAKE) $(MFLAGS) depend); \
+		done;

@@ -1,0 +1,135 @@
+#!/usr/local/bin/perl
+#
+sub Usage { print <<USAGE; # -----------------------
+
+mailnoise -- play a noise when mail arrives
+
+usage: mailnoise [-user username]
+
+Create a file called ~/.mailnoise, looking like this:
+
+	host: overload
+	volume: 100
+	noise: drum.au
+
+It accepts fields of the format "X: y", where X is one
+of "host", "volume", "priority" and "noise". You can leave out
+all of these except for noise. Volume defaults to $vol,
+priority defaults to 255, and the default host is determined
+using rwho and some trickery.
+
+If you use MH's slocal(8) mechanism, add the following line to
+your ~/.maildelivery file:
+
+	* - | R "/path/to/this/script/mailnoise"
+
+If you use Elm, Pine, or almost any other mail reader, just put
+this line in your ~/.forward:
+
+	"|/path/to/this/script/mailnoise -user <username>"
+
+where username is your username.
+
+USAGE
+exit 1; } # ----------------------------------------
+#
+# uses the rptp command-line interface
+# Justin Mason <jmason@iona.ie> 20/12/93.
+
+$RPTP_PATH = "/usr/local/bin";		# Where rptp(1) can be found
+
+# default values (in rplay(1) terms)
+$vol = 40;
+$pri = 0;
+
+# if someone has a display on these hosts, map it to somewhere
+# else that has an rplayd daemon.
+
+%mappings = (
+  "operation",	"class",
+  "stream",	"class",
+  "exception",	"class"
+);
+
+# you probably won't need to change this.
+$ENV{'PATH'} = "$RPTP_PATH:/usr/ucb:/usr/local/bin" . $ENV{'PATH'};
+
+# end of config section ----------------------------
+
+require 'newgetopt.pl';
+&NGetOpt("user:s") || &Usage;
+
+&main;
+while (<>) { ; } # eat the input
+exit 0;
+
+sub gethost {
+  $host = $DEFAULTHOST;
+  $smallest = 9999;
+
+  if ($opt_user eq '') {
+    $home = $ENV{'HOME'} || $ENV{'LOGDIR'} ||
+	(getpwuid($<))[7] || die "You have no \$HOME!\n";
+    $user = $ENV{'USER'} || getlogin ||
+	(getpwuid($<))[0] || "someone";
+  } else {
+    $user = $opt_user;
+    $home = (getpwnam ($user))[7] || die "$user has no password entry!";
+  }
+
+  if (-r "$home/.display") {
+    open (H, "< $home/.display");
+    chop ($host = <H>);
+    close H;
+
+  } else {
+    # assume that the least idle is on the user's display (er ;)
+    open (RWHO, "rwho |");
+    while (<RWHO>) {
+      next unless /^${user}\s/;			# username
+      next unless ($' =~ /^\s+([^:]+):/);	# hostname
+      $h = $1;
+      next unless /[A-Z][a-z][a-z] [ \d]\d \d\d:\d\d/; # date
+      $_ = $';			# get the idle, if it exists
+      if ($_ =~ /:/) {
+	($host = $h) if (($`*60 + $') < $smallest);
+      } else {			# not idle
+	$host = $h;
+      }
+    }
+    close RWHO;
+  }
+  $host;
+}
+
+sub main {
+  $host = &gethost;
+
+  if (-r "$home/.mailnoise") {
+    open (N, "< $home/.mailnoise");
+    while (<N>) {
+      tr/A-Z/a-z/; chop;
+      s/^\s+//g;
+      /^priority: / && ($pri = $');
+      /^host: / && ($host = $');
+      /^volume: / && ($vol = $');
+      /^noise: / && ($noise .= " $'");
+    }
+    close N;
+  }
+
+  $noise =~ s/^ //;
+  open (RPTP, "echo find \"$noise\" \| rptp 2>&1 |");
+  while (<RPTP>) { /^$noise/ && $valid++; }
+  close RPTP;
+
+  if ($valid) {
+    if ($host eq '') {
+#     print STDERR "rplay -v $vol -P $pri ", $noise;
+      system ("/usr/local/bin/rplay", "-v", $vol, "-P", $pri, $noise);
+    } else {
+#     print STDERR "rplay -h $host -v $vol -P $pri ", $noise;
+      system ("/usr/local/bin/rplay", "-h", $host, "-v", $vol, "-P", $pri, $noise);
+    }
+  }
+}

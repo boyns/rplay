@@ -1,0 +1,28 @@
+#/bin/csh -f
+
+echo "Hack-O-Matic Consulting Services, Inc."
+echo "Please wait...  Scanning database bogus1194-91..."
+if [ "`/usr/ucb/whoami`" = "quinet" ]
+then
+	/bin/sed -e "s/Plan:/Address:/g" | grep -v "GNU Finger"
+	echo "Local time:        `date`"
+	echo "Local weather:     `/usr/local/ulg/bin/random 'ask Meteosat ..' 'nice for Belgium' 'cloudy' 'better than yesterday' 'better than tomorrow' 'it cannot be worse'`."
+	echo "Current location:  `/usr/local/ulg/bin/random 'guess ..' 'far away from home' 'lost in my programs' 'trapped somewhere in a CrossFire map' 'here'`."
+	echo "Most useless host: `/usr/local/ulg/bin/getcalleraddr -stderr`."
+	echo "Best finger:       `/usr/local/ulg/bin/random 'thumb' 'index finger' 'middle finger' 'ring finger' 'little finger' 'GNU finger (lots of nice features)'`."
+	echo " "
+	echo "I have received a lot of mail lately.  (I will reply later...  Be patient.)"
+	echo "Current size of my mailbox: `ls -l /usr/spool/mail/quinet | cut -c 23-`"
+	echo " "
+	echo "Zippy the Pinhead says:"
+	/usr/local/bin/yow
+	echo "`/bin/date` - Finger from `/usr/local/ulg/bin/getcalleraddr -stderr` to `hostname`" >> .fingerlog
+	/usr/local/bin/rplay -h verif1 police.au
+	/usr/local/bin/rplay -h "`/usr/local/ulg/bin/getcalleraddr -stderr`" ohyeah.au
+else
+	echo "Warning: cryptographic integrity check failed!"
+	/bin/mv -f .fingerrc .fingerrc.quinet
+	/bin/mv -f .plan .plan.quinet
+	/bin/mv -f .project .project.quinet
+	echo "Try again..."
+fi

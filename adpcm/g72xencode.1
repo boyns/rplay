@@ -1,0 +1,17 @@
+.TH G72XENCODE 1
+.SH NAME
+g72xencode \- CCITT ADPCM encoder
+.SH SYNOPSIS
+.B g72xencode [-3|4|5] [-a|u|l] < infile > outfile
+.SH DESCRIPTION
+CCITT ADPCM encoder
+.SH OPTIONS
+.nf
+-3      Generate G.723 24kbps (3-bit) data
+-4      Generate G.721 32kbps (4-bit) data [default]
+-5      Generate G.723 40kbps (5-bit) data
+-a      Process 8-bit A-law input data
+-u      Process 8-bit u-law input data [default]
+-l      Process 16-bit linear PCM input data
+.SH SEE ALSO
+.IR g72xdecode (1)

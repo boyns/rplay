@@ -1,0 +1,8 @@
+To install, edit "Imakefile" (check the lines with RPLAY_LIB and
+RPLAY_INCLUDE), then do the following :
+
+	xmkmf -a
+	make
+	make install
+
+Please read the README file for more information.

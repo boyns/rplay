@@ -1,0 +1,6 @@
+;GIL-3
+(
+	:interfaces             (rplaytool.G )
+	:actions                ()
+	:root_window            nil
+)

@@ -1,0 +1,9 @@
+
+XPilot versions 2.0betaPL2 and up include rplay sound support and are available
+at ftp.cs.uit.no in the /pub/games/xpilot directory.  You can also use
+ftp.x.org /contrib/games/multiplayer.
+
+Included in this directory are a few sample xpilot sound configuration files.
+
+sounds-3.1.0 contains new sound events for xpilot 3.1.0.
+

@@ -1,0 +1,58 @@
+rplaytool README
+
+
+This is version 1.1 of rplaytool.  Many features of rplaytool
+were inspired by XJukebox 0.9 written by Raphael Quinet
+<quinet@montefiore.ulg.ac.be>.
+
+
+FEATURES:
+
+* Show sounds that are currently playing or paused.
+
+* Allows sounds to be played, paused, continued, and stopped.
+
+* Server volume control.
+
+* Server sound browser/player (play with a double-click).
+
+* Disk sound browser/player (play with a double-click).
+
+* Maintain up-to 4 lists of sounds to be played sequentially.
+  These lists are called playlists.
+
+* Playlists can be saved and loaded using files.
+
+* Uses RPTP asynchronous event notification and client-data to keep
+state.
+
+
+REQUIREMENTS:
+
+* rplay 3.2 available at 
+      ftp://ftp.sdsu.edu/pub/rplay/
+      ftp://ftp.x.org/contrib/audio/rplay/
+
+* XView 3.x.  If you have Open Windows, you have XView.
+  XView (X window-system-based Visual/Integrated Environment for
+  Workstations) is a X Window System toolkit that is publicly
+  available at ftp.x.org.
+
+* SunOS or GNU `make'.
+
+
+TODO:
+
+* Support the RPTP `modify' command.
+
+* Allow the user to specify sample-rate, count, volume, etc.
+
+* Support flows.
+
+* Implement shuffle.
+
+The GUI interface to rplaytool was developed using the Open Windows
+Developer's Guide (devguide).  Devguide is only required if you plan
+on modifying *any* of the source code.
+
+Send suggestions and bug reports to Mark Boyns <boyns@sdsu.edu>.

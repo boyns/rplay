@@ -1,0 +1,5 @@
+# Sample rplay.hosts
+#
+# this file describes what machines can read from or write to this server
+# *:rwx
+# would allow anyone to read or write to this server.

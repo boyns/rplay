@@ -1,0 +1,44 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+CPPFLAGS=	$(CC_OPTIONS) -I. -I../include -I@srcdir@/../include -I@srcdir@/../lib @DEFS@
+
+.c.o:
+		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+TARGET=		librp.a
+SRCS=		getopt.c getopt1.c hash.c strdup.c tilde.c xmalloc.c
+OBJS=		getopt.o getopt1.o hash.o strdup.o tilde.o xmalloc.o
+
+all:		$(TARGET)
+
+$(TARGET):	$(OBJS)
+		$(AR) rcv $@ $?
+		$(RANLIB) $@
+
+install:
+
+uninstall:
+
+clean:
+		$(RM) $(OBJS) $(TARGET) a.out core *~ *.bak *.orig TAGS
+
+distclean:	clean
+		$(RM) Makefile
+
+tags:
+		$(TAGS) *.[ch]
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SRCS)
+

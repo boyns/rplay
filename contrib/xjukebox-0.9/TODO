@@ -1,0 +1,45 @@
+* Delay all other rptp commands when the spool is being updated.  Currently,
+  the jukebox will crash if, for example, you choose "Get server list" when
+  the spool is being updated.  A new RPTP command should only be sent if
+  "rptp_mode" is equal to "MODE_IDLE".  This is the most annoying known bug.
+
+* Keep the current selection in the spool list.  Each time the spool is
+  updated, the current selection is lost.  This is a real nuisance, as the
+  spool is updated every second...
+
+* Fix the bug that smashes the default file name in the "Load list ..." and
+  "Save list ..." menus entries.
+
+* Implement "Sort by size", "Shuffle" and "Build list from directory".  These
+  options have been temporarily removed from the menus.
+
+* Use the "Multilist" widget (from the Free Widget Foundation) instead of the
+  normal "List" widget.  Do something with double-clicks in the lists.
+
+* Add some comments in the source files.
+
+* Remove the debug messages.  Use popups for fatal error messages.
+
+* Add a status bar, where all useful messages will be displayed.
+
+* Add an "options" menu in the jukebox panel, with the following entries :
+  "Set volume", "Set priority", "Set delay betweens sounds" ...
+
+* Add a "repeat" or "loop" option.  (Keep the names of the files that are
+  played and rebuild the list after the last one, or move the files to the
+  bottom of the list as soon as they are played.)
+
+* Add an "options" menu in the spool panel, with the following entries :
+  "Toggle spool auto-update", "Set refresh rate", "Toggle host display",
+  "Show access permissions".
+
+* Add more comments in the source files.
+
+* Add some command-line options (and the corresponding X resources).
+
+* Change the colors.
+
+* Add nice bitmaps for the buttons ("play", "stop", ... like on a CD-player).
+
+I you have any suggestions, please send them to me.
+(quinet@montefiore.ulg.ac.be or quinet@server.montefiore.ulg.ac.be)
