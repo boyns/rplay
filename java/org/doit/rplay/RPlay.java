@@ -1,4 +1,4 @@
-/* RPlay.java */
+/* $Id: RPlay.java,v 1.3 1998/08/13 14:33:59 boyns Exp $ */
 
 /*
  * Copyright (C) 1998 Mark R. Boyns <boyns@doit.org>
@@ -125,10 +125,13 @@ public class RPlay
 	    else if (key.equals ("sequence"))
 	    {
 		pack.append (RPLAY_ID);
+/*
 		// need network byte order
 		-> pack.append (((Integer) attrs.get (key)).Value ());
+*/
 	    }
 	}
+	pack.append (RPLAY_NULL);
 	pack.append (RPLAY_NULL);
 	
 	DatagramPacket packet = new DatagramPacket (pack.getBytes (),
