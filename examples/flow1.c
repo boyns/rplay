@@ -1,4 +1,4 @@
-/* $Id: flow1.c,v 1.2 1998/08/13 06:13:25 boyns Exp $ */
+/* $Id: flow1.c,v 1.3 1998/11/07 21:15:12 boyns Exp $ */
 
 /* usage: flow1 soundfile */
 
@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <rplay.h>
 
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
     FILE *fp;
     int rptp_fd, size, n, nwritten;
@@ -18,95 +18,95 @@ main (int argc, char **argv)
     char buf[8000];
 
     /* First determine how big the audio file is. */
-    if (stat (argv[1], &st) < 0)
+    if (stat(argv[1], &st) < 0)
     {
-	perror (argv[1]);
-	exit (1);
+	perror(argv[1]);
+	exit(1);
     }
     size = st.st_size;
 
-    fp = fopen (argv[1], "r");
+    fp = fopen(argv[1], "r");
     if (fp == NULL)
     {
-	perror (argv[1]);
-	exit (1);
+	perror(argv[1]);
+	exit(1);
     }
 
     /* Connect to the audio server. */
-    rptp_fd = rptp_open (rplay_default_host (), RPTP_PORT, response, sizeof (response));
+    rptp_fd = rptp_open(rplay_default_host(), RPTP_PORT, response, sizeof(response));
     if (rptp_fd < 0)
     {
-	rptp_perror (rplay_default_host ());
-	exit (1);
+	rptp_perror(rplay_default_host());
+	exit(1);
     }
 
     /* Start the flow using `input-storage=none'. */
-    sprintf (line, "play input=flow input-storage=none sound=%s", argv[1]);
-    switch (rptp_command (rptp_fd, line, response, sizeof (response)))
+    sprintf(line, "play input=flow input-storage=none sound=%s", argv[1]);
+    switch (rptp_command(rptp_fd, line, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	exit (1);
+	rptp_perror(argv[0]);
+	exit(1);
 
     case 1:
-	fprintf (stderr, "%s\n", rptp_parse (response, "error"));
-	exit (1);
+	fprintf(stderr, "%s\n", rptp_parse(response, "error"));
+	exit(1);
 
     case 0:
 	break;
     }
 
     /* Save the spool id so `put' can use it later. */
-    id = rptp_parse (response, "id");
+    id = rptp_parse(response, "id");
 
     /* Read chunks of audio from the file and send them to rplayd.
        rplayd will deal with flow-control. */
     while (size > 0)
     {
-	n = fread (buf, 1, sizeof (buf), fp);
+	n = fread(buf, 1, sizeof(buf), fp);
 
 	/* Use `put' to send the audio data. */
-	sprintf (line, "put id=%s size=%d", id, n);
-	switch (rptp_command (rptp_fd, line, response, sizeof (response)))
+	sprintf(line, "put id=%s size=%d", id, n);
+	switch (rptp_command(rptp_fd, line, response, sizeof(response)))
 	{
 	case -1:
-	    rptp_perror (argv[0]);
-	    exit (1);
+	    rptp_perror(argv[0]);
+	    exit(1);
 
 	case 1:
-	    fprintf (stderr, "%s\n", rptp_parse (response, "error"));
-	    exit (1);
+	    fprintf(stderr, "%s\n", rptp_parse(response, "error"));
+	    exit(1);
 
 	case 0:
 	    break;
 	}
 
-	nwritten = rptp_write (rptp_fd, buf, n);
+	nwritten = rptp_write(rptp_fd, buf, n);
 	if (nwritten != n)
 	{
-	    rptp_perror ("flow");
+	    rptp_perror("flow");
 	    break;
 	}
 	size -= nwritten;
     }
 
-    fclose (fp);
+    fclose(fp);
 
     /* Always send `done' when the flow is over. */
-    sprintf (line, "done id=%s", id);
-    switch (rptp_command (rptp_fd, line, response, sizeof (response)))
+    sprintf(line, "done id=%s", id);
+    switch (rptp_command(rptp_fd, line, response, sizeof(response)))
     {
     case -1:
-	rptp_perror (argv[0]);
-	exit (1);
+	rptp_perror(argv[0]);
+	exit(1);
 
     case 1:
-	fprintf (stderr, "%s\n", rptp_parse (response, "error"));
-	exit (1);
+	fprintf(stderr, "%s\n", rptp_parse(response, "error"));
+	exit(1);
 
     case 0:
 	break;
     }
 
-    exit (0);
+    exit(0);
 }
