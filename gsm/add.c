@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /cvsroot/rplay/rplay/gsm/add.c,v 1.1 1998/07/14 22:35:23 mrb Exp $ */
+/* $Header: /cvsroot/rplay/rplay/gsm/add.c,v 1.1.1.1 1998/07/14 22:35:23 mrb Exp $ */
 
 /*
  *  See private.h for the more commonly used macro versions.

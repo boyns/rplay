@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-static char	ident[] = "$Header: /cvsroot/rplay/rplay/gsm/gsm_create.c,v 1.1 1998/07/14 22:35:24 mrb Exp $";
+static char	ident[] = "$Header: /cvsroot/rplay/rplay/gsm/gsm_create.c,v 1.1.1.1 1998/07/14 22:35:24 mrb Exp $";
 
 #include	"config.h"
 

@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /cvsroot/rplay/rplay/gsm/toast.c,v 1.1 1998/07/14 22:35:24 mrb Exp $ */
+/* $Header: /cvsroot/rplay/rplay/gsm/toast.c,v 1.1.1.1 1998/07/14 22:35:24 mrb Exp $ */
 
 #include	"toast.h"
 
@@ -702,7 +702,7 @@ static void version P0()
 {
 	printf( "%s 1.0, version %s\n",
 		progname,
-		"$Id: toast.c,v 1.1 1998/07/14 22:35:24 mrb Exp $" );
+		"$Id: toast.c,v 1.1.1.1 1998/07/14 22:35:24 mrb Exp $" );
 }
 
 static void help P0()

@@ -4,7 +4,7 @@
  * details.  THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE.
  */
 
-/* $Header: /cvsroot/rplay/rplay/gsm/table.c,v 1.1 1998/07/14 22:35:24 mrb Exp $ */
+/* $Header: /cvsroot/rplay/rplay/gsm/table.c,v 1.1.1.1 1998/07/14 22:35:24 mrb Exp $ */
 
 /*  Most of these tables are inlined at their point of use.
  */
