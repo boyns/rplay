@@ -1,7 +1,7 @@
-/* $Id: host.h,v 1.2 1998/08/13 06:13:55 boyns Exp $ */
+/* $Id: host.h,v 1.3 1999/03/10 07:58:03 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -37,6 +37,7 @@
 #define HOST_READ		'r'
 #define HOST_WRITE		'w'
 #define HOST_EXECUTE		'x'
+#define HOST_MONITOR		'm'
 #define HOST_DEFAULT_ACCESS	"rx"
 
 extern BUFFER *host_list;
@@ -47,14 +48,15 @@ extern void host_reread (char *filename);
 extern void host_stat (char *filename);
 extern char *host_ip_to_regex (char *ip_addr);
 extern int host_access (struct sockaddr_in sin, char access_mode);
-extern void host_insert (char *expr_read, char *expr_write, char *expr_execute, char *name, char *perms);
+extern void host_insert (char *expr_read, char *expr_write, char *expr_execute,
+			 char *expr_monitor, char *name, char *perms);
 #else
 extern void host_read ( /* char *filename */ );
 extern void host_reread ( /* char *filename */ );
 extern void host_stat ( /* char *filename */ );
 extern char *host_ip_to_regex ( /* char *ip_addr */ );
 extern int host_access ( /* struct sockaddr_in sin, char access_mode */ );
-extern void host_insert ( /* char *expr_read, char *expr_write, char *expr_execute, char *name, char *perms */ );
+extern void host_insert ();
 #endif
 
 #endif /* AUTH */

@@ -1,7 +1,7 @@
-/* $Id: sound.h,v 1.2 1998/08/13 06:14:06 boyns Exp $ */
+/* $Id: sound.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *

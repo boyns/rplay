@@ -1,7 +1,7 @@
-/* $Id: rplayd.c,v 1.7 1998/11/10 15:29:55 boyns Exp $ */
+/* $Id: rplayd.c,v 1.8 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -151,6 +149,11 @@ int max_rplay_audio_bufsize = 0;
 /* Audio levels. */
 int rplay_audio_left_level = 0;
 int rplay_audio_right_level = 0;
+
+static int monitor_total_bytes = 176400 * 5; /* 5 seconds */
+static int monitor_update = 0;
+int monitor_count = 0;
+BUFFER *monitor_buffers = NULL;
 
 int rplay_audio_timeout = RPLAY_AUDIO_TIMEOUT;
 static int rplay_audio_flush_timeout = RPLAY_AUDIO_FLUSH_TIMEOUT;
@@ -930,6 +933,12 @@ doit()
 			    sp->notify_position = 0;
 			}
 		    }
+
+		    if (monitor_count && monitor_update)
+		    {
+			connection_monitor_continue();
+			monitor_update = 0;
+		    }
 		}
 	    }
 	    else if (spool_nplaying)
@@ -939,11 +948,12 @@ doit()
 		    report(REPORT_DEBUG, "opening %s\n", rplay_audio_device);
 		    if (rplay_audio_open() < 0)
 		    {
-			report(REPORT_ERROR, "rplay_audio_open: %s: %s (will keep trying)\n",
+			report(REPORT_ERROR,
+			       "rplay_audio_open: %s: %s (will keep trying)\n",
 			       rplay_audio_device, sys_err_str(errno));
 		    }
 		}
-		/* start the time even if the audio device isn't open */
+		/* start the timer even if the audio device isn't open */
 		timer_start(curr_rate);
 	    }
 
@@ -1061,6 +1071,20 @@ doit()
 		    && icount >= spool_cleanup_timeout)
 		{
 		    idle = 1;
+		    if (monitor_buffers)
+		    {
+			if (!monitor_count)
+			{
+			    report(REPORT_DEBUG, "cleaning monitor buffers - %d bytes\n",
+				   monitor_total_bytes);
+			    monitor_cleanup();
+			}
+			else
+			{
+			    report(REPORT_DEBUG, "keeping monitor buffers - %d bytes\n",
+				   monitor_total_bytes);
+			}
+		    }
 		}
 	    }
 	    break;
@@ -1369,6 +1393,39 @@ rplayd_audio_match(match_sp)
     }
 }
 
+monitor_alloc()
+{
+    if (!monitor_buffers)
+    {
+	BUFFER *b, *end;
+	monitor_buffers = buffer_alloc(monitor_total_bytes, BUFFER_KEEP);
+	for (b = monitor_buffers; b; b = b->next)
+	{
+	    /* these will always be full buffers */
+	    b->nbytes = BUFFER_SIZE;
+	    if (!b->next)
+	    {
+		end = b;
+	    }
+	}
+	/* make the list of buffer cyclic */
+	end->next = monitor_buffers;
+    }
+
+    monitor_update = 0;
+}
+
+monitor_cleanup()
+{
+    BUFFER *b, *b_next;
+
+    for (b = monitor_buffers; b->next != monitor_buffers; b = b->next);
+    b->next = NULL;
+    buffer_dealloc(monitor_buffers, 1);
+    monitor_buffers = NULL;
+}
+
+
 /*
  * Write nbytes of audio data from the audio buffer to the audio device.
  */
@@ -1403,6 +1460,30 @@ rplayd_write(nbytes)
 	    rplay_audio_flush();
 	}
     }
+
+    if (monitor_count)
+    {
+	char *buf = rplay_audio_buf;
+	int size = rplay_audio_size;
+	int n;
+	
+	while (size)
+	{
+	    n = MIN(BUFFER_SIZE - monitor_buffers->offset, size);
+	    memcpy(monitor_buffers->buf + monitor_buffers->offset, buf, n);
+	    monitor_buffers->offset += n;
+	    buf += n;
+	    size -= n;
+
+	    if (monitor_buffers->offset == BUFFER_SIZE)
+	    {
+		monitor_buffers = monitor_buffers->next;
+		monitor_buffers->offset = 0;
+		monitor_update++;
+	    }
+	}
+    }
+    
     rplay_audio_size = 0;
 
     /* Flush when the audio stream has ended.  */

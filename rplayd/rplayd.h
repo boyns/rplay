@@ -1,7 +1,7 @@
-/* $Id: rplayd.h,v 1.2 1998/08/13 06:14:02 boyns Exp $ */
+/* $Id: rplayd.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -20,8 +20,6 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-
-
 
 #ifndef _rplayd_h
 #define _rplayd_h
@@ -46,7 +44,7 @@
 #define REPORT_MIN	0
 #define REPORT_MAX	4
 
-/* $Id: rplayd.h,v 1.2 1998/08/13 06:14:02 boyns Exp $ */
+/* $Id: rplayd.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
 #define SET_BIT(w, bit)         ( (w) |= (bit) )
 #define CLR_BIT(w, bit)         ( (w) &= ~(bit) )
 #define BIT(w, bit)             ( (w) & (bit) )
@@ -132,6 +130,8 @@ extern int optional_fragsize;
 extern int default_fragsize;
 #endif /* HAVE_OSS */
 
+extern int monitor_count;
+extern BUFFER *monitor_buffers;
 
 extern int errno;
 

@@ -1,7 +1,7 @@
-/* $Id: spool.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
+/* $Id: spool.c,v 1.5 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -1058,12 +1058,22 @@ spool_update()
 	    {
 		s = sp->sound[sp->curr_sound];
 
+		if (sp->curr_buffer && s->type == SOUND_FLOW)
+		{
+		    if ((sp->si->water_mark - sp->si->offset) > sp->si->low_water_mark)
+		    {
+/* 			report(REPORT_DEBUG, "have %d bytes\n", */
+/* 			       sp->si->water_mark - sp->si->offset); */
+			break;
+		    }
+		}
+		
 #ifdef HAVE_OSS
 		b = buffer_alloc(MIN(s->sample_rate * s->output_sample_size, SOUND_FILL_SIZE),
 				 BUFFER_REUSE);
 #else
 		b = buffer_alloc(MIN(MAX(curr_bufsize * curr_rate,
-				    s->sample_rate * s->output_sample_size),
+					 s->sample_rate * s->output_sample_size),
 				     SOUND_FILL_SIZE),
 				 BUFFER_REUSE);
 #endif

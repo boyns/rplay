@@ -1,7 +1,7 @@
-/* $Id: rplay.c,v 1.5 1999/02/24 06:24:45 boyns Exp $ */
+/* $Id: rplay.c,v 1.6 1999/03/10 07:57:56 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *

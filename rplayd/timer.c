@@ -1,7 +1,7 @@
-/* $Id: timer.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
+/* $Id: timer.c,v 1.4 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

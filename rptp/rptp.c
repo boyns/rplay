@@ -1,7 +1,7 @@
-/* $Id: rptp.c,v 1.4 1998/11/10 15:26:10 boyns Exp $ */
+/* $Id: rptp.c,v 1.5 1999/03/10 07:58:13 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -33,6 +31,10 @@
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
+#ifdef HAVE_LIBREADLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif /* HAVE_LIBREADLINE */
 #include "rplay.h"
 #include "getopt.h"
 
@@ -66,6 +68,7 @@ void command_generic(int argc, char **argv);
 void command_volume(int argc, char **argv);
 void command_skip(int argc, char **argv);
 void command_set(int argc, char **argv);
+void command_monitor(int argc, char **argv);
 void argv_to_command(char **argv);
 int connected();
 void done(int exit_value);
@@ -87,6 +90,7 @@ void command_generic( /* int argc, char **argv */ );
 void command_volume( /* int argc, char **argv */ );
 void command_skip( /* int argc, char **argv */ );
 void command_set( /* int argc, char **argv */ );
+void command_monitor( /* int argc, char **argv */ );
 void argv_to_command( /* char **argv */ );
 int connected();
 void done( /* int exit_value */ );
@@ -105,6 +109,7 @@ COMMAND commands[] =
     "help", 0, 1, "[command]", command_help,
     "info", 1, 1, "sound", command_generic,
     "list", 0, 1, "[connections|hosts|servers|spool|sounds]", command_list,
+    "monitor", 0, 0, "", command_monitor,
     "open", 1, 2, "hostname [port]", command_open,
     "pause", 1, -1, "#id|sound ...", command_play,
     "play", 1, -1, "[options] sound ...", command_play,
@@ -244,13 +249,26 @@ main(argc, argv)
 	{
 	    if (!raw)
 	    {
+#ifdef HAVE_LIBREADLINE
+		p = readline(prompt);
+		if (!p)
+		{
+		    done(0);
+		}
+		add_history(p);
+		strcpy(buf, p);
+#else
 		printf(prompt);
 		fflush(stdout);
+#endif
 	    }
+
+#ifndef HAVE_LIBREADLINE
 	    if (fgets(buf, sizeof(buf), stdin) == NULL)
 	    {
 		done(0);
 	    }
+#endif
 	    first = 1;
 	    ac = 0;
 	    while ((p = strtok(first ? buf : NULL, " \t\r\n")))
@@ -621,6 +639,7 @@ command_put(argc, argv)
     int size, n, nwritten;
     struct stat st;
     char line[RPTP_MAX_LINE];
+    int total_size;
 
     if (!connected())
     {
@@ -657,8 +676,12 @@ command_put(argc, argv)
 	break;
     }
 
-    printf("%s\n", raw ? response : response + 1);
+    if (raw)
+    {
+	printf("%s\n", response);
+    }
 
+    total_size = size;
     while (size > 0)
     {
 	n = fread(rptp_buf, 1, sizeof(rptp_buf), fp);
@@ -670,8 +693,13 @@ command_put(argc, argv)
 	    break;
 	}
 	size -= nwritten;
-    }
 
+	sprintf(line, "\r%s %d/%d %d%%", argv[1],
+		total_size - size, total_size,
+		(int)(((float)(total_size-size)/total_size)*100));
+	write(2, line, strlen(line));
+    }
+    write(2, "\n", 1);
     fclose(fp);
 }
 
@@ -688,7 +716,7 @@ command_get(argc, argv)
     FILE *fp;
     char *filename;
     char *p;
-    int size, n, nread;
+    int size, n, nread, total_size;
     char line[RPTP_MAX_LINE];
 
     if (!connected())
@@ -723,7 +751,8 @@ command_get(argc, argv)
 	break;
     }
 
-    printf("%s\n", raw ? response : response + 1);
+    if (raw)
+	printf("%s\n", response);
 
     fp = fopen(filename, "w");
     if (fp == NULL)
@@ -742,6 +771,7 @@ command_get(argc, argv)
 	size = atoi(strtok(NULL, "\r\n"));
     }
 
+    total_size = size;
     while (size > 0)
     {
 	n = MIN(sizeof(rptp_buf), size);
@@ -753,8 +783,13 @@ command_get(argc, argv)
 	}
 	fwrite(rptp_buf, 1, n, fp);
 	size -= n;
+	
+	sprintf(line, "\r%s %d/%d %d%%", filename,
+		total_size - size, total_size,
+		(int)(((float)(total_size-size)/total_size)*100));
+	write(2, line, strlen(line));
     }
-
+    write(2, "\n", 1);
     fclose(fp);
 }
 
@@ -768,7 +803,7 @@ command_unknown(argc, argv)
     char **argv;
 #endif
 {
-    printf("Unknown command `%s'.\n", argv[0]);
+    printf("unknown command `%s'.\n", argv[0]);
 }
 
 #ifdef __STDC__
@@ -966,6 +1001,88 @@ command_set(argc, argv)
     case 0:
 	break;
     }
+}
+
+#ifdef __STDC__
+void
+command_monitor(int argc, char **argv)
+#else
+void
+command_monitor(argc, argv)
+    int argc;
+    char **argv;
+#endif
+{
+    char *value, *p;
+    char buf[8192];
+    char line[80];
+    int n, size;
+    int sample_rate, precision, channels, sample_size;
+    int hours, mins, secs, prev_secs;
+    
+    if (!connected())
+    {
+	return;
+    }
+
+    sprintf(command, "monitor");
+
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
+    {
+    case -1:
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
+	return;
+
+    case 1:
+	do_error(response);
+	return;
+
+    case 0:
+	break;
+    }
+
+    p = strtok(rptp_parse(response, "audio-info"), ",");
+    // input_format
+
+    p = strtok(NULL, ",");
+    if (p) sample_rate = atoi(p);
+
+    p = strtok(NULL, ",");
+    if (p) precision = atoi(p);
+
+    p = strtok(NULL, ",");
+    if (p) channels = atoi(p);
+
+    sample_size = precision/8 * channels;
+
+    fprintf(stderr, "%dhz %dbit %s\n", sample_rate, precision,
+	    channels == 2 ? "stereo" : "mono");
+
+    size = hours = mins = secs = prev_secs = 0;
+    while ((n = read(rptp_fd, buf, sizeof(buf))) > 0)
+    {
+	write(1, buf, n);
+	size += n;
+
+	secs = size / (sample_rate * sample_size);
+	hours = secs / 3600;
+	secs = secs % 3600;
+	mins = secs / 60;
+	secs = secs % 60;
+
+	/* update once per second */
+	if (secs != prev_secs)
+	{
+	    sprintf(line, "\r%02d:%02d:%02d %0.2fM",
+		    hours, mins, secs,
+		    (float)size/1048576);
+	    write(2, line, strlen(line));
+	}
+	prev_secs = secs;
+    }
+    write(2, "\n", 1);
+    close(rptp_fd);
 }
 
 void

@@ -1,7 +1,7 @@
-/* $Id: command.c,v 1.5 1998/11/10 15:26:55 boyns Exp $ */
+/* $Id: command.c,v 1.6 1999/03/10 07:58:02 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -92,6 +90,7 @@ static int command_reset(CONNECTION *c, int argc, char **argv);
 static int command_skip(CONNECTION *c, int argc, char **argv);
 static int command_set(CONNECTION *c, int argc, char **argv);
 static int command_modify(CONNECTION *c, int argc, char **argv);
+static int command_monitor(CONNECTION *c, int argc, char **argv);
 #else
 static int do_command( /* CONNECTION *c, int argc, char **argv */ );
 static int command_quit( /* CONNECTION *c, int argc, char **argv */ );
@@ -114,6 +113,7 @@ static int command_reset( /* CONNECTION *c, int argc, char **argv */ );
 static int command_skip( /* CONNECTION *c, int argc, char **argv */ );
 static int command_set( /* CONNECTION *c, int argc, char **argv */ );
 static int command_modify( /* CONNECTION *c, int argc, char **argv */ );
+static int command_monitor( /* CONNECTION *c, int argc, char **argv */ );
 #endif
 
 #ifdef DEBUG
@@ -142,6 +142,7 @@ static COMMAND commands[] =
     {"list", 0, 1, "[connections|servers|sounds}", command_list},
 #endif				/* AUTH */
     {"modify", 2, -1, "id [count|list-count|priority|sample-rate|volume] ...", command_modify},
+    {"monitor", -1, -1, "", command_monitor},
     {"pause", 1, -1, "id|sound ...", command_execute},
     {"play", 1, -1, "sound ...", command_execute},
     {"put", 2, -1, "id|sound size", command_put},
@@ -462,12 +463,6 @@ command_put(c, argc, argv)
 	if (p && *p && p[0] == '#')
 	{
 	    spool_id = atoi(p + 1);
-	}
-	else
-	{
-	    connection_reply(c, "%cerror=\"invalid `id'\" command=put client-data=\"%s\"",
-			     RPTP_ERROR, client_data);
-	    return 0;
 	}
     }
     else
@@ -1005,6 +1000,26 @@ do_execute(c, argc, argv)
 	    else if (strcmp(name, "input-storage") == 0)
 	    {
 		input_storage = string_to_storage(value);
+	    }
+	    else if (strcmp(name, "input-info") == 0)
+	    {
+		char *p = strtok(value, ",");
+		if (p) input_format = string_to_audio_format(p);
+
+		p = strtok(NULL, ",");
+		if (p) input_sample_rate = atoi(p);
+
+		p = strtok(NULL, ",");
+		if (p) input_precision = atoi(p);
+
+		p = strtok(NULL, ",");
+		if (p) input_channels = atoi(p);
+
+		p = strtok(NULL, ",");
+		if (p) input_byte_order = string_to_byte_order(p);
+
+		p = strtok(NULL, ",");
+		if (p) input_offset = atoi(p);
 	    }
 	}
     }
@@ -2165,10 +2180,12 @@ command_set(c, argc, argv)
 	e = event_create(EVENT_NOTIFY);
 	event_insert(c, e);
     }
+
     if (volume_changed)
     {
 	connection_notify(0, NOTIFY_VOLUME, rplay_audio_volume);
     }
+
     if (priority_threshold_changed || audio_port_changed)
     {
 	connection_notify(0, NOTIFY_STATE);
@@ -2314,6 +2331,50 @@ command_modify(c, argc, argv)
     {
 	connection_reply(c, "%cerror=\"nothing modified\" command=modify", RPTP_ERROR);
     }
+
+    return 0;
+}
+
+#ifdef __STDC__
+static int
+command_monitor(CONNECTION *c, int argc, char **argv)
+#else
+static int
+command_monitor(c, argc, argv)
+    CONNECTION *c;
+    int argc;
+    char **argv;
+#endif
+{
+    EVENT *e;
+    
+#ifdef AUTH
+    if (!host_access(c->sin, HOST_MONITOR))
+    {
+	report(REPORT_NOTICE, "%s monitor - monitor access denied\n",
+	       inet_ntoa(c->sin.sin_addr));
+	connection_reply(c, "%cerror=\"access denied\" command=monitor",
+			 RPTP_ERROR);
+	return 0;
+    }
+#endif /* AUTH */
+
+    if (monitor_count == 0)
+    {
+	monitor_alloc();
+    }
+    monitor_count++;
+
+    connection_reply(c, "%caudio-info=\"%s,%d,%d,%d,%s\"", RPTP_OK,
+		     audio_format_to_string(rplay_audio_format),
+		     rplay_audio_sample_rate,
+		     rplay_audio_precision,
+		     rplay_audio_channels,
+		     byte_order_to_string(RPLAY_AUDIO_BYTE_ORDER));
+    e = event_create(EVENT_WAIT_MONITOR);
+    event_insert(c, e);
+
+    c->monitor = 1;
 
     return 0;
 }

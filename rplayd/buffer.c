@@ -1,7 +1,7 @@
-/* $Id: buffer.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
+/* $Id: buffer.c,v 1.4 1999/03/10 07:58:02 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -89,7 +89,7 @@ buffer_destroy(b)
     {
 	/* Always put REUSE buffers on the free list.  This will
 	   probably cause rplayd to grow bigger, but it prevents
-	   problems with calling free () inside the timer
+	   problems with calling free() inside the timer
 	   interrupt. */
 	nbuffers++;
 	b->next = buffers;
@@ -177,4 +177,24 @@ buffer_cleanup()
     buffers = NULL;
     nbuffers = 0;
     next_id = 0;
+}
+
+#ifdef __STDC__
+int
+buffer_nbytes(BUFFER *b)
+#else
+int
+buffer_nbytes(b)
+    BUFFER *b;
+#endif
+{
+    int n = 0;
+    
+    while (b)
+    {
+	n += b->nbytes;
+	b = b->next;
+    }
+
+    return n;
 }

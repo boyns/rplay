@@ -1,7 +1,7 @@
-/* $Id: devrplay.c,v 1.2 1999/03/03 07:45:19 boyns Exp $ */
+/* $Id: devrplay.c,v 1.3 1999/03/10 07:57:23 boyns Exp $ */
 
 /*
- * Copyright (C) 1999 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include "rplay.h"
 
-#define DEVRPLAY_SOUND "(devrplay)"
+#define DEVRPLAY_SOUND "devrplay"
 
 #ifdef linux
 
@@ -139,8 +139,11 @@ dspctl(int fd, int request, void *argp)
 
     case SNDCTL_DSP_GETOSPACE:
 	{
-	    audio_buf_info *bufinfo = (audio_buf_info *) argp;
-	    bufinfo->bytes = 4096;
+	    audio_buf_info *info = (audio_buf_info *) argp;
+	    info->fragments = 16;
+	    info->fragstotal = 16;
+	    info->fragsize = 4096;
+	    info->bytes = 44100;
 	}
 	break;
 

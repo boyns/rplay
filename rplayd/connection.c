@@ -1,7 +1,7 @@
-/* $Id: connection.c,v 1.5 1998/11/07 21:15:39 boyns Exp $ */
+/* $Id: connection.c,v 1.6 1999/03/10 07:58:03 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -98,6 +96,7 @@ connection_create(type)
 	c->notify_rate[i].rate = 0.0;
 	c->notify_rate[i].next = 0.0;
     }
+    c->monitor = 0;
 
     /*
      * insert new connection into the connection list
@@ -372,7 +371,7 @@ connection_update(read_fds, write_fds)
     fd_set *write_fds;
 #endif
 {
-    int i, n;
+    int i, n, size;
     CONNECTION *c;
     struct timeval tv;
     fd_set rfds, wfds;
@@ -549,7 +548,7 @@ connection_update(read_fds, write_fds)
 
 		/* Pause the connection if the high_water_mark has been exceeded. */
 		if (sp->si
-		    && ((sp->si->water_mark - sp->si->offset) > sp->si->high_water_mark))
+		    && ((sp->si->water_mark - sp->si->offset) >= sp->si->high_water_mark))
 		{
 		    connection_notify(0, NOTIFY_FLOW, sp);
 		    connection_flow_pause(sp);
@@ -559,17 +558,22 @@ connection_update(read_fds, write_fds)
 		/* Read data from the flow.  single-put flows will always
 		   try to read BUFFER_SIZE. */
 		c->event->buffer = buffer_create();
-	      redo:
-		n = read(c->fd, c->event->buffer->buf,
-			 MIN(BUFFER_SIZE,
-		   c->event->nbytes == -1 ? BUFFER_SIZE : c->event->nleft));
+
+		/* calculate the number of bytes to read without
+		   going over the high_water_mark. */
+#if 1		
+		size = MIN(BUFFER_SIZE,
+			   sp->si ? sp->si->high_water_mark - (sp->si->water_mark - sp->si->offset)
+			   : BUFFER_SIZE);
+#else
+		size = MIN(BUFFER_SIZE, c->event->nbytes == -1 ? BUFFER_SIZE : c->event->nleft);
+#endif		
+	redo:
+		n = read(c->fd, c->event->buffer->buf, size);
 		if (n < 0 && (errno == EINTR || errno == EAGAIN))
 		{
 		    goto redo;
 		}
-#if 0
-		report(REPORT_DEBUG, "- %s flow-read %d\n", inet_ntoa(c->sin.sin_addr), n);
-#endif
 		if (n <= 0)
 		{
 		    /* End of a single-put flow */
@@ -686,9 +690,9 @@ connection_update(read_fds, write_fds)
 		break;
 
 	    default:
-	      again:
+	again:
 		n = write(c->fd, c->event->ptr, c->event->nleft);
-#ifdef DEBUG
+#if 0
 		report(REPORT_DEBUG, "- %s write %d (%d)\n",
 		       inet_ntoa(c->sin.sin_addr), n,
 		       c->event->nleft);
@@ -768,6 +772,11 @@ connection_close(c)
     FD_CLR(c->fd, &read_mask);
     FD_CLR(c->fd, &write_mask);
 
+    if (c->monitor)
+    {
+	monitor_count--;
+    }
+
     close(c->fd);
 
     /*
@@ -837,6 +846,7 @@ connection_update_fdset(c)
     case EVENT_READ_GET_REPLY:
     case EVENT_NOTIFY:
     case EVENT_READ_FLOW:
+    case EVENT_WAIT_MONITOR:
 	FD_SET(c->fd, &read_mask);
 	break;
 
@@ -846,6 +856,7 @@ connection_update_fdset(c)
     case EVENT_WRITE_GET:
     case EVENT_CONNECT:
     case EVENT_WRITE_TIMEOUT:
+    case EVENT_WRITE_MONITOR:
 	FD_SET(c->fd, &write_mask);
 	break;
 
@@ -924,7 +935,8 @@ connection_idle()
 
     for (c = connections; c && idle; c = c->next)
     {
-	if (c->event && c->event->type != EVENT_NOTIFY)
+	if (c->event && c->event->type != EVENT_NOTIFY
+	    && !c->monitor)
 	{
 	    idle = 0;
 	}
@@ -981,6 +993,7 @@ connection_timeout(c)
 	switch (c->event->type)
 	{
 	case EVENT_NOTIFY:
+	case EVENT_WAIT_MONITOR:
 	    return;
 	}
     }
@@ -1664,6 +1677,45 @@ connection_flow_continue(sp)
 
 #ifdef __STDC__
 void
+connection_monitor_pause(CONNECTION *c)
+#else
+void
+connection_monitor_pause(c)
+    CONNECTION *c;
+#endif
+{
+    if (c->event && c->event->type == EVENT_WRITE_MONITOR)
+    {
+	c->event->type = EVENT_WAIT_MONITOR;
+	connection_update_fdset(c);
+    }
+}
+
+void
+connection_monitor_continue()
+{
+    CONNECTION *c;
+    EVENT *e;
+
+    for (c = connections; c; c = c->next)
+    {
+	for (e = c->event; e; e = e->next)
+	{
+	    if (e->type == EVENT_WAIT_MONITOR)
+	    {
+		e->type = EVENT_WRITE_MONITOR;
+		if (c->event == e)
+		{
+		    connection_update_fdset(c);
+		}
+		break;
+	    }
+	}
+    }
+}
+
+#ifdef __STDC__
+void
 event_update(CONNECTION *c)
 #else
 void
@@ -2088,6 +2140,33 @@ event_update(c)
 	report(REPORT_DEBUG, "event_update: `%d' update?\n", c->event->type);
 	break;
 
+    case EVENT_WRITE_MONITOR:
+	if (c->event->success)
+	{
+	    /* move to the next monitor buffer */
+	    c->event->buffer = c->event->buffer->next;
+	    c->event->start = c->event->buffer->buf;
+	    c->event->ptr = c->event->start;
+	    c->event->nleft = c->event->buffer->nbytes;
+	    c->event->nbytes = c->event->nleft;
+	    c->event->success = 0;
+
+	    /* need to wait for the buffer to be complete */
+	    if (c->event->buffer == monitor_buffers)
+	    {
+		connection_monitor_pause(c);
+	    }
+	}
+	else
+	{
+	    connection_close(c);
+	}
+	break;
+
+    case EVENT_WAIT_MONITOR:
+	connection_close(c);
+	break;
+
     default:
 	report(REPORT_ERROR, "event_update: unknown event `%d'\n", c->event->type);
 	done(1);
@@ -2426,6 +2505,14 @@ event_create(va_alist)
     case EVENT_PIPE_FLOW:
 	e->id = va_arg(args, int);
 	e->sound = va_arg(args, SOUND *);
+	break;
+
+    case EVENT_WAIT_MONITOR:
+	e->buffer = monitor_buffers;
+	e->ptr = e->buffer->buf;
+	e->start = e->ptr;
+	e->nleft = e->buffer->nbytes;
+	e->nbytes = e->nleft;
 	break;
     }
 

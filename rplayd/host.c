@@ -1,7 +1,7 @@
-/* $Id: host.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
+/* $Id: host.c,v 1.5 1999/03/10 07:58:03 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -39,7 +37,7 @@
 
 #ifdef AUTH
 
-static regex_t access_read, access_write, access_execute;
+static regex_t access_read, access_write, access_execute, access_monitor;
 BUFFER *host_list = NULL;
 BUFFER *b;
 
@@ -66,6 +64,7 @@ host_read(filename)
     char expr_read[HOST_EXPR_SIZE];
     char expr_write[HOST_EXPR_SIZE];
     char expr_execute[HOST_EXPR_SIZE];
+    char expr_monitor[HOST_EXPR_SIZE];
     int error = 0;
 
     host_read_time = time(0);
@@ -91,6 +90,7 @@ host_read(filename)
     strcpy(expr_read, "^\\(");
     strcpy(expr_write, "^\\(");
     strcpy(expr_execute, "^\\(");
+    strcpy(expr_monitor, "^\\(");
 
     do
     {
@@ -138,7 +138,8 @@ host_read(filename)
 	    perms = HOST_DEFAULT_ACCESS;
 	}
 
-	host_insert(expr_read, expr_write, expr_execute, name, perms);
+	host_insert(expr_read, expr_write, expr_execute, expr_monitor,
+		    name, perms);
     }
     while (fp);
 
@@ -178,28 +179,42 @@ host_read(filename)
 	expr_execute[strlen(expr_execute) - 1] = ')';
     }
     strcat(expr_execute, "$");
+    if (strlen(expr_monitor) == 3)
+    {
+	strcat(expr_monitor, "\\)");
+    }
+    else
+    {
+	expr_monitor[strlen(expr_monitor) - 1] = ')';
+    }
+    strcat(expr_monitor, "$");
 
-#if 0
-    report(REPORT_DEBUG, "expr_read: %s\n", expr_read);
-    report(REPORT_DEBUG, "expr_write: %s\n", expr_write);
-    report(REPORT_DEBUG, "expr_execute: %s\n", expr_execute);
-#endif
-
-    error = regncomp(&access_read, expr_read, strlen(expr_read), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_read, expr_read, strlen(expr_read),
+		     REG_ICASE | REG_NOSUB);
     if (error)
     {
 	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
 	done(1);
     }
 
-    error = regncomp(&access_write, expr_write, strlen(expr_write), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_write, expr_write, strlen(expr_write),
+		     REG_ICASE | REG_NOSUB);
     if (error)
     {
 	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
 	done(1);
     }
 
-    error = regncomp(&access_execute, expr_execute, strlen(expr_execute), REG_ICASE | REG_NOSUB);
+    error = regncomp(&access_execute, expr_execute, strlen(expr_execute),
+		     REG_ICASE | REG_NOSUB);
+    if (error)
+    {
+	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	done(1);
+    }
+
+    error = regncomp(&access_monitor, expr_monitor, strlen(expr_monitor),
+		     REG_ICASE | REG_NOSUB);
     if (error)
     {
 	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
@@ -223,7 +238,8 @@ host_reread(filename)
     /*
      * Free the old host buffer list.
      */
-    for (b = host_list; b; bb = b, b = b->next, bb->status = BUFFER_FREE, buffer_destroy(bb)) ;
+    for (b = host_list; b;
+	 bb = b, b = b->next, bb->status = BUFFER_FREE, buffer_destroy(bb)) ;
 
     host_list = NULL;
     host_read(filename);
@@ -246,13 +262,15 @@ host_stat(filename)
 
 #ifdef __STDC__
 void
-host_insert(char *expr_read, char *expr_write, char *expr_execute, char *name, char *perms)
+host_insert(char *expr_read, char *expr_write, char *expr_execute, char *expr_monitor,
+	    char *name, char *perms)
 #else
 void
-host_insert(expr_read, expr_write, expr_execute, name, perms)
+host_insert(expr_read, expr_write, expr_execute, expr_monitor, name, perms)
     char *expr_read;
     char *expr_write;
     char *expr_execute;
+    char *expr_monitor;
     char *name;
     char *perms;
 #endif
@@ -299,7 +317,8 @@ host_insert(expr_read, expr_write, expr_execute, name, perms)
 	    for (ap = hp->h_addr_list + 1; *ap; ap++)
 	    {
 		memcpy((char *) &addr_in, *ap, hp->h_length);
-		host_insert(expr_read, expr_write, expr_execute, inet_ntoa(addr_in), perms);
+		host_insert(expr_read, expr_write, expr_execute, expr_monitor,
+			    inet_ntoa(addr_in), perms);
 	    }
 	    memcpy((char *) &addr_in, (char *) hp->h_addr, sizeof(addr_in));
 	    re_name = host_ip_to_regex(inet_ntoa(addr_in));
@@ -317,7 +336,7 @@ host_insert(expr_read, expr_write, expr_execute, name, perms)
 	    && strcmp(inet_ntoa(addr_in), hostaddr) == 0)
 	{
 	    report(REPORT_DEBUG, "host_insert: adding localhost (127.0.0.1)\n");
-	    host_insert(expr_read, expr_write, expr_execute, "127.0.0.1", perms);
+	    host_insert(expr_read, expr_write, expr_execute, expr_monitor, "127.0.0.1", perms);
 	}
     }
 
@@ -338,6 +357,11 @@ host_insert(expr_read, expr_write, expr_execute, name, perms)
 	case HOST_EXECUTE:
 	    strcat(expr_execute, re_name);
 	    strcat(expr_execute, "\\|");
+	    break;
+
+	case HOST_MONITOR:
+	    strcat(expr_monitor, re_name);
+	    strcat(expr_monitor, "\\|");
 	    break;
 
 	default:
@@ -389,6 +413,10 @@ host_access(sin, access_mode)
 
     case HOST_EXECUTE:
 	re = &access_execute;
+	break;
+
+    case HOST_MONITOR:
+	re = &access_monitor;
 	break;
 
     default:

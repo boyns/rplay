@@ -1,7 +1,7 @@
-/* $Id: buffer.h,v 1.2 1998/08/13 06:13:41 boyns Exp $ */
+/* $Id: buffer.h,v 1.3 1999/03/10 07:58:02 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -38,7 +38,7 @@
  */
 #define BUFFER_MAX_FREE	64
 
-#define BUFFER_FREE	0	/* temporary buffer - put on free list or destroyed */
+#define BUFFER_FREE	0	/* temporary buffer - put on free list or destroy */
 #define BUFFER_KEEP	1	/* permanent buffer - not put on free list */
 #define BUFFER_REUSE	2	/* temporary buffer - always put on free list */
 

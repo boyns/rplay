@@ -1,7 +1,7 @@
-/* $Id: rplay.c,v 1.7 1999/03/06 20:32:42 boyns Exp $ */
+/* $Id: rplay.c,v 1.8 1999/03/10 07:57:59 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif

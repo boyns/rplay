@@ -1,7 +1,7 @@
-/* $Id: audio_solaris.c,v 1.4 1998/11/07 21:15:41 boyns Exp $ */
+/* $Id: audio_solaris.c,v 1.5 1999/03/10 07:58:10 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *

@@ -1,7 +1,7 @@
-/* $Id: connection.h,v 1.2 1998/08/13 06:13:49 boyns Exp $ */
+/* $Id: connection.h,v 1.3 1999/03/10 07:58:03 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -56,6 +56,8 @@
 #define EVENT_READ_FLOW			(1<<12)	/* read a flow */
 #define EVENT_WAIT_FLOW			(1<<13)	/* pause the incoming flow data */
 #define EVENT_PIPE_FLOW			(1<<14)	/* piped flow data */
+#define EVENT_WRITE_MONITOR		(1<<15)	/* write audio monitor data */
+#define EVENT_WAIT_MONITOR		(1<<16)	/* write audio monitor data */
 
 /*
  * notify events
@@ -73,6 +75,7 @@
 #define NOTIFY_MODIFY			(1<<9)
 #define NOTIFY_LEVEL			(1<<10)
 #define NOTIFY_POSITION			(1<<11)
+#define NOTIFY_MONITOR			(1<<12)
 #define NOTIFY_ANY			(0xffffffff)
 #define NOTIFY_SPOOL (NOTIFY_PLAY|NOTIFY_PAUSE|NOTIFY_CONTINUE|NOTIFY_STOP|NOTIFY_DONE|NOTIFY_SKIP|NOTIFY_MODIFY|NOTIFY_FLOW)
 
@@ -130,6 +133,7 @@ typedef struct _connection
     int notify_mask;
     int notify_id;
     NOTIFY_RATE notify_rate[NOTIFY_RATE_MAX];
+    int monitor;
 }
 CONNECTION;
 

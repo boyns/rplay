@@ -1,7 +1,7 @@
-/* $Id: server.c,v 1.4 1998/11/07 21:15:40 boyns Exp $ */
+/* $Id: server.c,v 1.5 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *

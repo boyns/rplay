@@ -1,7 +1,7 @@
-/* $Id: helper.c,v 1.3 1998/11/07 21:15:39 boyns Exp $ */
+/* $Id: helper.c,v 1.4 1999/03/10 07:58:03 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *

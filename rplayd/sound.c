@@ -1,7 +1,7 @@
-/* $Id: sound.c,v 1.8 1998/11/07 21:15:40 boyns Exp $ */
+/* $Id: sound.c,v 1.9 1999/03/10 07:58:04 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -2495,8 +2495,15 @@ sound_fill(si, data, as_is)
 #endif
 	    if (!si->high_water_mark)
 	    {
+#if 1
+		/* XXX test */
+		SOUND *s = si->sound;
+		si->low_water_mark = (s->sample_rate * s->input_sample_size) / 4;
+		si->high_water_mark = (s->sample_rate * s->input_sample_size) / 2;
+#else
 		si->low_water_mark = LOW_WATER_MARK(si->sound);
 		si->high_water_mark = HIGH_WATER_MARK(si->sound);
+#endif
 	    }
 	}
 

@@ -1,7 +1,7 @@
-/* $Id: version.h,v 1.4 1998/11/07 21:15:26 boyns Exp $ */
+/* $Id: version.h,v 1.5 1999/03/10 07:57:27 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
