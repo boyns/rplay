@@ -767,7 +767,7 @@ fi
 
 
 # If we're using gcc and the user hasn't specified CFLAGS, add -O to CFLAGS.
-test -n "$GCC" && test -n "$auto_cflags" && CFLAGS="$CFLAGS -O"
+test -n "$GCC" && test -n "$auto_cflags" && CFLAGS="$CFLAGS -O -Wall"
 
 
 # Check whether --enable-rplayd-user or --disable-rplayd-user was given.

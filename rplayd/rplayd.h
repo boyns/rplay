@@ -1,4 +1,4 @@
-/* $Id: rplayd.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: rplayd.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -44,7 +44,7 @@
 #define REPORT_MIN	0
 #define REPORT_MAX	4
 
-/* $Id: rplayd.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: rplayd.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 #define SET_BIT(w, bit)         ( (w) |= (bit) )
 #define CLR_BIT(w, bit)         ( (w) &= ~(bit) )
 #define BIT(w, bit)             ( (w) & (bit) )
@@ -154,6 +154,7 @@ extern BUFFER *rplayd_status ();
 extern void need_reset ();
 extern int rplayd_audio_init ();
 extern void rplayd_audio_match (SPOOL *sp);
+extern void monitor_alloc();
 #else
 extern void usage ();
 extern void done ( /* int exit_value */ );
@@ -173,6 +174,7 @@ extern BUFFER *rplayd_status ();
 extern void need_reset ();
 extern int rplayd_audio_init ();
 extern void rplayd_audio_match ( /* SPOOL *sp */ );
+extern void monitor_alloc();
 #endif
 
 /*
@@ -189,6 +191,10 @@ extern int rplay_audio_audio_get_volume ();
 extern int rplay_audio_audio_set_volume (int volume);
 extern int rplay_audio_get_volume ();
 extern int rplay_audio_set_volume (int volume);
+extern int rplay_audio_set_port();
+#ifdef linux
+extern int rplay_audio_setfragsize(int fragsize);
+#endif /* linux */
 #else
 extern int rplay_audio_init ();
 extern int rplay_audio_open ();
@@ -200,6 +206,10 @@ extern int rplay_audio_audio_get_volume ();
 extern int rplay_audio_audio_set_volume ( /* int volume */ );
 extern int rplay_audio_get_volume ();
 extern int rplay_audio_set_volume ( /* int volume */ );
+extern int rplay_audio_set_port();
+#ifdef linux
+extern int rplay_audio_setfragsize(/*int fragsize*/);
+#endif /* linux */
 #endif
 
 #endif /* _rplayd_h */

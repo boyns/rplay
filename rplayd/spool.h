@@ -1,4 +1,4 @@
-/* $Id: spool.h,v 1.3 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: spool.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -113,6 +113,7 @@ extern void spool_set_list_count (SPOOL *sp, int count);
 extern void spool_set_priority (SPOOL *sp, int priority);
 extern void spool_set_sample_rate (SPOOL *sp, int sample_rate);
 extern void spool_set_volume (SPOOL *sp, int volume);
+extern void spool_set_channel_volume (SPOOL *sp, int channel, int volume);
 extern void spool_set_client_data (SPOOL *sp, char *client_data);
 extern SPOOL *spool_find_pid (int pid);
 #else
@@ -145,6 +146,7 @@ extern void spool_set_list_count ( /* SPOOL *sp, int count */ );
 extern void spool_set_priority ( /* SPOOL *sp, int count */ );
 extern void spool_set_sample_rate ( /* SPOOL *sp, int sample_rate */ );
 extern void spool_set_volume ( /* SPOOL *sp, int volume */ );
+extern void spool_set_channel_volume ( /* SPOOL *sp, int channel, int volume */ );
 extern void spool_set_client_data ( /* SPOOL *sp, char *client_data */ );
 extern SPOOL *spool_find_pid ( /* int pid */ );
 #endif

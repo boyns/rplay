@@ -1,4 +1,4 @@
-/* $Id: misc.c,v 1.5 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: misc.c,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -524,7 +524,6 @@ audio_port_to_string(port)
 #endif
 {
     static char string[128];
-    int n;
 
     string[0] = '\0';
     if (BIT(port, RPLAY_AUDIO_PORT_NONE))
@@ -585,10 +584,10 @@ big_long(p)
 }
 
 /*
- * C O N V E R T   F R O M   I E E E   E X T E N D E D  
+ * C O N V E R T   F R O M   I E E E   E X T E N D E D
  */
 
-/* 
+/*
  * Copyright (C) 1988-1991 Apple Computer, Inc.
  * All rights reserved.
  *

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.8 2002/12/05 18:48:58 boyns Exp $
+dnl $Id: configure.in,v 1.9 2002/12/11 05:12:15 boyns Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
@@ -25,7 +25,7 @@ test -z "$CFLAGS" && CFLAGS=-g auto_cflags=1
 AC_PROG_CC
 
 # If we're using gcc and the user hasn't specified CFLAGS, add -O to CFLAGS.
-test -n "$GCC" && test -n "$auto_cflags" && CFLAGS="$CFLAGS -O"
+test -n "$GCC" && test -n "$auto_cflags" && CFLAGS="$CFLAGS -O -Wall"
 
 AC_SUBST(CFLAGS)dnl
 AC_SUBST(LDFLAGS)dnl

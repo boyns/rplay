@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.6 1999/03/10 07:57:56 boyns Exp $ */
+/* $Id: rplay.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -28,6 +28,7 @@
 #include "rplay.h"
 #include <sys/param.h>
 #include <netdb.h>
+#include <time.h>
 #include <string.h>
 #include <arpa/inet.h>
 
@@ -124,7 +125,8 @@ rplay_attrs_create()
     }
     attrs->next = NULL;
     attrs->sound = "";
-    attrs->volume = RPLAY_DEFAULT_VOLUME;
+    attrs->volume[0] = RPLAY_DEFAULT_VOLUME;
+    attrs->volume[1] = RPLAY_DEFAULT_VOLUME;
     attrs->count = RPLAY_DEFAULT_COUNT;
     attrs->rptp_server = NULL;
     attrs->rptp_server_port = RPTP_PORT;
@@ -284,11 +286,19 @@ rplay_pack(rp)
 	    COPY(rp, attrs->sound, len);
 	}
 
-	if (attrs->volume != RPLAY_DEFAULT_VOLUME)
+	if (attrs->volume[0] != RPLAY_DEFAULT_VOLUME)
 	{
-	    val = RPLAY_VOLUME;
+	    val = RPLAY_LEFT_VOLUME;
 	    COPY(rp, &val, sizeof(val));
-	    val = attrs->volume;
+	    val = attrs->volume[0];
+	    COPY(rp, &val, sizeof(val));
+	}
+
+	if (attrs->volume[1] != RPLAY_DEFAULT_VOLUME)
+	{
+	    val = RPLAY_RIGHT_VOLUME;
+	    COPY(rp, &val, sizeof(val));
+	    val = attrs->volume[1];
 	    COPY(rp, &val, sizeof(val));
 	}
 
@@ -412,8 +422,17 @@ rplay_unpack(packet)
 	    break;
 
 	case RPLAY_VOLUME:
-	    (*rp->attrsp)->volume = (unsigned char) *packet++;
+	    (*rp->attrsp)->volume[0] = (unsigned char) *packet++;
+	    (*rp->attrsp)->volume[1] = (*rp->attrsp)->volume[0];
 	    break;
+
+        case RPLAY_LEFT_VOLUME:
+	    (*rp->attrsp)->volume[0] = (unsigned char) *packet++;
+            break;
+
+        case RPLAY_RIGHT_VOLUME:
+	    (*rp->attrsp)->volume[1] = (unsigned char) *packet++;
+            break;
 
 	case RPLAY_COUNT:
 	    (*rp->attrsp)->count = (unsigned char) *packet++;
@@ -816,7 +835,16 @@ rplay_set(va_alist)
 		break;
 
 	    case RPLAY_VOLUME:
-		attrs->volume = va_arg(args, long);
+		attrs->volume[0] = va_arg(args, long);
+		attrs->volume[1] = attrs->volume[0];
+		break;
+
+	    case RPLAY_LEFT_VOLUME:
+		attrs->volume[0] = va_arg(args, long);
+		break;
+
+	    case RPLAY_RIGHT_VOLUME:
+		attrs->volume[1] = va_arg(args, long);
 		break;
 
 	    case RPLAY_COUNT:
@@ -973,7 +1001,27 @@ rplay_get(va_alist)
 	    rplay_errno = RPLAY_ERROR_INDEX;
 	    return -1;
 	}
-	return attrs->volume;
+	return MAX(attrs->volume[0], attrs->volume[1]);
+
+    case RPLAY_LEFT_VOLUME:
+	index = va_arg(args, long);
+	attrs = get_attrs(rp->attrs, index);
+	if (attrs == NULL)
+	{
+	    rplay_errno = RPLAY_ERROR_INDEX;
+	    return -1;
+	}
+	return attrs->volume[0];
+
+    case RPLAY_RIGHT_VOLUME:
+	index = va_arg(args, long);
+	attrs = get_attrs(rp->attrs, index);
+	if (attrs == NULL)
+	{
+	    rplay_errno = RPLAY_ERROR_INDEX;
+	    return -1;
+	}
+	return attrs->volume[1];
 
     case RPLAY_COUNT:
 	index = va_arg(args, long);

@@ -1,4 +1,4 @@
-/* $Id: rplayd.c,v 1.8 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: rplayd.c,v 1.9 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -301,6 +302,7 @@ static void handle_sigint();
 static void handle_sigchld();
 static void reset();
 static void audio_test();
+static void monitor_cleanup();
 
 #if defined(HAVE_CDROM) || defined(HAVE_HELPERS)
 #ifdef __STDC__
@@ -317,9 +319,9 @@ void rplayd_pipe_read( /* fd_set *rfds */ );
 #endif
 
 #ifdef __STDC__
-main(int argc, char **argv)
+int main(int argc, char **argv)
 #else
-main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -494,6 +496,7 @@ main(argc, argv)
     report(REPORT_DEBUG, "%s rplayd %s ready.\n", hostname, RPLAY_VERSION);
 
     doit();
+    exit(0);
 }
 
 #ifdef __STDC__
@@ -537,7 +540,7 @@ do_option_file(option_file)
 	}
 
 	first = 1;
-	while (p = (char *) strtok(first ? buf : NULL, " \t\n"))
+	while ((p = (char *) strtok(first ? buf : NULL, " \t\n")))
 	{
 	    first = 0;
 	    argv[argc++] = tilde_expand(p);
@@ -568,7 +571,6 @@ do_option(option_value)
     int option_value;
 #endif
 {
-    static int within_file;
     int i;
     char *p;
 
@@ -867,7 +869,6 @@ doit()
     int idle = 1;
     struct timeval select_timeout;
     fd_set rfds, wfds;
-    SPOOL *sp;
     /* Initialize the fd_sets before starting.  */
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
@@ -925,14 +926,7 @@ doit()
 			connection_level_notify = 0;
 		    }
 
-		    for (sp = spool; sp; sp = sp->next)
-		    {
-			if (sp->notify_position)
-			{
-			    connection_notify(0, NOTIFY_POSITION, sp);
-			    sp->notify_position = 0;
-			}
-		    }
+                    connection_notify_position();
 
 		    if (monitor_count && monitor_update)
 		    {
@@ -1393,11 +1387,11 @@ rplayd_audio_match(match_sp)
     }
 }
 
-monitor_alloc()
+void monitor_alloc()
 {
     if (!monitor_buffers)
     {
-	BUFFER *b, *end;
+	BUFFER *b, *end = 0;
 	monitor_buffers = buffer_alloc(monitor_total_bytes, BUFFER_KEEP);
 	for (b = monitor_buffers; b; b = b->next)
 	{
@@ -1415,9 +1409,9 @@ monitor_alloc()
     monitor_update = 0;
 }
 
-monitor_cleanup()
+void monitor_cleanup()
 {
-    BUFFER *b, *b_next;
+    BUFFER *b;
 
     for (b = monitor_buffers; b->next != monitor_buffers; b = b->next);
     b->next = NULL;
@@ -1466,7 +1460,7 @@ rplayd_write(nbytes)
 	char *buf = rplay_audio_buf;
 	int size = rplay_audio_size;
 	int n;
-	
+
 	while (size)
 	{
 	    n = MIN(BUFFER_SIZE - monitor_buffers->offset, size);
@@ -1483,7 +1477,7 @@ rplayd_write(nbytes)
 	    }
 	}
     }
-    
+
     rplay_audio_size = 0;
 
     /* Flush when the audio stream has ended.  */
@@ -1692,7 +1686,7 @@ rplayd_play(rp, sin)
 {
     SPOOL *sp = NULL;
     int i, n;
-    int start_sound, end_sound, merged_lists;
+    int start_sound = 0, end_sound = 0, merged_lists = 0;
     RPLAY_ATTRS *attrs;
 
     if (!audio_enabled)
@@ -2075,7 +2069,6 @@ static void
 handle_sigchld()
 {
     pid_t pid;
-    SPOOL *sp;
 
 #ifdef linux
     handle_signals();
@@ -2136,8 +2129,6 @@ done(exit_value)
     int exit_value;
 #endif
 {
-    SPOOL *sp;
-
 /* #ifdef HAVE_CDROM */
 /*     for (sp = spool; sp; sp = sp->next) */
 /*     { */

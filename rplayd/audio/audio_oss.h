@@ -1,4 +1,4 @@
-/* $Id: audio_oss.h,v 1.3 1999/03/10 07:58:10 boyns Exp $ */
+/* $Id: audio_oss.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -38,5 +38,7 @@
 #else
 #define RPLAY_AUDIO_BYTE_ORDER		RPLAY_LITTLE_ENDIAN
 #endif
+
+extern int rplay_audio_getospace_bytes();
 
 #endif /* _audio_oss_h */

@@ -1,4 +1,4 @@
-/* $Id: native.c,v 1.4 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: native.c,v 1.5 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -247,93 +247,114 @@ fake_volume(native_buf, nsamples, nchannels)
 }
 
 /* Return 0 when the sound is over, otherwise return 1.  */
-#define x_to_native(FUNC, SAMPLE_TO_NATIVE)											\
-static int															\
-FUNC (sp, native_buf, nsamples, nchannels)											\
-    SPOOL	*sp;														\
-    short	*native_buf;													\
-    int	nsamples;														\
-    int	nchannels;														\
-{																\
-    SOUND *curr_sound;														\
-    short new_volume;														\
-    int	sample_count = 0;													\
-    int	curr_channel;														\
-    short linear;														\
-    short orig_linear;														\
-    short *buf = (short *)native_buf;												\
-																\
-    /* Find the sound that being played.  */											\
-    curr_sound = sp->sound[sp->curr_sound];											\
-																\
-    /* Compute the new volume for the sound using priorities.  */								\
-    new_volume = sp->curr_attrs->volume;											\
-    if (spool_prio && spool_nplaying > 1)											\
-    {																\
-	new_volume -= (spool_prio - sp->rp->priority) >> 1;									\
-	new_volume = MAX(new_volume, RPLAY_MIN_VOLUME);										\
-    }																\
-																\
-    /* do oversampling */													\
-    if (sp->sample_factor < 1)													\
-    {																\
-	while (sp->curr_buffer && sample_count < nsamples)									\
-	{															\
-	    sp->ptr += sp->offset;												\
-	    if (sp->ptr < sp->ptr_end)												\
-	    {															\
-		for (curr_channel = 0; curr_channel < nchannels; curr_channel++)						\
-		{														\
-		    if (curr_channel < curr_sound->channels)									\
-		    {														\
-			SAMPLE_TO_NATIVE;											\
-			orig_linear = linear;											\
-			linear = sp->oversample[curr_channel];									\
-			sp->oversample[curr_channel] += sp->oversample_inc[curr_channel];					\
-			if (sp->sample_index + sp->sample_factor > sp->offset + 1)						\
-			{													\
-			    sp->oversample_inc[curr_channel] = (orig_linear -							\
-								sp->oversample[curr_channel]) * sp->sample_factor;		\
-			}													\
-		    }														\
-		    *buf++ += ((linear * new_volume) >> 7);									\
-		}														\
-		sample_count++;													\
-		next_sample (sp, curr_sound);											\
-	    }															\
-	    else														\
-	    {															\
-		check_buffers (sp);												\
-	    }															\
-	}															\
-    }																\
-    /* read the sound as-is */													\
-    else															\
-    {																\
-	while (sp->curr_buffer && sample_count < nsamples)									\
-	{															\
-	    sp->ptr += sp->offset;												\
-	    if (sp->ptr < sp->ptr_end)												\
-	    {															\
-		for (curr_channel = 0; curr_channel < nchannels; curr_channel++)						\
-		{														\
-		    if (curr_channel < curr_sound->channels)									\
-		    {														\
-			SAMPLE_TO_NATIVE;											\
-		    }														\
-		    *buf++ += ((linear * new_volume) >> 7);									\
-		}														\
-		sample_count++;													\
-		next_sample (sp, curr_sound);											\
-	    }															\
-	    else														\
-	    {															\
-		check_buffers (sp);												\
-	    }															\
-	}															\
-    }																\
-    																\
-    return 1;															\
+#define x_to_native(FUNC, SAMPLE_TO_NATIVE)                                                                        \
+static int                                                                                                         \
+FUNC (sp, native_buf, nsamples, nchannels)                                                                         \
+    SPOOL	*sp;                                                                                               \
+    short	*native_buf;                                                                                       \
+    int	nsamples;                                                                                                  \
+    int	nchannels;                                                                                                 \
+{                                                                                                                  \
+    SOUND *curr_sound;                                                                                             \
+    short new_volume[2];                                                                                           \
+    short max_volume;                                                                                              \
+    int	sample_count = 0;                                                                                          \
+    int	curr_channel;                                                                                              \
+    int scale;                                                                                                     \
+    short linear = 0;                                                                                              \
+    short orig_linear;                                                                                             \
+    short *buf = (short *)native_buf;                                                                              \
+                                                                                                                   \
+    /* Find the sound that being played.  */                                                                       \
+    curr_sound = sp->sound[sp->curr_sound];                                                                        \
+                                                                                                                   \
+    /* Compute the new volume for the sound using priorities.  */                                                  \
+    new_volume[0] = sp->curr_attrs->volume[0];                                                                     \
+    new_volume[1] = sp->curr_attrs->volume[1];                                                                     \
+    if (spool_prio && spool_nplaying > 1)                                                                          \
+    {                                                                                                              \
+	scale = (spool_prio - sp->rp->priority) >> 1;                                                              \
+	new_volume[0] -= scale;                                                                                    \
+	new_volume[1] -= scale;                                                                                    \
+	new_volume[0] = MAX(new_volume[0], RPLAY_MIN_VOLUME);                                                      \
+	new_volume[1] = MAX(new_volume[1], RPLAY_MIN_VOLUME);                                                      \
+    }                                                                                                              \
+    max_volume = MAX(new_volume[0], new_volume[1]);                                                                \
+                                                                                                                   \
+    /* do oversampling */                                                                                          \
+    if (sp->sample_factor < 1)                                                                                     \
+    {                                                                                                              \
+	while (sp->curr_buffer && sample_count < nsamples)                                                         \
+	{                                                                                                          \
+	    sp->ptr += sp->offset;                                                                                 \
+	    if (sp->ptr < sp->ptr_end)                                                                             \
+	    {                                                                                                      \
+		for (curr_channel = 0; curr_channel < nchannels; curr_channel++)                                   \
+		{                                                                                                  \
+		    if (curr_channel < curr_sound->channels)                                                       \
+		    {                                                                                              \
+			SAMPLE_TO_NATIVE;                                                                          \
+			orig_linear = linear;                                                                      \
+			linear = sp->oversample[curr_channel];                                                     \
+			sp->oversample[curr_channel] += sp->oversample_inc[curr_channel];                          \
+			if (sp->sample_index + sp->sample_factor > sp->offset + 1)                                 \
+			{                                                                                          \
+			    sp->oversample_inc[curr_channel] = (orig_linear -                                      \
+								sp->oversample[curr_channel]) * sp->sample_factor; \
+			}                                                                                          \
+		    }                                                                                              \
+		    if (curr_channel < 2)                                                                          \
+		    {                                                                                              \
+		        *buf++ += ((linear * new_volume[curr_channel]) >> 7);                                      \
+		    }                                                                                              \
+		    else                                                                                           \
+		    {                                                                                              \
+		        *buf++ += ((linear * max_volume) >> 7);                                                    \
+		    }                                                                                              \
+		}                                                                                                  \
+		sample_count++;                                                                                    \
+		next_sample (sp, curr_sound);                                                                      \
+	    }                                                                                                      \
+	    else                                                                                                   \
+	    {                                                                                                      \
+		check_buffers (sp);                                                                                \
+	    }                                                                                                      \
+	}                                                                                                          \
+    }                                                                                                              \
+    /* read the sound as-is */                                                                                     \
+    else                                                                                                           \
+    {                                                                                                              \
+	while (sp->curr_buffer && sample_count < nsamples)                                                         \
+	{                                                                                                          \
+	    sp->ptr += sp->offset;                                                                                 \
+	    if (sp->ptr < sp->ptr_end)                                                                             \
+	    {                                                                                                      \
+		for (curr_channel = 0; curr_channel < nchannels; curr_channel++)                                   \
+		{                                                                                                  \
+		    if (curr_channel < curr_sound->channels)                                                       \
+		    {                                                                                              \
+			SAMPLE_TO_NATIVE;                                                                          \
+		    }                                                                                              \
+		    if (curr_channel < 2)                                                                          \
+		    {                                                                                              \
+		        *buf++ += ((linear * new_volume[curr_channel]) >> 7);                                      \
+		    }                                                                                              \
+		    else                                                                                           \
+		    {                                                                                              \
+		        *buf++ += ((linear * max_volume) >> 7);                                                    \
+		    }                                                                                              \
+		}                                                                                                  \
+		sample_count++;                                                                                    \
+		next_sample (sp, curr_sound);                                                                      \
+	    }                                                                                                      \
+	    else                                                                                                   \
+	    {                                                                                                      \
+		check_buffers (sp);                                                                                \
+	    }                                                                                                      \
+	}                                                                                                          \
+    }                                                                                                              \
+                                                                                                                   \
+    return 1;                                                                                                      \
 }
 
 /* ulaw */

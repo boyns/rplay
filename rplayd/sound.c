@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.11 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: sound.c,v 1.12 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -24,6 +24,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <time.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/stat.h>
@@ -83,6 +84,10 @@
 #define MAXPATHLEN 4096
 #endif
 
+#ifdef HAVE_ADPCM
+extern void g72x_init_state(struct g72x_state *);
+#endif
+
 SOUND *sounds = NULL;
 int sound_count = 0;
 static time_t sound_read_time;
@@ -129,7 +134,7 @@ bad_dirs_init()
 
     first = 1;
     strcpy(buf, "^\\(");
-    while (p = (char *) strtok(first ? dirs : 0, ":"))
+    while ((p = (char *) strtok(first ? dirs : 0, ":")))
     {
 	if (first)
 	{
@@ -286,24 +291,6 @@ sound_read(filename)
     }
 
     fclose(fp);
-}
-
-#ifdef __STDC__
-static char *
-destroy(char *hash_string, char *hash_value)
-#else
-static char *
-destroy(hash_string, hash_value)
-    char *hash_string;
-    char *hash_value;
-#endif
-{
-    SOUND *s = (SOUND *) hash_value;
-
-    sound_free(s);
-    free((char *) s);
-
-    return NULL;
 }
 
 /*
@@ -946,9 +933,9 @@ sound_map(s)
 	unsigned long frames;
 	unsigned long offset;
 	unsigned long block_size;
-	double rate;
-	int channels;
-	int bits;
+	double rate = 0;
+	int channels = 0;
+	int bits = 0;
 	char id[5];
 	char *p;
 
@@ -1084,9 +1071,9 @@ sound_map(s)
     {
 	unsigned long chunk_size;
 	short chunk_type;
-	double rate;
-	int channels;
-	int bits;
+	double rate = 0;
+	int channels = 0;
+	int bits = 0;
 	char id[5];
 	char *p;
 
@@ -1264,7 +1251,7 @@ sound_map(s)
 			   *p);
 		    return -1;
 		}
-		*p++;
+		p++;
 
 		s->channels = *p++;
 
@@ -1884,7 +1871,6 @@ sound_open(s, use_helper)
 #endif
 {
     SINDEX *si;
-    int n;
 
     si = (SINDEX *) malloc(sizeof(SINDEX));
     if (si == NULL)
@@ -1969,7 +1955,7 @@ sound_open(s, use_helper)
 	    int first;
 	    char *argv[64];	/* XXX */
 	    int argc = 0;
-	    char buf[MAXPATHLEN], *p;
+	    char *p;
 	    int input_fd = -1;
 
 	    if (s->type == SOUND_FILE)
@@ -2006,7 +1992,7 @@ sound_open(s, use_helper)
 	    }
 
 	    first = 1;
-	    while (p = (char *) strtok(first ? helper->program : NULL, " \t\n"))
+	    while ((p = (char *) strtok(first ? helper->program : NULL, " \t\n")))
 	    {
 		first = 0;
 		argv[argc++] = p;
@@ -2485,7 +2471,7 @@ sound_fill(si, data, as_is)
     /* Read from a flow.  */
     if (si->is_flow)
     {
-	BUFFER *f, *f_next;
+	BUFFER *f;
 
 	if (!si->flowp)
 	{

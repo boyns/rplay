@@ -1,4 +1,4 @@
-/* $Id: version.h,v 1.6 2002/12/06 18:51:01 boyns Exp $ */
+/* $Id: version.h,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99,2002 Mark R. Boyns <boyns@doit.org>
@@ -26,8 +26,8 @@
 #define _version_h
 
 #define RPLAY_MAJOR_VERSION	3
-#define RPLAY_MINOR_VERSION	3
-#define RPLAY_PATCHLEVEL	3
+#define RPLAY_MINOR_VERSION	4
+#define RPLAY_PATCHLEVEL	0
 #define RPLAY_STATUS		""
 
 #endif /* _version_h */

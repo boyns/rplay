@@ -1,6 +1,6 @@
-/* $Id: async.c,v 1.2 1998/08/13 06:13:35 boyns Exp $ */
+/* $Id: async.c,v 1.3 2002/12/11 05:12:16 boyns Exp $ */
 
-/* 
+/*
  * Copyright (C) 1995 Andrew Scherpbier <andrew@sdsu.edu>
  *
  * This file is part of rplay.
@@ -205,7 +205,7 @@ va_dcl
 	}
 
 	rptp_errno = RPTP_ERROR_NONE;
-	
+
 	vsprintf(buf, fmt, args);
 	va_end(args);
 	strcat(buf, "\r\n");
@@ -279,6 +279,8 @@ rptp_async_write(rptp_fd, callback, ptr, nbytes)
 	{
 		do_register(rptp_fd);
 	}
+
+    return 0;
 }
 
 
@@ -576,14 +578,14 @@ process_input(rptp_fd)
 
 	while ((ptr = group[rptp_fd].ilist))
 	{
-		if (p = memchr(ptr->current, '\r', ptr->length))
+		if ((p = memchr(ptr->current, '\r', ptr->length)))
 		{
 			memcpy(&line[length], ptr->current, p - ptr->current);
 			length += p - ptr->current;
 			line[length] = '\0';
 			notify_line(rptp_fd, line);
 			length = 0;
-			
+
 			p+= 2;
 			if (p < ptr->current + ptr->length)
 			{
@@ -684,15 +686,15 @@ notify_line(rptp_fd, line)
 		case '+':
 			what = RPTP_EVENT_OK;
 			break;
-		
+
 		case '-':
 			what = RPTP_EVENT_ERROR;
 			break;
-			
+
 		case '!':
 			what = RPTP_EVENT_TIMEOUT;
 			break;
-		
+
 		case '@':
 			event = rptp_parse(line, "event");
 			what = RPTP_EVENT_OTHER;

@@ -1,4 +1,4 @@
-/* $Id: host.c,v 1.7 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: host.c,v 1.8 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -26,6 +26,7 @@
 #endif
 #include "rplayd.h"
 #include <netdb.h>
+#include <time.h>
 #include <sys/types.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -396,7 +397,7 @@ host_access(sin, access_mode)
 #endif
 {
     char *p;
-    regex_t *re;
+    regex_t *re = 0;
     int n;
 
     /*

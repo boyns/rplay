@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.9 2002/02/08 22:12:07 lmoore Exp $ */
+/* $Id: rplay.c,v 1.10 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -105,19 +105,18 @@ int which_port = -1;
 int buffer_size = BUFFER_SIZE;
 
 #ifdef __STDC__
-main(int argc, char **argv)
+int main(int argc, char **argv)
 #else
-main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 #endif
 {
-    int i, n, c, command, volume, val;
+    int c, command, volume, val;
     int list_count, count, priority, do_random;
     unsigned long sample_rate;
     char *hosts, *name, *list_name, *sound_info = "";
     int optind_val = optind;
-    char buf[RPTP_MAX_LINE];
     extern char *optarg;
     extern int optind, opterr;
 
@@ -422,7 +421,7 @@ doit(hostp)
     /* Cycle through each colon-separated host. */
     do
     {
-	int protocol, port;
+	int protocol = 0, port;
 	int rplay_fd = -1;
 
 	host = hostp;
@@ -676,7 +675,7 @@ play_with_play(rplay_fd, host, port, rp, index)
     if (n < 0 || response[0] != RPTP_OK)
     {
 	fprintf(stderr, "rplay: can't play `%s'\n",
-		(int) rplay_get(rp, RPLAY_SOUND, index));
+		(char *) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
 
@@ -745,7 +744,6 @@ play_with_flow(rplay_fd, host, port, rp, index)
 {
     char *sound_name = (char *) rplay_get(rp, RPLAY_SOUND, index);
     char *sound_info = (char *) rplay_get(rp, RPLAY_CLIENT_DATA, index);
-    char command[RPTP_MAX_LINE];
     char response[RPTP_MAX_LINE];
     char *buffer;
     int spool_id, n, fd, flow_fd;
@@ -788,7 +786,7 @@ play_with_flow(rplay_fd, host, port, rp, index)
     if (n < 0 || response[0] != RPTP_OK)
     {
 	fprintf(stderr, "rplay: can't play `%s'\n",
-		(int) rplay_get(rp, RPLAY_SOUND, index));
+		(char *) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
 
@@ -801,7 +799,7 @@ play_with_flow(rplay_fd, host, port, rp, index)
     if (n < 0 || response[0] != RPTP_OK)
     {
 	fprintf(stderr, "rplay: can't play `%s'\n",
-		(int) rplay_get(rp, RPLAY_SOUND, index));
+		(char *) rplay_get(rp, RPLAY_SOUND, index));
 	return -1;
     }
 

@@ -1,4 +1,4 @@
-/* $Id: connection.h,v 1.3 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: connection.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -163,6 +163,8 @@ extern void connection_notify (CONNECTION *c, int wait_event,...);
 extern void connection_flow_pause (SPOOL *sp);
 extern void connection_flow_continue (SPOOL *sp);
 extern int connection_idle ();
+extern void connection_monitor_continue();
+extern void connection_notify_position();
 extern EVENT *event_create (int event_type,...);
 extern void event_first (CONNECTION *c, EVENT *e);
 extern void event_insert_before (CONNECTION *c, EVENT *e, int mask);
@@ -191,6 +193,8 @@ extern void connection_notify ( /* CONNECTION *c, int wait_event, ... */ );
 extern void connection_flow_pause ( /* SPOOL *sp */ );
 extern void connection_flow_continue ( /* SPOOL *sp */ );
 extern int connection_idle ();
+extern void connection_monitor_continue();
+extern void connection_notify_position();
 extern EVENT *event_create ( /* int event_type, ... */ );
 extern void event_first ( /* CONNECTION *c, EVENT *e */ );
 extern void event_insert_before ( /* CONNECTION *c, EVENT *e, int mask */ );

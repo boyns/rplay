@@ -1,4 +1,4 @@
-/* $Id: server.c,v 1.5 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: server.c,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif

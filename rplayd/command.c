@@ -1,4 +1,4 @@
-/* $Id: command.c,v 1.6 1999/03/10 07:58:02 boyns Exp $ */
+/* $Id: command.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -122,7 +122,7 @@ extern int command_die( /* CONNECTION *c, int argc, char **argv */ );
 
 static COMMAND commands[] =
 {
-/*      
+/*
  *    command         min     max     usage                   function
  */
     {"access", -1, -1, "", command_access},
@@ -828,7 +828,7 @@ do_execute(c, argc, argv)
     int old_style = 0;
     int i, n, command = RPLAY_PLAY, val = 0;
     RPLAY *rp;
-    int volume, list_count, count, priority, sample_rate;
+    int volume[2], list_count, count, priority, sample_rate;
     int do_random = 0;
     int do_search = 1;		/* search by default */
     int input = SOUND_FILE;
@@ -895,7 +895,8 @@ do_execute(c, argc, argv)
 	return -1;
     }
 
-    volume = RPLAY_DEFAULT_VOLUME;
+    volume[0] = RPLAY_DEFAULT_VOLUME;
+    volume[1] = RPLAY_DEFAULT_VOLUME;
     count = RPLAY_DEFAULT_COUNT;
     list_count = RPLAY_DEFAULT_LIST_COUNT;
     priority = RPLAY_DEFAULT_PRIORITY;
@@ -906,7 +907,7 @@ do_execute(c, argc, argv)
 	char *name, *value;
 
 	rptp_parse(command_buffer, 0);
-	while (name = rptp_parse(0, 0))
+	while ((name = rptp_parse(0, 0)))
 	{
 	    value = rptp_parse(0, name);
 
@@ -919,7 +920,8 @@ do_execute(c, argc, argv)
 	    {
 		val = rplay_set(rp, RPLAY_APPEND,
 				RPLAY_SOUND, value,
-				RPLAY_VOLUME, volume,
+				RPLAY_LEFT_VOLUME, volume[0],
+				RPLAY_RIGHT_VOLUME, volume[1],
 				RPLAY_COUNT, count,
 				RPLAY_SAMPLE_RATE, sample_rate,
 				RPLAY_RPTP_SEARCH, do_search,
@@ -938,7 +940,16 @@ do_execute(c, argc, argv)
 	    }
 	    else if (strcmp(name, "volume") == 0)
 	    {
-		volume = atoi(value);
+		volume[0] = atoi(value);
+		volume[1] = volume[0];
+	    }
+	    else if (strcmp(name, "left-volume") == 0)
+	    {
+		volume[0] = atoi(value);
+	    }
+	    else if (strcmp(name, "right-volume") == 0)
+	    {
+		volume[1] = atoi(value);
 	    }
 	    else if (strcmp(name, "count") == 0)
 	    {
@@ -1035,7 +1046,8 @@ do_execute(c, argc, argv)
 	    switch (n)
 	    {
 	    case 'v':
-		volume = atoi(optarg);
+                volume[0] = atoi(optarg);
+                volume[1] = volume[0];
 		break;
 
 	    case 'n':
@@ -1078,7 +1090,8 @@ do_execute(c, argc, argv)
 	{
 	    val = rplay_set(rp, RPLAY_APPEND,
 			    RPLAY_SOUND, argv[optind++],
-			    RPLAY_VOLUME, volume,
+			    RPLAY_LEFT_VOLUME, volume[0],
+			    RPLAY_RIGHT_VOLUME, volume[1],
 			    RPLAY_COUNT, count,
 			    RPLAY_SAMPLE_RATE, sample_rate,
 			    RPLAY_RPTP_SEARCH, do_search,
@@ -1454,7 +1467,7 @@ do_events(event_string, mask, spool_id)
 
     strncpy(buf, event_string, sizeof(buf));
 
-    while (p = strtok(first ? buf : NULL, ",| "))
+    while ((p = strtok(first ? buf : NULL, ",| ")))
     {
 	first = 0;
 	bit = 0;
@@ -1845,8 +1858,6 @@ command_set(c, argc, argv)
     int audio_port_changed = 0;
     int notify_enabled = 0;
     SPOOL *sp;
-    int notify_mask = 0;
-    int notify_id = 0;
     char *client_data;
     char buf[RPTP_MAX_LINE];
 
@@ -1872,7 +1883,7 @@ command_set(c, argc, argv)
     b->nbytes = 1;
 
     rptp_parse(command_buffer, 0);
-    while (name = rptp_parse(0, 0))
+    while ((name = rptp_parse(0, 0)))
     {
 	value = rptp_parse(0, name);
 
@@ -2079,7 +2090,7 @@ command_set(c, argc, argv)
 	{
 	    char info[1024], *p;
 	    SPOOL *sp, *sp_next;
-	    int bufsize, rate;
+	    int rate;
 
 	    /* Stop all sounds. */
 	    for (sp = spool; sp; sp = sp_next)
@@ -2219,12 +2230,13 @@ command_modify(c, argc, argv)
     int id = 0;
     char *p;
     int new_sample_rate = -1;
-    int new_volume = -1;
+    int new_volume[2] = {-1, -1};
     int new_count = -1;
     int new_priority = -1;
     int new_list_count = -1;
     char *new_client_data = NULL;
     int modified, total_modified = 0;
+    int i;
 
 #ifdef AUTH
     if (!host_access(c->sin, HOST_EXECUTE))
@@ -2270,7 +2282,20 @@ command_modify(c, argc, argv)
     p = rptp_parse(0, "volume");
     if (p)
     {
-	new_volume = atoi(p);
+	new_volume[0] = atoi(p);
+	new_volume[1] = new_volume[0];
+    }
+
+    p = rptp_parse(0, "left-volume");
+    if (p)
+    {
+	new_volume[0] = atoi(p);
+    }
+
+    p = rptp_parse(0, "right-volume");
+    if (p)
+    {
+	new_volume[1] = atoi(p);
     }
 
     p = rptp_parse(0, "client-data");
@@ -2304,11 +2329,14 @@ command_modify(c, argc, argv)
 		spool_set_sample_rate(sp, new_sample_rate);
 		modified++;
 	    }
-	    if (new_volume != -1)
-	    {
-		spool_set_volume(sp, new_volume);
-		modified++;
-	    }
+            for (i = 0; i < 2; i++)
+            {
+                if (new_volume[i] != -1)
+                {
+                    spool_set_channel_volume(sp, i, new_volume[i]);
+                    modified++;
+                }
+            }
 	    if (new_client_data)
 	    {
 		spool_set_client_data(sp, new_client_data);
@@ -2317,7 +2345,7 @@ command_modify(c, argc, argv)
 
 	    if (modified)
 	    {
-		connection_notify(c, NOTIFY_MODIFY, sp);
+		connection_notify(0, NOTIFY_MODIFY, sp);
 		total_modified++;
 	    }
 	}
@@ -2347,7 +2375,7 @@ command_monitor(c, argc, argv)
 #endif
 {
     EVENT *e;
-    
+
 #ifdef AUTH
     if (!host_access(c->sin, HOST_MONITOR))
     {

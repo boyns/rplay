@@ -1,4 +1,4 @@
-/* $Id: rplay.h,v 1.3 1999/03/10 07:57:27 boyns Exp $ */
+/* $Id: rplay.h,v 1.4 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -77,6 +77,8 @@
 #define RPLAY_SEQUENCE		29
 #define RPLAY_DATA		30
 #define RPLAY_DATA_SIZE		31
+#define RPLAY_LEFT_VOLUME       32
+#define RPLAY_RIGHT_VOLUME      33
 
 /* audio formats */
 #define RPLAY_FORMAT_NONE	0
@@ -194,7 +196,8 @@ typedef struct _rplay_attrs
 {
     struct _rplay_attrs *next;
     char *sound;
-    int volume;
+    //int volume;
+    int volume[2];
     int count;
     char *rptp_server;
     unsigned short rptp_server_port;

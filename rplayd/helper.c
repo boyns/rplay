@@ -1,4 +1,4 @@
-/* $Id: helper.c,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: helper.c,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -63,7 +64,7 @@ helper_read(filename)
     FILE *fp;
     char buf[MAXPATHLEN];
     char *pat, *prog, *p, *info;
-    HELPER *hp, *hp_next, *tail;
+    HELPER *hp, *tail = 0;
     int line = 0;
     int error;
 

@@ -1,4 +1,4 @@
-/* $Id: helper.h,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: helper.h,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -56,6 +56,7 @@ HELPER;
 extern HELPER *helpers;
 
 extern void helper_read (/* char *filename */);
+extern void helper_reread (/* char *filename */);
 extern void helper_stat (/* char *filename */);
 extern HELPER *helper_lookup (/* char *sound */);
 

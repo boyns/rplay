@@ -1,4 +1,4 @@
-/* $Id: connection.c,v 1.6 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: connection.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -28,6 +28,8 @@
 #include <sys/errno.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
+#include <ctype.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -213,7 +215,7 @@ connection_server_open(server, sound)
 	 */
 	connection_server_ping(c);
 
-	/* 
+	/*
 	 * try to connect to the server immediately
 	 */
 	report(REPORT_DEBUG, "%s server connection attempt\n", inet_ntoa(c->server->sin.sin_addr));
@@ -378,7 +380,6 @@ connection_update(read_fds, write_fds)
     time_t t;
     char buf[RPTP_MAX_LINE];
     EVENT *e;
-    SOUND *s;
     SPOOL *sp;
     fd_set cmask;
 
@@ -561,13 +562,13 @@ connection_update(read_fds, write_fds)
 
 		/* calculate the number of bytes to read without
 		   going over the high_water_mark. */
-#if 1		
+#if 1
 		size = MIN(BUFFER_SIZE,
 			   sp->si ? sp->si->high_water_mark - (sp->si->water_mark - sp->si->offset)
 			   : BUFFER_SIZE);
 #else
 		size = MIN(BUFFER_SIZE, c->event->nbytes == -1 ? BUFFER_SIZE : c->event->nleft);
-#endif		
+#endif
 	redo:
 		n = read(c->fd, c->event->buffer->buf, size);
 		if (n < 0 && (errno == EINTR || errno == EAGAIN))
@@ -755,8 +756,6 @@ connection_close(c)
 #endif
 {
     EVENT *e, *next;
-    SOUND *s;
-    SPOOL *sp;
 
     switch (c->type)
     {
@@ -1090,7 +1089,7 @@ connection_list_create()
     BUFFER *b, *connection_list;
     char line[RPTP_MAX_LINE];
     char buf[RPTP_MAX_LINE];
-    int n, length;
+    int length;
     time_t t;
 
     b = buffer_create();
@@ -1260,10 +1259,10 @@ connection_notify(va_alist)
     BUFFER *b;
     char buf[RPTP_MAX_LINE];
     char head[3], *p;
-    int new_volume, n, length;
+    int new_volume = 0, n, length;
     int force_notify = 0;
     time_t t;
-    SPOOL *sp;
+    SPOOL *sp = 0;
     va_list args;
 
 #ifdef __STDC__
@@ -1505,17 +1504,6 @@ id=#%d count=%d list-count=%d priority=%d sample-rate=%d volume=%d client-data=\
 		{
 		    SOUND *s = sp->sound[sp->curr_sound];
 
-		    if (c->notify_rate[NOTIFY_RATE_POSITION].rate)
-		    {
-			if (c->notify_rate[NOTIFY_RATE_POSITION].next > timer_count)
-			{
-			    continue;
-			}
-
-			c->notify_rate[NOTIFY_RATE_POSITION].next =
-			    timer_count + c->notify_rate[NOTIFY_RATE_POSITION].rate;
-		    }
-
 		    SNPRINTF(SIZE(buf + length, sizeof(buf) - length), "position \
 id=#%d position=%.2f remain=%.2f seconds=%.2f sample=%d samples=%d client-data=\"%s\"",
 			     sp->id,
@@ -1711,6 +1699,38 @@ connection_monitor_continue()
 		break;
 	    }
 	}
+    }
+}
+
+void connection_notify_position()
+{
+    SPOOL       *sp;
+    CONNECTION  *c;
+
+    for (c = connections; c; c = c->next)
+    {
+        if (BIT(c->notify_mask, NOTIFY_POSITION))
+        {
+            if (c->notify_rate[NOTIFY_RATE_POSITION].rate)
+            {
+                if (c->notify_rate[NOTIFY_RATE_POSITION].next > timer_count)
+                {
+                    continue;
+                }
+
+                c->notify_rate[NOTIFY_RATE_POSITION].next =
+                    timer_count + c->notify_rate[NOTIFY_RATE_POSITION].rate;
+            }
+
+            for (sp = spool; sp; sp = sp->next)
+            {
+                if (sp->notify_position)
+                {
+                    connection_notify(c, NOTIFY_POSITION, sp);
+                    sp->notify_position = 0;
+                }
+            }
+        }
     }
 }
 

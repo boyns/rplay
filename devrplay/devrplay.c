@@ -1,4 +1,4 @@
-/* $Id: devrplay.c,v 1.6 2002/02/08 22:07:13 lmoore Exp $ */
+/* $Id: devrplay.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -76,12 +76,12 @@ getinfo()
     return p ? p : 0;
 }
 
-static char *
-getopts()
-{
-    char *p = getenv("DEVRPLAY_OPTS");
-    return p ? p : "";
-}
+/* static char * */
+/* getopts() */
+/* { */
+/*     char *p = getenv("DEVRPLAY_OPTS"); */
+/*     return p ? p : ""; */
+/* } */
 
 int
 open(const char *pathname, int flags,...)
@@ -89,7 +89,6 @@ open(const char *pathname, int flags,...)
     static int (*func)(const char *, int, mode_t) = NULL;
     va_list args;
     mode_t mode;
-    char response[RPTP_MAX_LINE];
 
     if (!func)
 	func = (int (*)(const char *, int, mode_t)) dlsym(REAL_LIBC, "open");
@@ -240,6 +239,8 @@ ioctl(int fd, int request,...)
     {
 	return dspctl(fd, request, argp);
     }
+
+    return 0;
 }
 
 ssize_t

@@ -1,4 +1,4 @@
-/* $Id: cdrom.c,v 1.4 1999/03/10 07:58:02 boyns Exp $ */
+/* $Id: cdrom.c,v 1.5 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -35,6 +35,13 @@
 
 #include <sys/types.h>
 #include <sys/errno.h>
+#include <unistd.h>
+#ifdef ultrix
+#include <fcntl.h>
+#else
+#include <sys/fcntl.h>
+#endif
+#include <sys/ioctl.h>
 #include "rplayd.h"
 #include "cdrom.h"
 
@@ -547,8 +554,7 @@ linux_cdrom_reader(cdt, starting_track, ending_track, output_fd)
 #endif
 {
     CDROM_INFO info;
-    int n, i;
-    char *p;
+    int i;
 
     info.device = cdt->device;
     info.starting_track = starting_track;

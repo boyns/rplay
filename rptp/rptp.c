@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.6 1999/03/21 00:45:08 boyns Exp $ */
+/* $Id: rptp.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <unistd.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -101,28 +102,28 @@ void do_error( /* char *repsonse */ );
 
 COMMAND commands[] =
 {
-    "access", 0, 0, "", command_generic,
-    "close", 0, 0, "", command_close,
-    "continue", 1, -1, "#id|sound ...", command_play,
-    "find", 1, 1, "sound", command_generic,
-    "get", 1, 2, "sound [filename]", command_get,
-    "help", 0, 1, "[command]", command_help,
-    "info", 1, 1, "sound", command_generic,
-    "list", 0, 1, "[connections|hosts|servers|spool|sounds]", command_list,
-    "monitor", 0, 0, "", command_monitor,
-    "open", 1, 2, "hostname [port]", command_open,
-    "pause", 1, -1, "#id|sound ...", command_play,
-    "play", 1, -1, "[options] sound ...", command_play,
-    "put", 1, 1, "sound", command_put,
-    "quit", 0, 0, "", command_quit,
-    "reset", 0, 0, "", command_generic,
-    "set", 1, -1, "name=value", command_set,
-    "skip", 0, 2, "[#id] [[+|-]count]", command_skip,
-    "status", 0, 0, "", command_status,
-    "stop", 1, -1, "#id|sound ...", command_play,
-    "version", 0, 0, "", command_generic,
-    "volume", 0, 1, "[[+|-]volume]", command_volume,
-    "wait", 1, -1, "#id|command|event-list", command_generic,
+    { "access", 0, 0, "", command_generic },
+    { "close", 0, 0, "", command_close },
+    { "continue", 1, -1, "#id|sound ...", command_play },
+    { "find", 1, 1, "sound", command_generic },
+    { "get", 1, 2, "sound [filename]", command_get },
+    { "help", 0, 1, "[command]", command_help },
+    { "info", 1, 1, "sound", command_generic },
+    { "list", 0, 1, "[connections|hosts|servers|spool|sounds]", command_list },
+    { "monitor", 0, 0, "", command_monitor },
+    { "open", 1, 2, "hostname [port]", command_open },
+    { "pause", 1, -1, "#id|sound ...", command_play },
+    { "play", 1, -1, "[options] sound ...", command_play },
+    { "put", 1, 1, "sound", command_put },
+    { "quit", 0, 0, "", command_quit },
+    { "reset", 0, 0, "", command_generic },
+    { "set", 1, -1, "name=value", command_set },
+    { "skip", 0, 2, "[#id] [[+|-]count]", command_skip },
+    { "status", 0, 0, "", command_status },
+    { "stop", 1, -1, "#id|sound ...", command_play },
+    { "version", 0, 0, "", command_generic },
+    { "volume", 0, 1, "[[+|-]volume]", command_volume },
+    { "wait", 1, -1, "#id|command|event-list", command_generic },
 };
 
 #define NCOMMANDS	(sizeof(commands)/sizeof(COMMAND))
@@ -150,9 +151,9 @@ extern int optind;
 extern char *optarg;
 
 #ifdef __STDC__
-main(int argc, char **argv)
+int main(int argc, char **argv)
 #else
-main(argc, argv)
+int main(argc, argv)
     int argc;
     char **argv;
 #endif
@@ -163,7 +164,6 @@ main(argc, argv)
     int c;
     char *av[RPTP_MAX_ARGS], *p, *host = NULL;
     int ac, first;
-    char numeric_string[128];
 
     while ((c = getopt_long(argc, argv, "+h:p:rv", longopts, 0)) != -1)
     {
@@ -319,6 +319,7 @@ main(argc, argv)
     while (interactive);
 
     done(0);
+    exit(0);
 }
 
 #ifdef __STDC__
@@ -783,7 +784,7 @@ command_get(argc, argv)
 	}
 	fwrite(rptp_buf, 1, n, fp);
 	size -= n;
-	
+
 	sprintf(line, "\r%s %d/%d %d%%", filename,
 		total_size - size, total_size,
 		(int)(((float)(total_size-size)/total_size)*100));
@@ -847,7 +848,7 @@ command_status(argc, argv)
 	int first = 1;
 	char *name, *value;
 
-	while (name = rptp_parse(first ? response : 0, 0))
+	while ((name = rptp_parse(first ? response : 0, 0)))
 	{
 	    first = 0;
 	    value = rptp_parse(0, name);
@@ -978,8 +979,6 @@ command_set(argc, argv)
     char **argv;
 #endif
 {
-    char *value;
-
     if (!connected())
     {
 	return;
@@ -1013,12 +1012,11 @@ command_monitor(argc, argv)
     char **argv;
 #endif
 {
-    char *value, *p;
+    char *p;
     char buf[8192];
-    char line[80];
     int n, size;
-    int sample_rate, precision, channels, sample_size;
-    
+    int sample_rate = 0, precision = 0, channels = 0, sample_size = 0;
+
     if (!connected())
     {
 	return;

@@ -1,4 +1,4 @@
-/* $Id: sound.h,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: sound.h,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #ifdef HAVE_ADPCM
-#include "g72x.h"    
+#include "g72x.h"
 #endif /* HAVE_ADPCM */
 #ifdef HAVE_GSM
 #ifdef HAVE_GSM_GSM_H
@@ -212,6 +212,7 @@ extern int sound_fill (SINDEX *, BUFFER *data, int as_is);
 extern int sound_seek (SINDEX *, int offset, int whence);
 extern void sound_clean (SOUND *s);
 extern int number_of_samples (SOUND *s, int bytes);
+extern int sound_free(SOUND *s);
 #else
 extern void sound_read ( /* char *filename */ );
 extern void sound_reread ( /* char *filename */ );
@@ -230,6 +231,7 @@ extern int sound_fill ( /* SINDEX *, BUFFER *data, int as_is */ );
 extern int sound_seek ( /* SINDEX *, int offset, int whence */ );
 extern void sound_clean ( /* SOUND *s */ );
 extern int number_of_samples ( /* SOUND *s, int bytes */ );
+extern int sound_free(/*SOUND *s*/);
 #endif
 
 #if defined(HAVE_CDROM) || defined(HAVE_HELPERS)

@@ -1,4 +1,4 @@
-/* $Id: spool.c,v 1.7 2002/02/08 22:11:13 lmoore Exp $ */
+/* $Id: spool.c,v 1.8 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -27,6 +27,7 @@
 #include "config.h"
 #endif
 #include <stdio.h>
+#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -141,7 +142,7 @@ spool_destroy(sp)
 
 /*
  * Return the next available spool entry.
- * 
+ *
  * `priority' is the priority of a new sound and is used to replace
  * lower priority spool entries when the spool is full.
  */
@@ -154,8 +155,7 @@ spool_next(priority)
     int priority;
 #endif
 {
-    int i;
-    int min_priority = RPLAY_MAX_PRIORITY, index = -1;
+    int min_priority = RPLAY_MAX_PRIORITY;
     SPOOL *sp, *lowest = NULL;
 
     /* There's room for a new entry.  */
@@ -300,7 +300,7 @@ spool_match(match, action, sin)
     struct sockaddr_in sin;
 #endif
 {
-    int i, id, nmatch = 0;
+    int id, nmatch = 0;
     RPLAY *rp;
     RPLAY_ATTRS *a1, *a2;
     SPOOL *sp, *sp_next;
@@ -360,7 +360,7 @@ spool_remove(sound)
     SOUND *sound;
 #endif
 {
-    int i, j, n;
+    int j, n;
     SPOOL *sp, *sp_next;
 
     for (sp = spool; sp; sp = sp_next)
@@ -441,7 +441,6 @@ BUFFER *
 spool_list_create()
 {
     BUFFER *spool_list, *b;
-    int i, n;
     char buf[RPTP_MAX_LINE];
     char line[RPTP_MAX_LINE];
     SOUND *s;
@@ -493,11 +492,13 @@ spool_list_create()
 	s = sp->sound[sp->curr_sound];
 
 	SNPRINTF(SIZE(buf, sizeof(buf)), "\
- sound=\"%s\" host=%s volume=%d priority=%d count=%d position=%.2f remain=%.2f seconds=%.2f size=%d\
+ sound=\"%s\" host=%s volume=%d left-volume=%d right-volume=%d priority=%d count=%d position=%.2f remain=%.2f seconds=%.2f size=%d\
  sample-rate=%d channels=%d bits=%g input=%s client-data=\"%s\" list-name=\"%s\"\r\n",
 		 sp->curr_attrs->sound,
 		 inet_ntoa(sp->sin.sin_addr),
-		 sp->curr_attrs->volume,
+		 MAX(sp->curr_attrs->volume[0], sp->curr_attrs->volume[1]),
+		 sp->curr_attrs->volume[0],
+		 sp->curr_attrs->volume[1],
 		 sp->rp->priority,
 		 sp->curr_count,
 		 sp->sample_rate && s->samples ? sp->sample_index / sp->sample_rate : 0,
@@ -909,7 +910,7 @@ void
 spool_update()
 #endif
 {
-    int i, n;
+    int n;
     SPOOL *sp, *sp_next;
     SOUND *s;
     BUFFER *b;
@@ -1252,6 +1253,8 @@ spool_process(buf, nbytes)
 
 	rplay_audio_size = nbytes;
     }
+
+    return 0;
 }
 
 #ifdef __STDC__
@@ -1388,7 +1391,25 @@ spool_set_volume(sp, volume)
 {
     if (sp)
     {
-	sp->curr_attrs->volume = volume;
+	sp->curr_attrs->volume[0] = volume;
+	sp->curr_attrs->volume[1] = volume;
+    }
+}
+
+#ifdef __STDC__
+void
+spool_set_channel_volume(SPOOL *sp, int channel, int volume)
+#else
+void
+spool_set_channel_volume(sp, channel, volume)
+    SPOOL *sp;
+    int channel;
+    int volume;
+#endif
+{
+    if (sp)
+    {
+	sp->curr_attrs->volume[channel] = volume;
     }
 }
 

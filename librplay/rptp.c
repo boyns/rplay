@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.4 1999/03/10 07:57:56 boyns Exp $ */
+/* $Id: rptp.c,v 1.5 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -45,6 +45,7 @@
 #include <varargs.h>
 #endif
 #include <errno.h>
+#include <ctype.h>
 
 int rptp_errno = RPTP_ERROR_NONE;
 

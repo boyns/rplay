@@ -1,4 +1,4 @@
-/* $Id: audio_oss.c,v 1.5 1999/03/10 07:58:10 boyns Exp $ */
+/* $Id: audio_oss.c,v 1.6 2002/12/11 05:12:16 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -28,6 +28,7 @@
 /*
  * System audio include files:
  */
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
@@ -58,6 +59,9 @@ extern int optional_fragsize;
  */
 static int rplay_audio_fd = -1;
 static int rplay_audio_mixer_fd = -1;
+
+static int rplay_audio_mixer_open();
+static int rplay_audio_mixer_close();
 
 /*
  * Initialize the audio device.
@@ -177,7 +181,6 @@ rplay_audio_init()
 int
 rplay_audio_open()
 {
-    int flags;
     audio_buf_info info;
     int n, i;
 
@@ -387,6 +390,10 @@ rplay_audio_set_port()
 	vol = 0;
 	ioctl(rplay_audio_mixer_fd, SOUND_MIXER_WRITE_SPEAKER, &vol);
     }
+
+    rplay_audio_mixer_close();
+
+    return 0;
 }
 
 /*
@@ -597,8 +604,7 @@ rplay_audio_getfd()
     return rplay_audio_fd;
 }
 
-int
-rplay_audio_mixer_open()
+static int rplay_audio_mixer_open()
 {
     rplay_audio_mixer_fd = open(RPLAY_AUDIO_MIXER_DEVICE, O_RDONLY);
     if (rplay_audio_mixer_fd < 0)
@@ -610,18 +616,13 @@ rplay_audio_mixer_open()
     return 0;
 }
 
-int
-rplay_audio_mixer_close()
+static int rplay_audio_mixer_close()
 {
     if (rplay_audio_mixer_fd != -1)
     {
 	close(rplay_audio_mixer_fd);
 	rplay_audio_mixer_fd = -1;
     }
-}
 
-int
-rplay_audio_mixer_isopen()
-{
-    return rplay_audio_mixer_fd != -1;
+    return 0;
 }
