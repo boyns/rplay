@@ -9,13 +9,19 @@ INSTALL_DATA = @INSTALL_DATA@
 MKINSTALLDIRS= @srcdir@/../mkinstalldirs
 
 CPPFLAGS=	$(CC_OPTIONS) -I. -I../include -I@srcdir@/../include @DEFS@
+LDFLAGS=	$(LD_OPTIONS) -shared @LDFLAGS@
 
 .c.o:
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
+.SUFFIXES: .lo
+.c.lo:
+		$(CC) -c -fPIC $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
 TARGET=		$(LIBRPLAY_NAME)
 SRCS=		rplay.c rptp.c async.c
 OBJS=		rplay.o rptp.o async.o
+SHAREDOBJS=	rplay.lo rptp.lo async.lo
 
 all:		$(TARGET)
 
@@ -25,6 +31,9 @@ all:		$(TARGET)
 $(TARGET):	$(OBJS)
 		$(AR) rcv $@ $?
 		$(RANLIB) $@
+
+librplay.so:	$(SHAREDOBJS)
+		$(CC) -o $@ $(SHAREDOBJS) $(LDFLAGS)
 
 #
 # For HP-UX comment above and uncomment below.
@@ -46,7 +55,7 @@ uninstall:
 		$(RM) $(libdir)/$(TARGET)
 
 clean:
-		$(RM) $(OBJS) $(TARGET) a.out core *~ *.bak *.orig TAGS
+		$(RM) $(OBJS) $(SHAREDOBJS) $(TARGET) librplay.so a.out core *~ *.bak *.orig TAGS
 
 distclean:	clean
 		$(RM) Makefile

@@ -8,21 +8,24 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 MKINSTALLDIRS= @srcdir@/../mkinstalldirs
 
-CPPFLAGS=	$(CC_OPTIONS) -fpic -I. -I../include -I@srcdir@/../include @DEFS@
+CPPFLAGS=	$(CC_OPTIONS) -fPIC -I. -I../include -I@srcdir@/../include @DEFS@
 
 .c.o:
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
-LDFLAGS=	$(LD_OPTIONS) -shared -L../librplay -lrplay @LDFLAGS@ @LIBS@ -ldl
+LDFLAGS=	$(LD_OPTIONS) -shared @LDFLAGS@ @LIBS@ -ldl
 
 TARGET=		devrplay.so
-SRCS=		devrplay.c
+SRCS=		devrplay.c 
 OBJS=		devrplay.o
 
 all:		$(TARGET)
 
-$(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME)
-		$(CC) -o $@ $(OBJS) $(LDFLAGS)
+$(TARGET):	$(OBJS) ../librplay/librplay.so
+		$(CC) -o $@ $(OBJS) ../librplay/rptp.lo $(LDFLAGS)
+
+../librplay/librplay.so:
+		(cd ../librplay; $(MAKE) $(MFLAGS) librplay.so)
 
 install:	all
 		$(MKINSTALLDIRS) $(libdir)

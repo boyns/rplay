@@ -1,4 +1,4 @@
-/* $Id: devrplay.c,v 1.3 1999/03/10 07:57:23 boyns Exp $ */
+/* $Id: devrplay.c,v 1.4 1999/03/21 00:44:48 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -68,6 +68,13 @@ static char *
 getinfo()
 {
     char *p = getenv("DEVRPLAY_INFO");
+    return p ? p : 0;
+}
+
+static char *
+getopts()
+{
+    char *p = getenv("DEVRPLAY_OPTS");
     return p ? p : 0;
 }
 
@@ -157,12 +164,13 @@ dspctl(int fd, int request, void *argp)
 
 	streaming = 1;
 	rptp_putline(rplay_fd,
-		     "play input=flow input-info=%s,%d,%d,%d,%s sound=\"%s\"",
+		     "play input=flow input-info=%s,%d,%d,%d,%s %s sound=\"%s\"",
 		     dsp_fmt == 16 ? "linear16" : "ulinear8",
 		     dsp_speed,
 		     dsp_fmt,
 		     dsp_channels,
 		     "little-endian",
+		     getopts(),
 		     getsound());
 	rptp_getline(rplay_fd, response, sizeof(response));
 

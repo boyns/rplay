@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.5 1999/03/10 07:58:13 boyns Exp $ */
+/* $Id: rptp.c,v 1.6 1999/03/21 00:45:08 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -1018,7 +1018,6 @@ command_monitor(argc, argv)
     char line[80];
     int n, size;
     int sample_rate, precision, channels, sample_size;
-    int hours, mins, secs, prev_secs;
     
     if (!connected())
     {
@@ -1059,29 +1058,11 @@ command_monitor(argc, argv)
     fprintf(stderr, "%dhz %dbit %s\n", sample_rate, precision,
 	    channels == 2 ? "stereo" : "mono");
 
-    size = hours = mins = secs = prev_secs = 0;
     while ((n = read(rptp_fd, buf, sizeof(buf))) > 0)
     {
 	write(1, buf, n);
 	size += n;
-
-	secs = size / (sample_rate * sample_size);
-	hours = secs / 3600;
-	secs = secs % 3600;
-	mins = secs / 60;
-	secs = secs % 60;
-
-	/* update once per second */
-	if (secs != prev_secs)
-	{
-	    sprintf(line, "\r%02d:%02d:%02d %0.2fM",
-		    hours, mins, secs,
-		    (float)size/1048576);
-	    write(2, line, strlen(line));
-	}
-	prev_secs = secs;
     }
-    write(2, "\n", 1);
     close(rptp_fd);
 }
 

@@ -39,6 +39,18 @@ all:		$(TARGET)
 $(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm.a ../rx/librx.a
 		$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
+../librplay/$(LIBRPLAY_NAME):
+		(cd ../librplay; $(MAKE) $(MFLAGS))
+
+../lib/librp.a:
+		(cd ../lib; $(MAKE) $(MFLAGS))
+
+../adpcm/libadpcm.a:
+		(cd ../adpcm; $(MAKE) $(MFLAGS))
+
+../rx/librx.a:
+		(cd ../rx; $(MAKE) $(MFLAGS))
+
 install:	all
 		$(MKINSTALLDIRS) $(sbindir)
 		$(INSTALL_PROGRAM) $(TARGET) $(sbindir)/$(TARGET)

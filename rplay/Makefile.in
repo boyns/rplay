@@ -24,6 +24,12 @@ all:		$(TARGET)
 $(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a
 		$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
+../librplay/$(LIBRPLAY_NAME):
+		(cd ../librplay; $(MAKE) $(MFLAGS))
+
+../lib/librp.a:
+		(cd ../lib; $(MAKE) $(MFLAGS))
+
 install:	all
 		$(MKINSTALLDIRS) $(bindir)
 		$(INSTALL_PROGRAM) $(TARGET) $(bindir)/$(TARGET)
