@@ -1425,7 +1425,8 @@ sound_map (s)
 
     /* The input sample size is a floating point number since compressed
        samples can be smaller than 8 bits.  */
-    s->input_sample_size = (s->input_precision / 8) * s->channels; /* XXX output_precision -> input_precision */
+    /* XXX output_precision -> input_precision */
+    s->input_sample_size = (s->input_precision / 8) * s->channels;
     s->output_sample_size = (s->output_precision >> 3) * s->channels;
 
     if (sound_chunk_size > 0)
@@ -1449,8 +1450,10 @@ sound_map (s)
 	s->chunk_size = s->size - s->offset;
     }
 
+#if 0    
     printf ("SOUND: %s size=%d chunk=%d tail=%d offset=%d\n",
 	    s->name, s->size, s->chunk_size, s->tail, s->offset);
+#endif    
 
     if (s->type != SOUND_FILE)
     {
