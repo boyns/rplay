@@ -1,4 +1,4 @@
-/* $Id: devrplay.c,v 1.1 1999/03/03 06:21:54 boyns Exp $ */
+/* $Id: devrplay.c,v 1.2 1999/03/03 07:45:19 boyns Exp $ */
 
 /*
  * Copyright (C) 1999 Mark R. Boyns <boyns@doit.org>
@@ -40,6 +40,8 @@
 #include <stdio.h>
 #include "rplay.h"
 
+#define DEVRPLAY_SOUND "(devrplay)"
+
 #ifdef linux
 
 #include <sys/soundcard.h>
@@ -47,14 +49,27 @@
 #define REAL_LIBC RTLD_NEXT
 
 static int rplay_fd = -1;
-static int event_fd = -1;
-static int spool_id;
+static int spool_id = -1;
 static int dsp_fmt;
 static int dsp_speed;
 static int dsp_channels;
 static int dsp_speed;
 static int dsp_blksize;
 static int streaming;
+
+static char *
+getsound()
+{
+    char *p = getenv("DEVRPLAY_SOUND");
+    return p ? p : DEVRPLAY_SOUND;
+}
+
+static char *
+getinfo()
+{
+    char *p = getenv("DEVRPLAY_INFO");
+    return p ? p : 0;
+}
 
 int
 open(const char *pathname, int flags,...)
@@ -133,25 +148,25 @@ dspctl(int fd, int request, void *argp)
 	break;
     }
 
-    if (!spool_id && dsp_fmt && dsp_speed && dsp_channels)
+    if (spool_id == -1 && dsp_fmt && dsp_speed && dsp_channels)
     {
 	char response[RPTP_MAX_LINE];
+
+	streaming = 1;
 	rptp_putline(rplay_fd,
-		     "play input=flow input-format=%s input-sample-rate=%d input-bits=%d input-channels=%d input-byte-order=%s input-offset=0 sound=\"%s\"",
+		     "play input=flow input-info=%s,%d,%d,%d,%s sound=\"%s\"",
 		     dsp_fmt == 16 ? "linear16" : "ulinear8",
 		     dsp_speed,
 		     dsp_fmt,
 		     dsp_channels,
 		     "little-endian",
-		     "devrplay");
+		     getsound());
 	rptp_getline(rplay_fd, response, sizeof(response));
 
 	spool_id = atoi(1 + rptp_parse(response, "id"));
 
 	rptp_putline(rplay_fd, "put id=#%d size=0", spool_id);
 	rptp_getline(rplay_fd, response, sizeof(response));
-
-	streaming = 1;
     }
 
     return 0;
@@ -171,12 +186,15 @@ ioctl(int fd, int request,...)
     va_end(args);
 
     if (fd != rplay_fd)
+    {
 	return (*func)(fd, request, argp);
+    }
     else if (fd == rplay_fd)
+    {
 	return dspctl(fd, request, argp);
+    }
 }
 
-#if 0
 ssize_t
 write(int fd, const void *buf, size_t count)
 {
@@ -185,9 +203,47 @@ write(int fd, const void *buf, size_t count)
     if (!func)
 	func = (int (*)(int, const void *, size_t)) dlsym(REAL_LIBC, "write");
 
+    if (fd == rplay_fd && !streaming)
+    {
+	char info[64];
+	char response[RPTP_MAX_LINE];
+
+	info[0] = '\0';
+
+	/* use dsp defaults if something was specified */
+	if (dsp_speed || dsp_fmt || dsp_channels)
+	{
+	    if (!dsp_speed) dsp_speed = 8000;
+	    if (!dsp_fmt) dsp_fmt = 8;
+	    if (!dsp_channels) dsp_channels = 1;
+	    sprintf(info, "input-info=%s,%d,%d,%d,%s",
+		    dsp_fmt == 16 ? "linear16" : "ulinear8",
+		    dsp_speed,
+		    dsp_fmt,
+		    dsp_channels,
+		    "little-endian");
+	}
+	/* try user specified sound info */
+	else if (getinfo())
+	{
+	    strncpy(info, getinfo(), sizeof(info)-1);
+	}
+	/* otherwise let rplayd figure out the format using
+	   the sound header and/or name. */
+	
+	streaming = 1;
+	rptp_putline(rplay_fd, "play input=flow %s sound=\"%s\"",
+		     info, getsound());
+	rptp_getline(rplay_fd, response, sizeof(response));
+
+	spool_id = atoi(1 + rptp_parse(response, "id"));
+
+	rptp_putline(rplay_fd, "put id=#%d size=0", spool_id);
+	rptp_getline(rplay_fd, response, sizeof(response));
+    }
+
     return (*func)(fd, buf, count);
 }
-#endif
 
 int
 close(int fd)
@@ -200,8 +256,9 @@ close(int fd)
     if (fd == rplay_fd)
     {
 	rplay_fd = -1;
-	streaming = spool_id = dsp_fmt = dsp_speed =
-	    dsp_channels = dsp_speed = dsp_blksize = 0;
+	spool_id = -1;
+	streaming = 0;
+	dsp_fmt = dsp_speed = dsp_channels = dsp_speed = dsp_blksize = 0;
     }
 
     return (*func)(fd);
