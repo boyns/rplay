@@ -1,4 +1,4 @@
-/* $Id: devrplay.c,v 1.4 1999/03/21 00:44:48 boyns Exp $ */
+/* $Id: devrplay.c,v 1.5 2000/02/02 17:37:37 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -75,7 +75,7 @@ static char *
 getopts()
 {
     char *p = getenv("DEVRPLAY_OPTS");
-    return p ? p : 0;
+    return p ? p : "";
 }
 
 int
