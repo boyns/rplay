@@ -13,7 +13,7 @@ CPPFLAGS=	$(CC_OPTIONS) -fPIC -I. -I../include -I@srcdir@/../include @DEFS@
 .c.o:
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
-LDFLAGS=	$(LD_OPTIONS) -shared @LDFLAGS@ @LIBS@ -ldl
+LDFLAGS=	$(LD_OPTIONS) -shared @LDFLAGS@ @LIBS@ -L../librplay -lrplay -ldl
 
 TARGET=		devrplay.so
 SRCS=		devrplay.c 
@@ -21,8 +21,11 @@ OBJS=		devrplay.o
 
 all:		$(TARGET)
 
+#$(TARGET):	$(OBJS) ../librplay/librplay.so
+#		$(CC) -o $@ $(OBJS) ../librplay/rplay.lo ../librplay/rptp.lo $(LDFLAGS)
+
 $(TARGET):	$(OBJS) ../librplay/librplay.so
-		$(CC) -o $@ $(OBJS) ../librplay/rplay.lo ../librplay/rptp.lo $(LDFLAGS)
+		$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 ../librplay/librplay.so:
 		(cd ../librplay; $(MAKE) $(MFLAGS) librplay.so)

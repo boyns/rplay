@@ -23,7 +23,7 @@ SRCS=		rplay.c rptp.c async.c
 OBJS=		rplay.o rptp.o async.o
 SHAREDOBJS=	rplay.lo rptp.lo async.lo
 
-all:		$(TARGET)
+all:		$(TARGET) librplay.so
 
 #
 # Use the following for SunOS 4.1.x, Solaris 2.x, Linux, NetBSD
