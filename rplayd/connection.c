@@ -1,4 +1,4 @@
-/* $Id: connection.c,v 1.2 1998/08/13 06:13:48 boyns Exp $ */
+/* $Id: connection.c,v 1.3 1998/10/12 16:03:20 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -373,7 +373,7 @@ connection_update (read_fds, write_fds)
 #endif
 {
     int i, n;
-    CONNECTION *c, *next;
+    CONNECTION *c;
     struct timeval tv;
     fd_set rfds, wfds;
     time_t t;
@@ -381,6 +381,7 @@ connection_update (read_fds, write_fds)
     EVENT *e;
     SOUND *s;
     SPOOL *sp;
+    fd_set cmask;
     
     if (read_fds == NULL && write_fds == NULL)
     {
@@ -430,10 +431,26 @@ connection_update (read_fds, write_fds)
 
     t = time (0);
 
-    for (c = connections; c; c = next)
+    /* It's not safe to simply traverse the connection list
+       since connections can be closed during this loop.
+       Instead a bitmask is used to keep track of the connections
+       that have been updated. (efence) */
+    FD_ZERO(&cmask);
+    for (;;)
     {
-	next = c->next;		/* just in case c is destroyed */
-
+	for (c = connections; c; c = c->next)
+	{
+	    if (!FD_ISSET(c->fd, &cmask))
+	    {
+		break;
+	    }
+	}
+	if (c == NULL)
+	{
+	    break;
+	}
+	FD_SET(c->fd, &cmask);
+	
 	/* connection has no events */
 	if (c->event == NULL)
 	{

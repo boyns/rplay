@@ -1,3 +1,12 @@
+1998-10-12  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/sound.c: don't use O_NDELAY when opening sound files.
+
+1998-09-05  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/connection.c (connection_update): fixed bus error when
+ 	connections close other connections at the wrong time.
+
 1998-09-02  Mark R. Boyns  <boyns@doit.org>
 
 	* rplayd/audio/audio_*.c (rplay_audio_open): enabled close-on-exec

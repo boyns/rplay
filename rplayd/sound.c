@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.4 1998/08/13 06:14:05 boyns Exp $ */
+/* $Id: sound.c,v 1.5 1998/10/12 16:03:21 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -1953,7 +1953,11 @@ sound_open (s, use_helper)
 
 	    if (s->type == SOUND_FILE)
 	    {
+#if 0
 		input_fd = open (s->path, O_RDONLY | O_NDELAY, 0);
+#else		
+		input_fd = open (s->path, O_RDONLY, 0);
+#endif
 		if (input_fd < 0)
 		{
 		    report (REPORT_ERROR, "can't open %s: %s\n", s->path, sys_err_str (errno));
@@ -2031,7 +2035,11 @@ sound_open (s, use_helper)
 	{
 	    struct stat st;
 
+#if 0
 	    si->fd = open (s->path, O_RDONLY | O_NDELAY, 0);
+#else	    
+	    si->fd = open (s->path, O_RDONLY, 0);
+#endif	    
 	    if (si->fd < 0)
 	    {
 		report (REPORT_DEBUG, "sound_open: open %s: %s\n", s->path, sys_err_str (errno));

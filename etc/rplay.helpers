@@ -3,7 +3,7 @@
 # <regex> <audio-format> <application>
 #
 ## MPEG
-\.mp3$	linear16,44100,16,2,little-endian	/usr/bin/mpg123 --stdout --quiet --rate 44100 --stereo -
+\.mp[1-3]$	linear16,44100,16,2,little-endian	/usr/bin/mpg123 --stdout --quiet --rate 44100 --stereo -
 
 ## MODS
-\.\(669\|alm\|amd\|far\|mod\|mtm\|okt\|ptm\|rad\|s3m\|stm\|wow\|xm\)$	linear16,44100,16,2,little-endian	/usr/local/bin/xmp --stereo --little-endian -b 16 -f 44100 --stdout --nocmd /dev/fd/0
+#\.\(669\|alm\|amd\|far\|mod\|mtm\|okt\|ptm\|rad\|s3m\|stm\|wow\|xm\)$	linear16,44100,16,2,little-endian	/usr/local/bin/xmp --stereo --little-endian -b 16 -f 44100 --stdout --nocmd /dev/fd/0

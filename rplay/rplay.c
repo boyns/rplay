@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.2 1998/08/13 06:13:39 boyns Exp $ */
+/* $Id: rplay.c,v 1.3 1998/10/12 16:03:19 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -568,6 +568,7 @@ server_has_sound (rplay_fd, sound_name, size)
     char response[RPTP_MAX_LINE];
     char *p;
     int try;
+    int remote_size;
 
     for (try = 0; try < 2; try++)
     {
@@ -585,8 +586,12 @@ server_has_sound (rplay_fd, sound_name, size)
 	    return 0;
 	}
 
+	remote_size = -1;
 	p = rptp_parse (response, "size");
-	if (p && (size == 0 || atoi (p) == size)) /* They're the same */
+	if (p) remote_size = atoi(p);
+
+	if (remote_size != -1
+	    && (size == 0 || remote_size == 0 || size == remote_size))
 	{
 	    return 1;
 	}
@@ -646,14 +651,15 @@ play_with_play (rplay_fd, host, port, rp, index)
     char response[RPTP_MAX_LINE];
 
     /* Enable `done' notification. */
-    rptp_putline (rplay_fd, "set notify=done");
+    rptp_putline (rplay_fd, "set notify=done,position notify-rate=1.0");
     rptp_getline (rplay_fd, response, sizeof (response));
 
     /* Play the sound. */
-    rptp_putline (rplay_fd, "play priority=%d sample-rate=%d volume=%d sound=\"%s\"",
+    rptp_putline (rplay_fd, "play priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
 		  (int) rplay_get (rp, RPLAY_PRIORITY, index),
 		  (int) rplay_get (rp, RPLAY_SAMPLE_RATE, index),
 		  (int) rplay_get (rp, RPLAY_VOLUME, index),
+		  rplay_get (rp, RPLAY_LIST_NAME) ? (char *) rplay_get (rp, RPLAY_LIST_NAME) : "",
 		  (int) rplay_get (rp, RPLAY_SOUND, index));
     n = rptp_getline (rplay_fd, response, sizeof (response));
     if (n < 0 || response[0] != RPTP_OK)
@@ -672,6 +678,7 @@ play_with_play (rplay_fd, host, port, rp, index)
     for (;;)
     {
 	n = rptp_getline (rplay_fd, response, sizeof (response));
+	fprintf(stderr, response);
 	if (interrupted)
 	{
 	    break;
@@ -685,7 +692,10 @@ play_with_play (rplay_fd, host, port, rp, index)
 	    fprintf (stderr, "rplay: %s\n", response+1);
 	    break;
 	}
-	else if (atoi (1 + rptp_parse (response, "id")) == spool_id)
+
+	rptp_parse(response, NULL);
+	if (strcmp (rptp_parse(NULL, "event"), "done") == 0
+	    && atoi (1 + rptp_parse (NULL, "id")) == spool_id)
 	{
 	    break;
 	}
@@ -744,7 +754,7 @@ play_with_flow (rplay_fd, host, port, rp, index)
 	}
     }
 
-    /* Open a connect for the flow. */
+    /* Open a connection for the flow. */
     flow_fd = rptp_open (host, port, response, sizeof (response));
     if (flow_fd < 0)
     {
@@ -757,11 +767,12 @@ play_with_flow (rplay_fd, host, port, rp, index)
     rptp_getline (rplay_fd, response, sizeof (response));
 
     /* Send the flow play command. */
-    rptp_putline (flow_fd, "play input=flow %s priority=%d sample-rate=%d volume=%d sound=\"%s\"",
+    rptp_putline (flow_fd, "play input=flow %s priority=%d sample-rate=%d volume=%d list-name=\"%s\" sound=\"%s\"",
 		  info2str (sound_info),
 		  (int) rplay_get (rp, RPLAY_PRIORITY, index),
 		  (int) rplay_get (rp, RPLAY_SAMPLE_RATE, index),
 		  (int) rplay_get (rp, RPLAY_VOLUME, index),
+		  rplay_get (rp, RPLAY_LIST_NAME) ? (char *) rplay_get (rp, RPLAY_LIST_NAME) : "",
 		  strcmp (sound_name, "-") ? sound_name : "stdin");
     n = rptp_getline (flow_fd, response, sizeof (response));
     if (n < 0 || response[0] != RPTP_OK)
@@ -796,11 +807,11 @@ play_with_flow (rplay_fd, host, port, rp, index)
     interrupted = 0;
     for (;;)
     {
-	n = read (fd, buffer, buffer_size);
 	if (interrupted)
 	{
 	    break;
 	}
+	n = read (fd, buffer, buffer_size);
 	if (n <= 0)
 	{
 	    break;
@@ -812,7 +823,7 @@ play_with_flow (rplay_fd, host, port, rp, index)
     }
 
     close (fd);
-    sleep (1);
+    /*sleep (1);*/
     rptp_close (flow_fd);
 
     /* Wait for the sound to finish. */
@@ -898,6 +909,7 @@ void
 interrupt ()
 {
     interrupted++;
+    fprintf(stderr, "rplay: *interrupt*\n");
 }
 
 void
