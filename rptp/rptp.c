@@ -1,4 +1,4 @@
-/* $Id: rptp.c,v 1.3 1998/11/07 21:15:41 boyns Exp $ */
+/* $Id: rptp.c,v 1.4 1998/11/10 15:26:10 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -60,10 +60,12 @@ void command_quit(int argc, char **argv);
 void command_put(int argc, char **argv);
 void command_get(int argc, char **argv);
 void command_unknown(int argc, char **argv);
+void command_set(int argc, char **argv);
 void command_status(int argc, char **argv);
 void command_generic(int argc, char **argv);
 void command_volume(int argc, char **argv);
 void command_skip(int argc, char **argv);
+void command_set(int argc, char **argv);
 void argv_to_command(char **argv);
 int connected();
 void done(int exit_value);
@@ -84,6 +86,7 @@ void command_status( /* int argc, char **argv */ );
 void command_generic( /* int argc, char **argv */ );
 void command_volume( /* int argc, char **argv */ );
 void command_skip( /* int argc, char **argv */ );
+void command_set( /* int argc, char **argv */ );
 void argv_to_command( /* char **argv */ );
 int connected();
 void done( /* int exit_value */ );
@@ -108,6 +111,7 @@ COMMAND commands[] =
     "put", 1, 1, "sound", command_put,
     "quit", 0, 0, "", command_quit,
     "reset", 0, 0, "", command_generic,
+    "set", 1, -1, "name=value", command_set,
     "skip", 0, 2, "[#id] [[+|-]count]", command_skip,
     "status", 0, 0, "", command_status,
     "stop", 1, -1, "#id|sound ...", command_play,
@@ -516,6 +520,7 @@ command_help(argc, argv)
 	printf("put      Send a sound.\n");
 	printf("quit     Terminate the rptp session.\n");
 	printf("reset    Tell the server to reset itself.\n");
+	printf("set      Change server settings.\n");
 	printf("skip     Skip sounds in a sound list.\n");
 	printf("status   Display server statistics.\n");
 	printf("stop     Stop sounds that are playing.\n");
@@ -925,6 +930,41 @@ command_skip(argc, argv)
     else
     {
 	printf("unknown response `%s'\n", response);
+    }
+}
+
+#ifdef __STDC__
+void
+command_set(int argc, char **argv)
+#else
+void
+command_set(argc, argv)
+    int argc;
+    char **argv;
+#endif
+{
+    char *value;
+
+    if (!connected())
+    {
+	return;
+    }
+
+    argv_to_command(argv);
+
+    switch (rptp_command(rptp_fd, command, response, sizeof(response)))
+    {
+    case -1:
+	rptp_perror(argv[0]);
+	command_close(argc, argv);
+	return;
+
+    case 1:
+	do_error(response);
+	return;
+
+    case 0:
+	break;
     }
 }
 
