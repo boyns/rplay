@@ -1,0 +1,49 @@
+include @RPLAY_TOP@/Makefile.config
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+MKINSTALLDIRS= @srcdir@/../mkinstalldirs
+
+CPPFLAGS=	$(CC_OPTIONS) -fpic -I. -I../include -I@srcdir@/../include @DEFS@
+
+.c.o:
+		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+LDFLAGS=	$(LD_OPTIONS) -shared -L../librplay -lrplay @LDFLAGS@ @LIBS@ -ldl
+
+TARGET=		devrplay.so
+SRCS=		devrplay.c
+OBJS=		devrplay.o
+
+all:		$(TARGET)
+
+$(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME)
+		$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+install:	all
+		$(MKINSTALLDIRS) $(libdir)
+		$(INSTALL_DATA) $(TARGET) $(libdir)
+
+uninstall:
+		$(RM) $(libdir)/$(TARGET)
+
+clean:
+		$(RM) $(OBJS) $(TARGET) a.out core *~ *.bak *.orig TAGS
+
+distclean:	clean
+		$(RM) Makefile
+
+tags:
+		$(TAGS) *.[ch]
+
+TAGS:		tags
+
+etags:		tags
+
+depend:
+		$(MAKEDEPEND) -- $(CPPFLAGS) $(CFLAGS) -- $(SRCS)
+
