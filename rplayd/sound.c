@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.6 1998/10/15 15:15:25 boyns Exp $ */
+/* $Id: sound.c,v 1.7 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -394,7 +394,7 @@ sound=\"%s\" size=%d bits=%g sample_rate=%d channels=%d samples=%d\r\n",
 	    b->next = buffer_create ();
 	    b = b->next;
 	}
-	SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), line);
+	strncat(b->buf+b->nbytes, line, BUFFER_SIZE - b->nbytes);
 	b->nbytes += n;
     }
 
@@ -404,7 +404,7 @@ sound=\"%s\" size=%d bits=%g sample_rate=%d channels=%d samples=%d\r\n",
 	b = b->next;
     }
 
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), ".\r\n");
+    SNPRINTF (SIZE(b->buf+b->nbytes, BUFFER_SIZE-b->nbytes), ".\r\n");
     b->nbytes += 3;
 
     return start;
@@ -2727,7 +2727,8 @@ sound_pipe_read (si)
 	nbytes = st.st_size;
     }
 #else /* not Solaris */
-#ifdef FIONREAD    
+#if 0 /* disable FIONREAD for now */
+#ifdef FIONREAD
     if (ioctl (si->fd, FIONREAD, &nbytes) < 0)
     {
 	report (REPORT_DEBUG, "sound_pipe_read: ioctl FIONREAD: %s\n",
@@ -2735,6 +2736,7 @@ sound_pipe_read (si)
 	return NULL;
     }
 #endif /* not FIONREAD */
+#endif
     /* guess */
     nbytes = (si->sound->sample_rate * si->sound->input_sample_size) / 2;
 #endif /* not Solaris */

@@ -1,4 +1,4 @@
-/* $Id: rplayd.c,v 1.3 1998/11/06 02:41:17 boyns Exp $ */
+/* $Id: rplayd.c,v 1.4 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -1878,7 +1878,6 @@ rplayd_status ()
 
     SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "host=%s", hostname);
     SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), " version=%s", RPLAY_VERSION);
-    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), " id=$Id: rplayd.c,v 1.3 1998/11/06 02:41:17 boyns Exp $");
     SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), " uptime=%s", time2string (time (0) - starttime));
 
     if (audio_enabled)

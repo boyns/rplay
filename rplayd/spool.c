@@ -1,4 +1,4 @@
-/* $Id: spool.c,v 1.2 1998/08/13 06:14:07 boyns Exp $ */
+/* $Id: spool.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -438,8 +438,10 @@ spool_list_create ()
     BUFFER *spool_list, *b;
     int i, n;
     char buf[RPTP_MAX_LINE];
+    char line[RPTP_MAX_LINE];
     SOUND *s;
     SPOOL *sp;
+    int length;
 
     b = buffer_create ();
     spool_list = b;
@@ -448,37 +450,44 @@ spool_list_create ()
 
     for (sp = spool; sp; sp = sp->next)
     {
-	SNPRINTF (SIZE(buf,sizeof(buf)), "id=#%d", sp->id);
-	SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), " state=");
+	length = 0;
+	line[0] = '\0';
+
+	SNPRINTF (SIZE(buf,sizeof(buf)), "id=#%d state=", sp->id);
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
+
 	switch (sp->state)
 	{
 	case SPOOL_PLAY:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "play");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "play");
 	    break;
 
 	case SPOOL_PAUSE:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "pause");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "pause");
 	    break;
 
 	case SPOOL_WAIT:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "wait");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "wait");
 	    break;
 
 	case SPOOL_NEXT:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "next");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "next");
 	    break;
 
 	case SPOOL_SKIP:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "skip");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "skip");
 	    break;
 
 	default:
 	    continue;
 	}
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
 
 	s = sp->sound[sp->curr_sound];
 
-	SNPRINTF (SIZE(buf + strlen (buf),sizeof(buf)), "\
+	SNPRINTF (SIZE(buf,sizeof(buf)), "\
  sound=\"%s\" host=%s volume=%d priority=%d count=%d position=%.2f remain=%.2f seconds=%.2f size=%d\
  sample-rate=%d channels=%d bits=%g input=%s client-data=\"%s\" list-name=\"%s\"\r\n",
 		 sp->curr_attrs->sound,
@@ -497,15 +506,17 @@ spool_list_create ()
 		 sp->curr_attrs->client_data,
 		 sp->rp->list_name);
 
-	n = strlen (buf);
-	if (b->nbytes + n > BUFFER_SIZE)
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
+
+	if (b->nbytes + length > BUFFER_SIZE)
 	{
 	    b->next = buffer_create ();
 	    b = b->next;
 	}
 
-	SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), buf);
-	b->nbytes += n;
+	strncat(b->buf+b->nbytes, line, BUFFER_SIZE-b->nbytes);
+	b->nbytes += length;
     }
 
     if (b->nbytes + 3 > BUFFER_SIZE)
@@ -513,7 +524,8 @@ spool_list_create ()
 	b->next = buffer_create ();
 	b = b->next;
     }
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), ".\r\n");
+    
+    strncat(b->buf+b->nbytes, ".\r\n", BUFFER_SIZE-b->nbytes);
     b->nbytes += 3;
 
     return spool_list;

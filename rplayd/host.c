@@ -1,4 +1,4 @@
-/* $Id: host.c,v 1.2 1998/08/13 06:13:54 boyns Exp $ */
+/* $Id: host.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -148,7 +148,7 @@ host_read (filename)
 	b = b->next;
 	b->status = BUFFER_KEEP;
     }
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), ".\r\n");
+    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE-b->nbytes), ".\r\n");
     b->nbytes += 3;
 
     if (strlen (expr_read) == 3)

@@ -1,4 +1,4 @@
-/* $Id: command.c,v 1.2 1998/08/13 06:13:46 boyns Exp $ */
+/* $Id: command.c,v 1.3 1998/11/06 15:16:49 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -182,6 +182,10 @@ command (c, buf)
     {
 	argv[argc++] = p;
 	first = 0;
+	if (argc == RPTP_MAX_ARGS-1)
+	{
+	    break;
+	}
     }
     argv[argc] = NULL;
 
@@ -290,13 +294,15 @@ command_help (c, argc, argv)
 	b = buffer_create ();
 	b->status = BUFFER_KEEP;
 	SNPRINTF (SIZE(b->buf,BUFFER_SIZE), "%cmessage=\"command summary\" command=help\r\n", RPTP_OK);
+	b->nbytes += strlen(b->buf);
 	for (i = 0; i < NCOMMANDS; i++)
 	{
 	    SNPRINTF (SIZE(fmt,sizeof(fmt)), "%-8s %s\r\n", commands[i].name, commands[i].usage);
-	    SNPRINTF (SIZE(b->buf+strlen(b->buf),BUFFER_SIZE), fmt);
+	    SNPRINTF (SIZE(b->buf+b->nbytes,BUFFER_SIZE-b->nbytes), fmt);
+	    b->nbytes += strlen(fmt);
 	}
-	SNPRINTF (SIZE(b->buf+strlen(b->buf),BUFFER_SIZE), ".\r\n");
-	b->nbytes = strlen (b->buf);
+	SNPRINTF (SIZE(b->buf+b->nbytes,BUFFER_SIZE-b->nbytes), ".\r\n");
+	b->nbytes += 3;
     }
 
     e = event_create (EVENT_WRITE, b);
@@ -1603,14 +1609,17 @@ command_wait (c, argc, argv)
     else
     {
 	/* XXX: Need to fix command_buffer */
-	int i;
+	int i, n;
 	command_buffer[0] = '\0';
+	n = 0;
 	for (i = 1; i < argc; i++)
 	{
-	    SNPRINTF (SIZE(command_buffer+strlen(command_buffer),sizeof(command_buffer)), argv[i]);
+	    SNPRINTF (SIZE(command_buffer+n,sizeof(command_buffer)-n), argv[i]);
+	    n += strlen(argv[i]);
 	    if (i + 1 != argc)
 	    {
-		SNPRINTF (SIZE(command_buffer+strlen(command_buffer),sizeof(command_buffer)), " ");
+		SNPRINTF (SIZE(command_buffer+n,sizeof(command_buffer)-n), " ");
+		n++;
 	    }
 	}
 
@@ -1649,16 +1658,19 @@ command_application (c, argc, argv)
     char **argv;
 #endif
 {
-    int i;
+    int i, n;
     char buf[RPTP_MAX_LINE];
 
     buf[0] = '\0';
+    n = 0;
     for (i = 1; i < argc; i++)
     {
-	SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), argv[i]);
+	SNPRINTF (SIZE(buf+n,sizeof(buf)-n), argv[i]);
+	n += strlen(argv[i]);
 	if (i + 1 != argc)
 	{
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), " ");
+	    SNPRINTF (SIZE(buf+n,sizeof(buf)-n), " ");
+	    n++;
 	}
     }
 
@@ -1819,6 +1831,7 @@ command_set (c, argc, argv)
     int notify_mask = 0;
     int notify_id = 0;
     char *client_data;
+    char buf[RPTP_MAX_LINE];
     
     client_data = rptp_parse (command_buffer, "client-data");
     if (!client_data)
@@ -1839,6 +1852,7 @@ command_set (c, argc, argv)
     b = buffer_create ();
     b->buf[0] = RPTP_OK;
     b->buf[1] = '\0';
+    b->nbytes = 1;
 
     rptp_parse (command_buffer, 0);
     while (name = rptp_parse (0, 0))
@@ -1855,8 +1869,10 @@ command_set (c, argc, argv)
 		}
 		c->application = strdup (value);
 	    }
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "application=\"%s\"",
-		     c->application ? c->application : "-1");
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "application=\"%s\"",
+		      c->application ? c->application : "-1");
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 	else if (strcmp (name, "notify") == 0)	/* `notify=[event,...]' */
 	{
@@ -1867,11 +1883,15 @@ command_set (c, argc, argv)
 	    
 	    if (!c->notify_mask)
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "notify=none");
+		SNPRINTF (SIZE(buf, sizeof(buf)), "notify=none");
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 	    }
 	    else
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "notify=\"%s\"", value);
+		SNPRINTF (SIZE (buf, sizeof(buf)), "notify=\"%s\"", value);
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 		notify_enabled++;
 	    }
 	}
@@ -1908,12 +1928,16 @@ command_set (c, argc, argv)
 
 	    if (volume >= 0)
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "volume=%d", volume);
+		SNPRINTF (SIZE(buf, sizeof(buf)), "volume=%d", volume);
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 		volume_changed++;
 	    }
 	    else
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "volume=-1");
+		SNPRINTF (SIZE(buf, sizeof(buf)), "volume=-1");
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 	    }
 	}
 	else if (strcmp (name, "priority-threshold") == 0) /* `priority-threshold=value' */
@@ -1932,8 +1956,10 @@ command_set (c, argc, argv)
 
 		priority_threshold_changed++;
 	    }
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "priority-threshold=%d",
-		     rplay_priority_threshold);
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "priority-threshold=%d",
+			   rplay_priority_threshold);
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 	else if (strcmp (name, "notify-rate") == 0) /* `notify-rate=value' */
 	{
@@ -1951,9 +1977,11 @@ command_set (c, argc, argv)
 		}
 	    }
 	    
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "level-notify-rate=%.2f position-notify-rate=%.2f",
-		     c->notify_rate[NOTIFY_RATE_LEVEL].rate,
-		     c->notify_rate[NOTIFY_RATE_POSITION].rate);
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "level-notify-rate=%.2f position-notify-rate=%.2f",
+		      c->notify_rate[NOTIFY_RATE_LEVEL].rate,
+		      c->notify_rate[NOTIFY_RATE_POSITION].rate);
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 	else if (strcmp (name, "level-notify-rate") == 0)
 	{
@@ -1963,8 +1991,10 @@ command_set (c, argc, argv)
 		c->notify_rate[NOTIFY_RATE_LEVEL].next = 0.0;
 	    }
 
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "level-notify-rate=%.2f",
-		     c->notify_rate[NOTIFY_RATE_LEVEL].rate);
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "level-notify-rate=%.2f",
+		      c->notify_rate[NOTIFY_RATE_LEVEL].rate);
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 	else if (strcmp (name, "position-notify-rate") == 0)
 	{
@@ -1974,8 +2004,10 @@ command_set (c, argc, argv)
 		c->notify_rate[NOTIFY_RATE_POSITION].next = 0.0;
 	    }
 
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "position-notify-rate=%.2f",
-		     c->notify_rate[NOTIFY_RATE_POSITION].rate);
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "position-notify-rate=%.2f",
+		      c->notify_rate[NOTIFY_RATE_POSITION].rate);
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 	else if (strcmp (name, "audio-port") == 0)
 	{
@@ -2015,11 +2047,15 @@ command_set (c, argc, argv)
 	    
 	    if (n < 0)
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "audio-port=-1");
+		SNPRINTF (SIZE(buf, sizeof(buf)), "audio-port=-1");
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 	    }
 	    else
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "audio-port=%s", value);
+		SNPRINTF (SIZE(buf, sizeof(buf)), "audio-port=%s", value);
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 	    }
 	}
 	else if (strcmp (name, "audio-info") == 0)
@@ -2056,7 +2092,9 @@ command_set (c, argc, argv)
 	    
 	    if (rplayd_audio_init () < 0)
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "audio-info=-1");
+		SNPRINTF (SIZE(buf, sizeof(buf)), "audio-info=-1");
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 #ifndef HAVE_OSS	    
 		rplay_audio_bufsize = bufsize;
 #endif /* !HAVE_OSS */	    
@@ -2064,19 +2102,29 @@ command_set (c, argc, argv)
 	    }
 	    else
 	    {
-		SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "audio-info=%s", value);
+		SNPRINTF (SIZE(buf, sizeof(buf)), "audio-info=%s", value);
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
 	    }
 	}
 	else
 	{
-	    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "%s=-1", name);
+	    SNPRINTF (SIZE(buf, sizeof(buf)), "%s=-1", name);
+	    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	    b->nbytes += strlen(buf);
 	}
 
-	SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), " ");
+	SNPRINTF (SIZE(buf, sizeof(buf)), " ");
+	strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+	b->nbytes += strlen(buf);
     }
 
-    SNPRINTF (SIZE (b->buf + strlen (b->buf), BUFFER_SIZE), "command=set client-data=\"%s\"\r\n", client_data);
-    b->nbytes = strlen (b->buf);
+    SNPRINTF (SIZE(buf, sizeof(buf)), "command=set client-data=\"%s\"\r\n",
+	     client_data);
+    strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+    printf(buf);
+    b->nbytes += strlen(buf);
+    printf(b->buf);
 
     e = event_create (EVENT_WRITE, b);
     event_insert (c, e);

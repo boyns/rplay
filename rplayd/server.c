@@ -1,4 +1,4 @@
-/* $Id: server.c,v 1.2 1998/08/13 06:14:03 boyns Exp $ */
+/* $Id: server.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -160,7 +160,7 @@ server_read (filename)
 	    b = b->next;
 	    b->status = BUFFER_KEEP;
 	}
-	SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), line);
+	SNPRINTF (SIZE(b->buf+b->nbytes, BUFFER_SIZE-b->nbytes), line);
 	b->nbytes += n;
 
 	(*s)->sin = sin;
@@ -178,7 +178,7 @@ server_read (filename)
 	b = b->next;
 	b->status = BUFFER_KEEP;
     }
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), ".\r\n");
+    SNPRINTF (SIZE(b->buf+b->nbytes, BUFFER_SIZE-b->nbytes), ".\r\n");
     b->nbytes += 3;
 }
 

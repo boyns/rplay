@@ -1,4 +1,4 @@
-/* $Id: connection.c,v 1.3 1998/10/12 16:03:20 boyns Exp $ */
+/* $Id: connection.c,v 1.4 1998/11/06 15:16:49 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -890,8 +890,9 @@ connection_reply (va_alist)
 
     VSNPRINTF (SIZE(b->buf,BUFFER_SIZE), fmt, args);
     va_end (args);
-    SNPRINTF (SIZE(b->buf+strlen(b->buf),BUFFER_SIZE), "\r\n");
-    b->nbytes += strlen (b->buf);
+    b->nbytes = strlen(b->buf);
+    SNPRINTF (SIZE(b->buf+b->nbytes,BUFFER_SIZE-b->nbytes), "\r\n");
+    b->nbytes += 2;
 
     e = event_create (EVENT_WRITE, b);
     event_first (c, e);
@@ -1074,8 +1075,9 @@ connection_list_create ()
 {
     CONNECTION *c;
     BUFFER *b, *connection_list;
+    char line[RPTP_MAX_LINE];
     char buf[RPTP_MAX_LINE];
-    int n;
+    int n, length;
     time_t t;
 
     b = buffer_create ();
@@ -1087,109 +1089,135 @@ connection_list_create ()
 
     for (c = connections; c; c = c->next)
     {
+	length = 0;
+	line[0] = '\0';
+	
 	SNPRINTF (SIZE(buf,sizeof(buf)), "host=%s", inet_ntoa (c->sin.sin_addr));
-	SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), " type=");
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
+	
+	SNPRINTF (SIZE(buf,sizeof(buf)), " type=");
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
+
+	buf[0] = '\0';
 	switch (c->type)
 	{
 	case CONNECTION_SERVER:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "server");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "server");
 	    break;
 
 	case CONNECTION_CLIENT:
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "client");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), "client");
 	    break;
 	}
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
 
 	if (c->event != NULL)
 	{
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), " what=");
+	    SNPRINTF (SIZE(buf,sizeof(buf)), " what=");
+	    strncat(line+length, buf, sizeof(line)-length);
+	    length += strlen(buf);
+
+	    buf[0] = '\0';
 	    switch (c->event->type)
 	    {
 	    case EVENT_READ_COMMAND:
-		SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "idle");
+		SNPRINTF (SIZE(buf,sizeof(buf)), "idle");
 		break;
 
 	    case EVENT_CONNECT:
 	    case EVENT_READ_CONNECT_REPLY:
-		SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "connect");
+		SNPRINTF (SIZE(buf,sizeof(buf)), "connect");
 		break;
 
 	    case EVENT_WRITE_FIND:
 	    case EVENT_READ_FIND_REPLY:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"find %s\"", c->event->sound->name);
+		SNPRINTF (SIZE(buf,sizeof(buf)), "\"find %s\"", c->event->sound->name);
 		break;
 
 	    case EVENT_WRITE_GET:
 	    case EVENT_READ_GET_REPLY:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"get %s\"", c->event->sound->name);
+		SNPRINTF (SIZE(buf,sizeof(buf)), "\"get %s\"", c->event->sound->name);
 		break;
 
 	    case EVENT_READ_SOUND:
 		if (c->type == CONNECTION_SERVER)
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"get %s (%d/%d)\"",
-			c->event->sound->name,
-			c->event->byte_offset,
-			c->event->nbytes);
+		    SNPRINTF (SIZE(buf,sizeof(buf)), "\"get %s (%d/%d)\"",
+			      c->event->sound->name,
+			      c->event->byte_offset,
+			      c->event->nbytes);
 		else
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"put %s (%d/%d)\"",
-			c->event->sound->name,
-			c->event->byte_offset,
-			c->event->nbytes);
+		    SNPRINTF (SIZE(buf,sizeof(buf)), "\"put %s (%d/%d)\"",
+			      c->event->sound->name,
+			      c->event->byte_offset,
+			      c->event->nbytes);
 		break;
 
 	    case EVENT_WRITE:
-		SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "write");
+		SNPRINTF (SIZE(buf,sizeof(buf)), "write");
 		break;
 
 	    case EVENT_WRITE_SOUND:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"get %s (%d/%d)\"",
-		    c->event->sound->name,
-		    c->event->byte_offset,
-		    c->event->nbytes);
+		SNPRINTF (SIZE(buf,sizeof(buf)), "\"get %s (%d/%d)\"",
+			  c->event->sound->name,
+			  c->event->byte_offset,
+			  c->event->nbytes);
 		break;
 
 	    case EVENT_NOTIFY:
 		if (c->notify_mask)
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"notify %08x\"", c->notify_mask);
+		    SNPRINTF (SIZE(buf,sizeof(buf)), "\"notify %08x\"",
+			      c->notify_mask);
 		else
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"wait %08x\"", c->event->wait_mask);
+		    SNPRINTF (SIZE(buf,sizeof(buf)), "\"wait %08x\"",
+			      c->event->wait_mask);
 		break;
 
 	    case EVENT_READ_FLOW:
 	    case EVENT_WAIT_FLOW:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"put #%d (%d/%d)\"",
+		SNPRINTF (SIZE(buf,sizeof(buf)), "\"put #%d (%d/%d)\"",
 		    c->event->id,
 		    c->event->byte_offset,
 		    c->event->nbytes);
 		break;
 
 	    case EVENT_PIPE_FLOW:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\"pipe #%d\"",
+		SNPRINTF (SIZE(buf,sizeof(buf)), "\"pipe #%d\"",
 			  c->event->id);
 		break;
 	    }
+	    strncat(line+length, buf, sizeof(line)-length);
+	    length += strlen(buf);
 	}
 
 	if (t - c->time)
 	{
-	    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), " idle=%s", time2string (t - c->time));
+	    SNPRINTF (SIZE(buf,sizeof(buf)), " idle=%s", time2string (t - c->time));
+	    strncat(line+length, buf, sizeof(line)-length);
+	    length += strlen(buf);
 	}
 
 	if (c->application)
 	{
-	    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), " application=\"%s\"", c->application);
+	    SNPRINTF (SIZE(buf,sizeof(buf)), " application=\"%s\"", c->application);
+	    strncat(line+length, buf, sizeof(line)-length);
+	    length += strlen(buf);
 	}
 
-	SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "\r\n");
+	SNPRINTF (SIZE(buf,sizeof(buf)), "\r\n");
+	strncat(line+length, buf, sizeof(line)-length);
+	length += strlen(buf);
 
-	n = strlen (buf);
-	if (b->nbytes + n > BUFFER_SIZE)
+	if (b->nbytes + length > BUFFER_SIZE)
 	{
 	    b->next = buffer_create ();
 	    b = b->next;
 	}
-	SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), buf);
-	b->nbytes += n;
+
+	strncat(b->buf+b->nbytes, line, BUFFER_SIZE-b->nbytes);
+	b->nbytes += length;
     }
 
     if (b->nbytes + 3 > BUFFER_SIZE)
@@ -1197,7 +1225,8 @@ connection_list_create ()
 	b->next = buffer_create ();
 	b = b->next;
     }
-    SNPRINTF (SIZE(b->buf+strlen(b->buf), BUFFER_SIZE), ".\r\n");
+
+    strncat(b->buf+b->nbytes, ".\r\n", BUFFER_SIZE-b->nbytes);
     b->nbytes += 3;
 
     return connection_list;
@@ -1277,6 +1306,7 @@ connection_notify (va_alist)
 	    || (c->event && BIT (c->event->wait_mask, notify_event)))
 	{
 	    strcpy (buf, "?event=");
+	    length = strlen(buf);
 
 	    switch (notify_event)
 	    {
@@ -1289,8 +1319,9 @@ connection_notify (va_alist)
 		    {
 			n--;
 		    }
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "done id=#%d sound=\"%s\" client-data=\"%s\"",
-			     sp->id, sp->sound[n]->name, sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "done id=#%d sound=\"%s\" client-data=\"%s\"",
+			      sp->id, sp->sound[n]->name, sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1299,8 +1330,8 @@ connection_notify (va_alist)
 		break;
 
 	    case NOTIFY_VOLUME:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "volume volume=%d",
-			 new_volume);
+		SNPRINTF (SIZE(buf+length,sizeof(buf)-length), "volume volume=%d",
+			  new_volume);
 		break;
 
 	    case NOTIFY_PLAY:
@@ -1309,7 +1340,7 @@ connection_notify (va_alist)
 		{
 		    SOUND *s = sp->sound[sp->curr_sound];
 		    
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "play\
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length), "play\
  id=#%d sound=\"%s\" host=%s volume=%d priority=%d count=%d seconds=%.2f size=%d\
  sample-rate=%d channels=%d bits=%g input=%s client-data=\"%s\"",
 			     sp->id,
@@ -1336,8 +1367,9 @@ connection_notify (va_alist)
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "stop id=#%d sound=\"%s\" client-data=\"%s\"",
-			     sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "stop id=#%d sound=\"%s\" client-data=\"%s\"",
+			      sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1349,8 +1381,9 @@ connection_notify (va_alist)
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "pause id=#%d sound=\"%s\" client-data=\"%s\"",
-			     sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "pause id=#%d sound=\"%s\" client-data=\"%s\"",
+			      sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1362,8 +1395,9 @@ connection_notify (va_alist)
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "continue id=#%d sound=\"%s\" client-data=\"%s\"",
-			     sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "continue id=#%d sound=\"%s\" client-data=\"%s\"",
+			      sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1375,8 +1409,9 @@ connection_notify (va_alist)
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "skip id=#%d sound=\"%s\" client-data=\"%s\"",
-			     sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "skip id=#%d sound=\"%s\" client-data=\"%s\"",
+			      sp->id, sp->curr_attrs->sound, sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1385,25 +1420,25 @@ connection_notify (va_alist)
 		break;
 
 	    case NOTIFY_STATE:
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\
-state play=%d pause=%d volume=%d priority-threshold=%d audio-port=%s",
-			 spool_nplaying, spool_npaused,
-			 rplay_audio_volume, rplay_priority_threshold,
-			 audio_port_to_string (rplay_audio_port));
+		SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			  "state play=%d pause=%d volume=%d priority-threshold=%d audio-port=%s",
+			  spool_nplaying, spool_npaused,
+			  rplay_audio_volume, rplay_priority_threshold,
+			  audio_port_to_string (rplay_audio_port));
 		break;
 
 	    case NOTIFY_FLOW:
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "\
-flow id=#%d sound=\"%s\" mark=%d low=%d high=%d client-data=\"%s\"",
-			     sp->id,
-			     sp->curr_attrs->sound,
-			     sp->si->water_mark - sp->si->offset,
-			     sp->si->low_water_mark,
-			     sp->si->high_water_mark,
-			     sp->curr_attrs->client_data);
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			      "flow id=#%d sound=\"%s\" mark=%d low=%d high=%d client-data=\"%s\"",
+			      sp->id,
+			      sp->curr_attrs->sound,
+			      sp->si->water_mark - sp->si->offset,
+			      sp->si->low_water_mark,
+			      sp->si->high_water_mark,
+			      sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1415,15 +1450,15 @@ flow id=#%d sound=\"%s\" mark=%d low=%d high=%d client-data=\"%s\"",
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "modify \
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length), "modify \
 id=#%d count=%d list-count=%d priority=%d sample-rate=%d volume=%d client-data=\"%s\"",
-			     sp->id,
-			     sp->curr_count,
-			     sp->list_count,
-			     sp->rp->priority,
-			     sp->sample_rate,
-			     sp->curr_attrs->volume,
-			     sp->curr_attrs->client_data);
+			      sp->id,
+			      sp->curr_count,
+			      sp->list_count,
+			      sp->rp->priority,
+			      sp->sample_rate,
+			      sp->curr_attrs->volume,
+			      sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1444,10 +1479,11 @@ id=#%d count=%d list-count=%d priority=%d sample-rate=%d volume=%d client-data=\
 			timer_count + c->notify_rate[NOTIFY_RATE_LEVEL].rate;
 		}
 		
-		SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "level volume=%d left=%d right=%d",
-			 rplay_audio_volume,
- 			 rplay_audio_left_level,
-			 rplay_audio_right_level);
+		SNPRINTF (SIZE(buf+length,sizeof(buf)-length),
+			  "level volume=%d left=%d right=%d",
+			  rplay_audio_volume,
+			  rplay_audio_left_level,
+			  rplay_audio_right_level);
 		break;
 		
 	    case NOTIFY_POSITION:
@@ -1467,15 +1503,15 @@ id=#%d count=%d list-count=%d priority=%d sample-rate=%d volume=%d client-data=\
 			    timer_count + c->notify_rate[NOTIFY_RATE_POSITION].rate;
 		    }
 		    
-		    SNPRINTF (SIZE (buf + strlen (buf), BUFFER_SIZE), "position \
+		    SNPRINTF (SIZE(buf+length,sizeof(buf)-length), "position \
 id=#%d position=%.2f remain=%.2f seconds=%.2f sample=%d samples=%d client-data=\"%s\"",
-			     sp->id,
-			     sp->sample_rate && s->samples ? sp->sample_index / sp->sample_rate : 0,
-			     sp->sample_rate && s->samples ? ((double) s->samples - sp->sample_index) / sp->sample_rate : 0,
-			     sp->sample_rate && s->samples ? (double) s->samples / sp->sample_rate : 0,
-			     s->samples ? (int) sp->sample_index : 0,
-			     s->samples,
-			     sp->curr_attrs->client_data);
+			      sp->id,
+			      sp->sample_rate && s->samples ? sp->sample_index / sp->sample_rate : 0,
+			      sp->sample_rate && s->samples ? ((double) s->samples - sp->sample_index) / sp->sample_rate : 0,
+			      sp->sample_rate && s->samples ? (double) s->samples / sp->sample_rate : 0,
+			      s->samples ? (int) sp->sample_index : 0,
+			      s->samples,
+			      sp->curr_attrs->client_data);
 		}
 		else
 		{
@@ -1483,8 +1519,9 @@ id=#%d position=%.2f remain=%.2f seconds=%.2f sample=%d samples=%d client-data=\
 		}
 	    }
 
-	    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)), "\r\n");
-	    length = strlen (buf);
+	    length = strlen(buf);
+	    SNPRINTF (SIZE(buf+length,sizeof(buf)-length), "\r\n");
+	    length = strlen(buf);
 
 	    /* Build the head array with the necessary RPTP headers.  */
 	    n = 0;

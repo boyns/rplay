@@ -1,4 +1,4 @@
-/* $Id: misc.c,v 1.2 1998/08/13 06:13:56 boyns Exp $ */
+/* $Id: misc.c,v 1.3 1998/11/06 15:16:50 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -249,7 +249,7 @@ time2string (t)
 	SNPRINTF (SIZE(buf,sizeof(buf)), "%d+", days);
     }
 
-    SNPRINTF (SIZE(buf + strlen (buf),sizeof(buf)), "%02d:%02d:%02d", hours, mins, secs);
+    SNPRINTF (SIZE(buf+strlen(buf),sizeof(buf)-strlen(buf)), "%02d:%02d:%02d", hours, mins, secs);
 
     return buf;
 }
@@ -524,25 +524,26 @@ audio_port_to_string (port)
 #endif
 {
     static char string[128];
+    int n;
 
     string[0] = '\0';
     if (BIT (port, RPLAY_AUDIO_PORT_NONE))
     {
-	SNPRINTF (SIZE(string+strlen(string),sizeof(string)), "none,");
+	strncat(string, "none,", sizeof(string)-strlen(string));
     }
     if (BIT (port, RPLAY_AUDIO_PORT_SPEAKER))
     {
-	SNPRINTF (SIZE(string+strlen(string),sizeof(string)), "speaker,");
+	strncat(string, "speaker,", sizeof(string)-strlen(string));
     }
     if (BIT (port, RPLAY_AUDIO_PORT_HEADPHONE))
     {
-	SNPRINTF (SIZE(string+strlen(string),sizeof(string)), "headphone,");
+	strncat(string, "headphone,", sizeof(string)-strlen(string));
     }
     if (BIT (port, RPLAY_AUDIO_PORT_LINEOUT))
     {
-	SNPRINTF (SIZE(string+strlen(string),sizeof(string)), "lineout,");
+	strncat(string, "lineout,", sizeof(string)-strlen(string));
     }
-    string[strlen (string) - 1] = '\0';
+    string[strlen(string)-1] = '\0';
 
     return string;
 }
