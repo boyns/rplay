@@ -1,4 +1,4 @@
-/* $Id: connection.c,v 1.7 2002/12/11 05:12:16 boyns Exp $ */
+/* $Id: connection.c,v 1.8 2002/12/11 06:19:01 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -61,6 +61,8 @@ int connection_level_notify = 0;
 #ifdef EVENT_DEBUG
 static void event_print(CONNECTION *c, char *message);
 #endif
+
+#define VOLUME(attrs) MAX((attrs)->volume[0], (attrs)->volume[1])
 
 /*
  * create a connection object
@@ -1352,13 +1354,17 @@ connection_notify(va_alist)
 		{
 		    SOUND *s = sp->sound[sp->curr_sound];
 
-		    SNPRINTF(SIZE(buf + length, sizeof(buf) - length), "play\
- id=#%d sound=\"%s\" host=%s volume=%d priority=%d count=%d seconds=%.2f size=%d\
- sample-rate=%d channels=%d bits=%g input=%s client-data=\"%s\"",
+		    SNPRINTF(SIZE(buf + length, sizeof(buf) - length),
+                             "play id=#%d sound=\"%s\" "
+                             "host=%s volume=%d priority=%d "
+                             "count=%d seconds=%.2f size=%d "
+                             "sample-rate=%d channels=%d bits=%g "
+                             "input=%s client-data=\"%s\" "
+                             "left-volume=%d right-volume=%d",
 			     sp->id,
 			     sp->curr_attrs->sound,
 			     inet_ntoa(sp->sin.sin_addr),
-			     sp->curr_attrs->volume,
+			     VOLUME(sp->curr_attrs),
 			     sp->rp->priority,
 			     sp->curr_attrs->count,
 			     (float) s->samples / sp->sample_rate,
@@ -1367,7 +1373,9 @@ connection_notify(va_alist)
 			     s->channels,
 			     s->input_precision,
 			     input_to_string(s->type),
-			     sp->curr_attrs->client_data);
+			     sp->curr_attrs->client_data,
+                             sp->curr_attrs->volume[0],
+                             sp->curr_attrs->volume[1]);
 		}
 		else
 		{
@@ -1462,15 +1470,20 @@ connection_notify(va_alist)
 		if ((!c->notify_id || c->notify_id == sp->id)
 		    || (c->event && c->event->id == sp->id))
 		{
-		    SNPRINTF(SIZE(buf + length, sizeof(buf) - length), "modify \
-id=#%d count=%d list-count=%d priority=%d sample-rate=%d volume=%d client-data=\"%s\"",
+		    SNPRINTF(SIZE(buf + length, sizeof(buf) - length),
+                             "modify id=#%d count=%d "
+                             "list-count=%d priority=%d "
+                             "sample-rate=%d volume=%d client-data=\"%s\" "
+                             "left-volume=%d right-volume=%d",
 			     sp->id,
 			     sp->curr_count,
 			     sp->list_count,
 			     sp->rp->priority,
 			     sp->sample_rate,
-			     sp->curr_attrs->volume,
-			     sp->curr_attrs->client_data);
+			     VOLUME(sp->curr_attrs),
+			     sp->curr_attrs->client_data,
+                             sp->curr_attrs->volume[0],
+                             sp->curr_attrs->volume[1]);
 		}
 		else
 		{
