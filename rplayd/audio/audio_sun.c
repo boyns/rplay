@@ -1,4 +1,4 @@
-/* $Id: audio_sun.c,v 1.2 1998/08/13 06:14:26 boyns Exp $ */
+/* $Id: audio_sun.c,v 1.3 1998/09/03 06:08:49 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -296,6 +296,14 @@ rplay_audio_open ()
     if (rplay_audio_fd < 0)
     {
 	return -1;
+    }
+
+    if (fcntl (rplay_audio_fd, F_SETFD, 1) < 0)
+    {
+	report (REPORT_ERROR,
+		"rplay_audio_open: close-on-exec %d\n",
+		sys_err_str(errno));
+	/* return -1; */
     }
 
     if (rplay_audio_init () < 0)

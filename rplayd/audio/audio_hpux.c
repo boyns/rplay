@@ -241,6 +241,14 @@ rplay_audio_open ()
 	return -1;
     }
 
+    if (fcntl (rplay_audio_fd, F_SETFD, 1) < 0)
+    {
+	report (REPORT_ERROR,
+		"rplay_audio_open: close-on-exec %d\n",
+		sys_err_str(errno));
+	/* return -1; */
+    }
+
     if (rplay_audio_init () < 0)
     {
 	return -1;
