@@ -1,7 +1,7 @@
-/* $Id: version.h,v 1.5 1999/03/10 07:57:27 boyns Exp $ */
+/* $Id: version.h,v 1.6 2002/12/06 18:51:01 boyns Exp $ */
 
 /*
- * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
+ * Copyright (C) 1993-99,2002 Mark R. Boyns <boyns@doit.org>
  *
  * This file is part of rplay.
  *
@@ -27,7 +27,7 @@
 
 #define RPLAY_MAJOR_VERSION	3
 #define RPLAY_MINOR_VERSION	3
-#define RPLAY_PATCHLEVEL	2
+#define RPLAY_PATCHLEVEL	3
 #define RPLAY_STATUS		""
 
 #endif /* _version_h */
