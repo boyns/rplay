@@ -1,10 +1,12 @@
-dnl $Id: configure.in,v 1.6 2000/05/03 18:47:32 lmoore Exp $
+dnl $Id: configure.in,v 1.7 2002/02/08 22:14:10 lmoore Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
 AC_INIT(rplayd/rplayd.c)
 AC_CONFIG_HEADER(include/config.h)
+
+BUILD_TARGETS="include lib adpcm"
 
 dnl
 dnl Figure what version of rplay this is.
@@ -58,7 +60,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_TIME
 dnl AC_PATH_XTRA
-AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h gsm.h gsm/gsm.h rxposix.h rx/rxposix.h)
+AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h sys/time.h stdlib.h unistd.h memory.h string.h strings.h utime.h limits.h gsm.h gsm/gsm.h regex.h rxposix.h rx/rxposix.h)
 AC_HEADER_SYS_WAIT
 
 dnl Check for typedefs, structures, and compiler characteristics.
@@ -74,28 +76,31 @@ AC_CHECK_FUNCS(getcwd gethostname mkdir re_comp regcomp select snprintf socket s
 AC_CHECK_LIB(socket, socket, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(nsl, t_accept, [LIBS="$LIBS -lnsl"])
 
-AC_CHECK_LIB(readline, readline, [RL_LIBS="-lreadline"])
+AC_CHECK_LIB(readline, readline, 
+             [AC_DEFINE(HAVE_LIBREADLINE) RL_LIBS="-lreadline"])
 AC_SUBST(RL_LIBS)
 
-AC_CHECK_LIB(gsm, gsm_decode, [HAVE_GSM="yes"])
-if test "$HAVE_GSM" = "yes"; then
-    GSM_LIBS="-lgsm"
-    GSM_INCS=""
-else
-    GSM_LIBS="-L../gsm -lgsm"
-    GSM_INCS="-I\${srcdir}/../gsm"
-fi
+AC_CHECK_LIB(gsm, gsm_decode, 
+  [GSM_LIBS="-lgsm"; GSM_INCS=""],
+  [
+    GSM_LIBS="-L../gsm -lgsm"; GSM_INCS="-I\${srcdir}/../gsm"
+    BUILD_TARGETS="$BUILD_TARGETS gsm"
+  ])
 AC_SUBST(GSM_LIBS)
 AC_SUBST(GSM_INCS)
 
-AC_CHECK_LIB(rx, regncomp, [HAVE_RX="yes"])
-if test "$HAVE_RX" = "yes"; then
-    RX_LIBS="-lrx"
-    RX_INCS=""
-else
-    RX_LIBS="-L../rx -lrx"
-    RX_INCS="-I\${srcdir}/../rx"
-fi
+dnl check for regcomp in libc, librx, or build rx
+AC_CHECK_FUNCS(regcomp, 
+  [], 
+  [
+    AC_CHECK_LIB(rx, regcomp, 
+      [RX_LIBS="-lrx"; RX_INCS=""],
+      [
+        RX_LIBS="-L../rx -lrx"; RX_INCS="-I\${srcdir}/../rx"
+        BUILD_TARGETS="$BUILD_TARGETS rx"
+        AC_CONFIG_SUBDIRS(rx)
+      ])
+  ])
 AC_SUBST(RX_LIBS)
 AC_SUBST(RX_INCS)
 
@@ -213,6 +218,23 @@ fi
 fi
 
 dnl
+dnl Check for the Hurd
+dnl
+if test -z "$RPLAY_TARGET"; then
+AC_MSG_CHECKING(for the Hurd)
+AC_EGREP_CPP(yes,
+[
+#ifdef __GNU__
+  yes
+#endif
+], is_gnu=yes, is_gnu=no)
+AC_MSG_RESULT($is_gnu)
+if test $is_gnu = "yes"; then
+	RPLAY_TARGET="gnu"
+fi
+fi
+
+dnl
 dnl *** Add new systems before this line ***
 dnl
 
@@ -250,25 +272,12 @@ if test $RPLAY_TARGET = "sgi"; then
 fi
 AC_SUBST(LIBS)
 
-BUILD_TARGETS="include lib adpcm"
-if test "$HAVE_RX" != "yes"; then
-    BUILD_TARGETS="$BUILD_TARGETS rx"
-    CONFIG_SUB_DIRS="$CONFIG_SUB_DIRS rx"
-fi
-
-if test "$HAVE_GSM" != "yes"; then
-    BUILD_TARGETS="$BUILD_TARGETS gsm"
-    EXTRA_MAKEFILES="$EXTRA_MAKEFILES gsm/Makefile"
-fi
-
-AC_CONFIG_SUBDIRS($CONFIG_SUB_DIRS)
-
 BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc"
 
-if test $RPLAY_TARGET = "oss"; then
+if test $RPLAY_TARGET = "oss" -o $RPLAY_TARGET = "gnu"; then
     BUILD_TARGETS="$BUILD_TARGETS devrplay"
 fi
 
 AC_SUBST(BUILD_TARGETS)
 
-AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile $EXTRA_MAKEFILES)
+AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile)
