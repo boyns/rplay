@@ -50,9 +50,11 @@ librplay.so:	$(SHAREDOBJS)
 install:	all
 		$(MKINSTALLDIRS) $(libdir)
 		$(INSTALL_DATA) $(TARGET) $(libdir)
+		$(INSTALL_DATA) librplay.so $(libdir)
 
 uninstall:
 		$(RM) $(libdir)/$(TARGET)
+		$(RM) $(libdir)/librplay.so
 
 clean:
 		$(RM) $(OBJS) $(SHAREDOBJS) $(TARGET) librplay.so a.out core *~ *.bak *.orig TAGS
