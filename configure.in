@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.5 1999/06/09 06:26:28 boyns Exp $
+dnl $Id: configure.in,v 1.6 2000/05/03 18:47:32 lmoore Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
@@ -253,11 +253,15 @@ AC_SUBST(LIBS)
 BUILD_TARGETS="include lib adpcm"
 if test "$HAVE_RX" != "yes"; then
     BUILD_TARGETS="$BUILD_TARGETS rx"
-    AC_CONFIG_SUBDIRS(rx)
+    CONFIG_SUB_DIRS="$CONFIG_SUB_DIRS rx"
 fi
+
 if test "$HAVE_GSM" != "yes"; then
     BUILD_TARGETS="$BUILD_TARGETS gsm"
+    EXTRA_MAKEFILES="$EXTRA_MAKEFILES gsm/Makefile"
 fi
+
+AC_CONFIG_SUBDIRS($CONFIG_SUB_DIRS)
 
 BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc"
 
@@ -267,4 +271,4 @@ fi
 
 AC_SUBST(BUILD_TARGETS)
 
-AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile)
+AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile $EXTRA_MAKEFILES)
