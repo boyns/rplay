@@ -22,7 +22,7 @@ OBJS=		devrplay.o
 all:		$(TARGET)
 
 $(TARGET):	$(OBJS) ../librplay/librplay.so
-		$(CC) -o $@ $(OBJS) ../librplay/rptp.lo $(LDFLAGS)
+		$(CC) -o $@ $(OBJS) ../librplay/rplay.lo ../librplay/rptp.lo $(LDFLAGS)
 
 ../librplay/librplay.so:
 		(cd ../librplay; $(MAKE) $(MFLAGS) librplay.so)
