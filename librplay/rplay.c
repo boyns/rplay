@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.4 1998/11/07 21:15:33 boyns Exp $ */
+/* $Id: rplay.c,v 1.5 1999/02/24 06:24:45 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -21,8 +21,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -244,8 +242,8 @@ rplay_pack(rp)
     {
 	val = RPLAY_ID;
 	COPY(rp, &val, sizeof(val));
-	val = rp->id;
-	COPY(rp, &val, sizeof(val));
+	lval = htonl(rp->id);
+	COPY(rp, &lval, sizeof(lval));
     }
 
     if (rp->sequence != -1)
@@ -438,7 +436,8 @@ rplay_unpack(packet)
 	    break;
 
 	case RPLAY_SAMPLE_RATE:
-	    memcpy((char *) &(*rp->attrsp)->sample_rate, packet, sizeof((*rp->attrsp)->sample_rate));
+	    memcpy((char *) &(*rp->attrsp)->sample_rate, packet,
+		   sizeof((*rp->attrsp)->sample_rate));
 	    (*rp->attrsp)->sample_rate = ntohl((*rp->attrsp)->sample_rate);
 	    packet += sizeof((*rp->attrsp)->sample_rate);
 	    break;
@@ -449,7 +448,9 @@ rplay_unpack(packet)
 	    break;
 
 	case RPLAY_ID:
-	    rp->id = (unsigned char) *packet++;
+	    memcpy((char *) &rp->id, packet, sizeof(rp->id));
+	    rp->id = ntohl(rp->id);
+	    packet += sizeof(rp->id);
 	    break;
 
 	case RPLAY_SEQUENCE:
