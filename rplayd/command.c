@@ -1,4 +1,4 @@
-/* $Id: command.c,v 1.4 1998/11/07 21:15:39 boyns Exp $ */
+/* $Id: command.c,v 1.5 1998/11/10 15:26:55 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -1052,7 +1052,7 @@ do_execute(c, argc, argv)
 		if (strcmp(commands[i].name, argv[0]) == 0)
 		{
 		    connection_reply(c, "%cerror=\"usage: %s %s\" command=%s",
-			    RPTP_ERROR, commands[i].name, commands[i].usage,
+				     RPTP_ERROR, commands[i].name, commands[i].usage,
 				     argv[0]);
 		    return -1;
 		}
@@ -2113,6 +2113,17 @@ command_set(c, argc, argv)
 		b->nbytes += strlen(buf);
 	    }
 	}
+	else if (strcmp(name, "audio-close") == 0)
+	{
+	    if (value && *value)
+	    {
+		extern int rplay_audio_timeout;
+		rplay_audio_timeout = atoi(value);
+		SNPRINTF(SIZE(buf, sizeof(buf)), "audio-close=%d", rplay_audio_timeout);
+		strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
+		b->nbytes += strlen(buf);
+	    }
+	}
 	else
 	{
 	    SNPRINTF(SIZE(buf, sizeof(buf)), "%s=-1", name);
@@ -2128,9 +2139,7 @@ command_set(c, argc, argv)
     SNPRINTF(SIZE(buf, sizeof(buf)), "command=set client-data=\"%s\"\r\n",
 	     client_data);
     strncat(b->buf + b->nbytes, buf, BUFFER_SIZE - b->nbytes);
-    printf(buf);
     b->nbytes += strlen(buf);
-    printf(b->buf);
 
     e = event_create(EVENT_WRITE, b);
     event_insert(c, e);
