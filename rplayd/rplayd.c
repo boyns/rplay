@@ -1,4 +1,4 @@
-/* $Id: rplayd.c,v 1.5 1998/11/07 21:15:40 boyns Exp $ */
+/* $Id: rplayd.c,v 1.6 1998/11/10 15:28:36 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -152,7 +152,7 @@ int max_rplay_audio_bufsize = 0;
 int rplay_audio_left_level = 0;
 int rplay_audio_right_level = 0;
 
-static int rplay_audio_timeout = RPLAY_AUDIO_TIMEOUT;
+int rplay_audio_timeout = RPLAY_AUDIO_TIMEOUT;
 static int rplay_audio_flush_timeout = RPLAY_AUDIO_FLUSH_TIMEOUT;
 static int rplayd_timeout = RPLAYD_TIMEOUT;	/* seconds */
 static int sound_cleanup_timeout = 10;	/* seconds */
@@ -1908,7 +1908,12 @@ rplayd_status()
 	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " curr-bufsize=%d", curr_bufsize);
 #endif /* !HAVE_OSS */
 	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " curr-rate=%d", curr_rate);
-	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " priority-threshold=%d", rplay_priority_threshold);
+	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " priority-threshold=%d",
+		 rplay_priority_threshold);
+	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " audio-close=%d",
+		 rplay_audio_timeout);
+	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " audio-device-status=%s",
+		 rplay_audio_isopen() ? "open" : "close");
     }
 
     SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), "\r\n");
