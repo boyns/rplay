@@ -1,3 +1,7 @@
+1998-11-10  Mark R. Boyns  <boyns@doit.org>
+
+	* rptp/rptp.c: added set command.
+
 1998-11-06  Mark R. Boyns  <boyns@doit.org>
 
 	* rplayd: fixed SNPRINTF code and other potential buffer overflow

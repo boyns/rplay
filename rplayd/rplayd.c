@@ -1,4 +1,4 @@
-/* $Id: rplayd.c,v 1.6 1998/11/10 15:28:36 boyns Exp $ */
+/* $Id: rplayd.c,v 1.7 1998/11/10 15:29:55 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -1913,7 +1913,7 @@ rplayd_status()
 	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " audio-close=%d",
 		 rplay_audio_timeout);
 	SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), " audio-device-status=%s",
-		 rplay_audio_isopen() ? "open" : "close");
+		 rplay_audio_isopen() ? "open" : "closed");
     }
 
     SNPRINTF(SIZE(b->buf + strlen(b->buf), BUFFER_SIZE), "\r\n");
