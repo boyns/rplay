@@ -41,6 +41,7 @@ man:
 install: all
 	-$(MKINSTALLDIRS) $(mandir)/man1 $(mandir)/man5 $(mandir)/man8 $(infodir)
 	-$(INSTALL_DATA) rplay.1 $(mandir)/man1
+	-$(INSTALL_DATA) rplaydsp.1 $(mandir)/man1
 	-$(INSTALL_DATA) rplayd.8 $(mandir)/man8
 	-$(INSTALL_DATA) rptp.1 $(mandir)/man1
 	-$(INSTALL_DATA) rplay.conf.5 $(mandir)/man5
