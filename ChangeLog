@@ -1,3 +1,8 @@
+1998-11-06  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd: fixed SNPRINTF code and other potential buffer overflow
+ 	problems.
+
 1998-10-15  Mark R. Boyns  <boyns@doit.org>
 
 	* Version 3.3.1 released.
