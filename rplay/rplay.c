@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.8 1999/03/10 07:57:59 boyns Exp $ */
+/* $Id: rplay.c,v 1.9 2002/02/08 22:12:07 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -41,6 +41,11 @@
 #undef DEBUG
 
 #define OPTIONS "+spcN:P:h:rv:n:R:b:i:"
+
+/* Make sure MAXPATHLEN is defined. */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
+#endif
 
 struct option longopts[] =
 {
