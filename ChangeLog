@@ -1,3 +1,10 @@
+2000-05-03  lantz moore  <lmoore@contigo.com>
+
+	* /cvsroot/rplay/rplay/configure.in: conditionally create
+	gsm/Makefile and conditionally configure rx.
+	
+	* /cvsroot/rplay/rplay/configure: rebuilt.
+
 1999-03-21  Mark R. Boyns  <boyns@doit.org>
 
 	* fixed Makefile dependencies and shared library builds.
