@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.6 1998/11/10 15:27:35 boyns Exp $ */
+/* $Id: rplay.c,v 1.7 1999/03/06 20:32:42 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -686,7 +686,6 @@ play_with_play(rplay_fd, host, port, rp, index)
     for (;;)
     {
 	n = rptp_getline(rplay_fd, response, sizeof(response));
-	fprintf(stderr, response);
 	if (interrupted)
 	{
 	    break;
