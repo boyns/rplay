@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.7 2002/02/08 22:14:10 lmoore Exp $
+dnl $Id: configure.in,v 1.8 2002/12/05 18:48:58 boyns Exp $
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
@@ -272,7 +272,7 @@ if test $RPLAY_TARGET = "sgi"; then
 fi
 AC_SUBST(LIBS)
 
-BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc"
+BUILD_TARGETS="$BUILD_TARGETS librplay rplayd rplay rptp doc playsound"
 
 if test $RPLAY_TARGET = "oss" -o $RPLAY_TARGET = "gnu"; then
     BUILD_TARGETS="$BUILD_TARGETS devrplay"
@@ -280,4 +280,4 @@ fi
 
 AC_SUBST(BUILD_TARGETS)
 
-AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile)
+AC_OUTPUT(Makefile.config Makefile include/Makefile lib/Makefile adpcm/Makefile gsm/Makefile librplay/Makefile rplayd/Makefile rplay/Makefile rptp/Makefile doc/Makefile devrplay/Makefile playsound/Makefile)
