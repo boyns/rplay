@@ -1,3 +1,7 @@
+1998-07-14  Mark R. Boyns  <boyns@doit.org>
+
+	* rplayd/sound.c: improved header parsing.
+
 1998-06-29  Mark R. Boyns  <boyns@doit.org>
 
 	* Version 3.3.0 released.
