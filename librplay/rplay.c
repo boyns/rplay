@@ -1224,18 +1224,18 @@ rplay_open_sockaddr_in (saddr)
 	return -1;
     }
 
-    if (connect (rplay_fd, (struct sockaddr *) saddr, sizeof (*saddr)) < 0)
-    {
-	rplay_errno = RPLAY_ERROR_CONNECT;
-	return -1;
-    }
-
     /*
      * enable broadcasting
      */
     if (setsockopt (rplay_fd, SOL_SOCKET, SO_BROADCAST, (char *) &on, sizeof (on)) < 0)
     {
 	rplay_errno = RPLAY_ERROR_BROADCAST;
+	return -1;
+    }
+
+    if (connect (rplay_fd, (struct sockaddr *) saddr, sizeof (*saddr)) < 0)
+    {
+	rplay_errno = RPLAY_ERROR_CONNECT;
 	return -1;
     }
 
