@@ -1,4 +1,4 @@
-/* $Id: rplay.c,v 1.5 1998/11/07 21:15:39 boyns Exp $ */
+/* $Id: rplay.c,v 1.6 1998/11/10 15:27:35 boyns Exp $ */
 
 /*
  * Copyright (C) 1993-98 Mark R. Boyns <boyns@doit.org>
@@ -100,7 +100,6 @@ int interrupted = 0;
 int which_protocol = PROTOCOL_GUESS;
 int which_port = -1;
 int buffer_size = BUFFER_SIZE;
-int force_flow = 0;
 
 #ifdef __STDC__
 main(int argc, char **argv)
@@ -262,10 +261,6 @@ main(argc, argv)
 	    case 13:		/* --info-gsm */
 		/* GSM encoded u-law files */
 		sound_info = "gsm,8000";
-		break;
-
-	    case 14:		/* --flow */
-		force_flow++;
 		break;
 
 	    case 15:		/* --info-cd */
@@ -439,11 +434,6 @@ doit(hostp)
 	if (rplay_get(rp, RPLAY_COMMAND) != RPLAY_PLAY)
 	{
 	    protocol = PROTOCOL_RPLAY;
-	}
-	else if (force_flow)
-	{
-	    protocol = PROTOCOL_RPTP;
-	    play_table[0] = play_with_flow;
 	}
 	else if (strcmp((char *) rplay_get(rp, RPLAY_SOUND, 0), "-") == 0)
 	{
