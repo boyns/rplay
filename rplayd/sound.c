@@ -1,4 +1,4 @@
-/* $Id: sound.c,v 1.10 1999/06/09 06:27:44 boyns Exp $ */
+/* $Id: sound.c,v 1.11 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -64,6 +64,9 @@
 #ifdef HAVE_HELPERS
 #include "helper.h"
 #endif /* HAVE_HELPERS */
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#else
 #ifdef HAVE_RX_RXPOSIX_H
 #include <rx/rxposix.h>
 #else
@@ -72,6 +75,12 @@
 #else
 #include "rxposix.h"
 #endif
+#endif
+#endif
+
+/* Make sure MAXPATHLEN is defined. */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
 #endif
 
 SOUND *sounds = NULL;
@@ -143,9 +152,9 @@ bad_dirs_init()
 
     //memset ((char *) &bad_dirs, 0, sizeof (bad_dirs));
 
-    if (regncomp(&bad_dirs, buf, strlen(buf), REG_ICASE | REG_NOSUB))
+    if (regcomp(&bad_dirs, buf, REG_ICASE | REG_NOSUB))
     {
-	report(REPORT_ERROR, "bad_dirs: regncomp failed\n");
+	report(REPORT_ERROR, "bad_dirs: regcomp failed\n");
 	done(1);
     }
 
@@ -162,7 +171,7 @@ bad_dir(dir)
 #endif
 {
     /* return 1 if bad */
-    return regnexec(&bad_dirs, dir, strlen(dir), 0, 0, 0) ? 0 : 1;
+    return regexec(&bad_dirs, dir, 0, 0, 0) ? 0 : 1;
 }
 
 #endif /* BAD_DIRS */

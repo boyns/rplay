@@ -1,4 +1,4 @@
-/* $Id: timer.c,v 1.4 1999/03/10 07:58:04 boyns Exp $ */
+/* $Id: timer.c,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -29,6 +29,7 @@
 #include <sys/signal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 #include "rplayd.h"
 #include "timer.h"
 

@@ -1,4 +1,4 @@
-/* $Id: host.c,v 1.6 1999/06/09 06:27:44 boyns Exp $ */
+/* $Id: host.c,v 1.7 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -33,6 +33,9 @@
 #include "host.h"
 #include "buffer.h"
 #include "misc.h"
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#else
 #ifdef HAVE_RX_RXPOSIX_H
 #include <rx/rxposix.h>
 #else
@@ -40,6 +43,7 @@
 #include <rxposix.h>
 #else
 #include "rxposix.h"
+#endif
 #endif
 #endif
 
@@ -197,35 +201,31 @@ host_read(filename)
     }
     strcat(expr_monitor, "$");
 
-    error = regncomp(&access_read, expr_read, strlen(expr_read),
-		     REG_ICASE | REG_NOSUB);
+    error = regcomp(&access_read, expr_read, REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	report(REPORT_ERROR, "host_read: regcomp: %d\n", error);
 	done(1);
     }
 
-    error = regncomp(&access_write, expr_write, strlen(expr_write),
-		     REG_ICASE | REG_NOSUB);
+    error = regcomp(&access_write, expr_write, REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	report(REPORT_ERROR, "host_read: regcomp: %d\n", error);
 	done(1);
     }
 
-    error = regncomp(&access_execute, expr_execute, strlen(expr_execute),
-		     REG_ICASE | REG_NOSUB);
+    error = regcomp(&access_execute, expr_execute, REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	report(REPORT_ERROR, "host_read: regcomp: %d\n", error);
 	done(1);
     }
 
-    error = regncomp(&access_monitor, expr_monitor, strlen(expr_monitor),
-		     REG_ICASE | REG_NOSUB);
+    error = regcomp(&access_monitor, expr_monitor, REG_ICASE | REG_NOSUB);
     if (error)
     {
-	report(REPORT_ERROR, "host_read: regncomp: %d\n", error);
+	report(REPORT_ERROR, "host_read: regcomp: %d\n", error);
 	done(1);
     }
 }
@@ -432,7 +432,7 @@ host_access(sin, access_mode)
 	done(1);
     }
 
-    n = regnexec(re, p, strlen(p), 0, 0, 0);
+    n = regexec(re, p, 0, 0, 0);
 
     return !n;
 }

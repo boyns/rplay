@@ -1,4 +1,4 @@
-/* $Id: sound.h,v 1.4 1999/06/09 06:27:44 boyns Exp $ */
+/* $Id: sound.h,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -170,9 +170,9 @@ typedef struct _sindex
     int gsm_bit_frame_bytes;	/* Number of bytes in gsm_bit_frame */
     int gsm_fixed_buffer_size;
 #endif /* HAVE_GSM */
-#ifdef HAVE_CDROM
+#if defined(HAVE_CDROM) || defined(HAVE_HELPERS)
     int pid;
-#endif /* HAVE_CDROM */
+#endif /* HAVE_CDROM || HAVE_HELPERS */
 }
 SINDEX;
 

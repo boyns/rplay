@@ -25,7 +25,7 @@ CPPFLAGS = $(CC_OPTIONS) -I. -I../include -I${srcdir} -I${srcdir}/../include \
 		$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 LDFLAGS=	$(LD_OPTIONS) -L../librplay -lrplay -L../lib -lrp \
-		-L../adpcm -ladpcm @GSM_LIBS@ -L../rx -lrx @LDFLAGS@ @LIBS@ -lm
+		-L../adpcm -ladpcm @GSM_LIBS@ @RX_LIBS@ @LDFLAGS@ @LIBS@ -lm
 
 TARGET=		rplayd
 
@@ -54,7 +54,7 @@ $(TARGET):	$(OBJS) ../librplay/$(LIBRPLAY_NAME) ../lib/librp.a ../adpcm/libadpcm
 install:	all
 		$(MKINSTALLDIRS) $(sbindir)
 		$(INSTALL_PROGRAM) $(TARGET) $(sbindir)/$(TARGET)
-		@test -x $(bindir)/$(TARGET) && echo "" && echo "    Note: Consider removing $(bindir)/$(TARGET)" && echo ""
+		@(test -x $(bindir)/$(TARGET) && echo "" && echo "    Note: Consider removing $(bindir)/$(TARGET)" && echo "") || true
 
 uninstall:
 		$(RM) $(bindir)/$(TARGET)

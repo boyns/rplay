@@ -1,4 +1,4 @@
-/* $Id: spool.c,v 1.6 1999/03/10 21:14:38 boyns Exp $ */
+/* $Id: spool.c,v 1.7 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -41,6 +41,11 @@
 #include "native.h"
 #ifdef TEST_FLANGE
 #include "flange.h"
+#endif
+
+/* Make sure MAXPATHLEN is defined. */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
 #endif
 
 SPOOL *spool = NULL;		/* List of spool entries.  */
@@ -1127,8 +1132,8 @@ spool_update()
 				spool_flow_pause(sp);
 			    }
 			}
-#endif /* HAVE_CDROM */
 		    }
+#endif /* HAVE_CDROM */
 		}
 		else
 		{

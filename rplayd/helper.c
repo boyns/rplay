@@ -1,4 +1,4 @@
-/* $Id: helper.c,v 1.4 1999/03/10 07:58:03 boyns Exp $ */
+/* $Id: helper.c,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -42,6 +42,11 @@
 #include "rplayd.h"
 #include "helper.h"
 #include "misc.h"
+
+/* Make sure MAXPATHLEN is defined. */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
+#endif
 
 HELPER *helpers = NULL;
 static time_t helper_read_time;
@@ -110,7 +115,7 @@ helper_read(filename)
 	    done(1);
 	}
 	//memset ((char *) &hp->pattern, 0, sizeof (hp->pattern));
-	error = regncomp(&hp->pattern, pat, strlen(pat), REG_ICASE | REG_NOSUB);
+	error = regcomp(&hp->pattern, pat, REG_ICASE | REG_NOSUB);
 	if (error)
 	{
 	    report(REPORT_ERROR, "helper_read: %d line %d\n", error, line);
@@ -188,7 +193,7 @@ helper_lookup(sound)
 
     for (hp = helpers; hp; hp = hp->next)
     {
-	if (regnexec(&hp->pattern, sound, strlen(sound), 0, 0, 0) == 0)
+	if (regexec(&hp->pattern, sound, 0, 0, 0) == 0)
 	{
 	    return hp;
 	}

@@ -1,4 +1,4 @@
-/* $Id: helper.h,v 1.4 1999/06/09 06:27:44 boyns Exp $ */
+/* $Id: helper.h,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -26,6 +26,9 @@
 
 #ifdef HAVE_HELPERS
 
+#ifdef HAVE_REGEX_H
+#include <regex.h>
+#else
 #ifdef HAVE_RX_RXPOSIX_H
 #include <rx/rxposix.h>
 #else
@@ -33,6 +36,7 @@
 #include <rxposix.h>
 #else
 #include "rxposix.h"
+#endif
 #endif
 #endif
 

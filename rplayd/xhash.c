@@ -1,4 +1,4 @@
-/* $Id: xhash.c,v 1.4 1999/03/10 07:58:05 boyns Exp $ */
+/* $Id: xhash.c,v 1.5 2002/02/08 22:11:13 lmoore Exp $ */
 
 /*
  * Copyright (C) 1993-99 Mark R. Boyns <boyns@doit.org>
@@ -35,6 +35,11 @@
 #include "xhash.h"
 #include "hash.h"
 #include "rplayd.h"
+
+/* Make sure MAXPATHLEN is defined. */
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 4096
+#endif
 
 static struct hash_control *htable;
 
